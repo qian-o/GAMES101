@@ -1,5 +1,8 @@
-﻿namespace Maths;
+﻿using System.Runtime.InteropServices;
 
+namespace Maths;
+
+[StructLayout(LayoutKind.Sequential)]
 public struct Vector2D(double x, double y)
 {
     public double X = x;

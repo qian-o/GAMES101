@@ -1,5 +1,8 @@
-﻿namespace Maths;
+﻿using System.Runtime.InteropServices;
 
+namespace Maths;
+
+[StructLayout(LayoutKind.Sequential)]
 public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D row4)
 {
     public double M11 = row1.X;
@@ -33,6 +36,17 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
     public double M43 = row4.Z;
 
     public double M44 = row4.W;
+
+    public readonly unsafe double this[int row, int column]
+    {
+        get
+        {
+            fixed (double* ptr = &M11)
+            {
+                return *(ptr + (row * 4) + column);
+            }
+        }
+    }
 
     public readonly Vector4D Row1 => new(M11, M12, M13, M14);
 
@@ -95,6 +109,25 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
         return matrix * scalar;
     }
 
+    public static Vector3D operator *(Matrix4X4 matrix, Vector3D vector)
+    {
+        double x = Vector3D.Dot(new(matrix.M11, matrix.M12, matrix.M13), vector) + matrix.M14;
+        double y = Vector3D.Dot(new(matrix.M21, matrix.M22, matrix.M23), vector) + matrix.M24;
+        double z = Vector3D.Dot(new(matrix.M31, matrix.M32, matrix.M33), vector) + matrix.M34;
+
+        return new(x, y, z);
+    }
+
+    public static Vector4D operator *(Matrix4X4 matrix, Vector4D vector)
+    {
+        double x = Vector4D.Dot(matrix.Row1, vector);
+        double y = Vector4D.Dot(matrix.Row2, vector);
+        double z = Vector4D.Dot(matrix.Row3, vector);
+        double w = Vector4D.Dot(matrix.Row4, vector);
+
+        return new(x, y, z, w);
+    }
+
     public static Matrix4X4 operator /(Matrix4X4 matrix, double scalar)
     {
         Vector4D row1 = matrix.Row1 / scalar;
@@ -103,5 +136,44 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
         Vector4D row4 = matrix.Row4 / scalar;
 
         return new(row1, row2, row3, row4);
+    }
+
+    public static Matrix4X4 CreateRotationX(Angle angle)
+    {
+        double cos = Math.Cos(angle.Radians);
+        double sin = Math.Sin(angle.Radians);
+
+        return new(new(1, 0, 0, 0), new(0, cos, -sin, 0), new(0, sin, cos, 0), new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateRotationY(Angle angle)
+    {
+        double cos = Math.Cos(angle.Radians);
+        double sin = Math.Sin(angle.Radians);
+
+        return new(new(cos, 0, sin, 0), new(0, 1, 0, 0), new(-sin, 0, cos, 0), new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateRotationZ(Angle angle)
+    {
+        double cos = Math.Cos(angle.Radians);
+        double sin = Math.Sin(angle.Radians);
+
+        return new(new(cos, -sin, 0, 0), new(sin, cos, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateScale(double scale)
+    {
+        return new(new(scale, 0, 0, 0), new(0, scale, 0, 0), new(0, 0, scale, 0), new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateScale(Vector3D scale)
+    {
+        return new(new(scale.X, 0, 0, 0), new(0, scale.Y, 0, 0), new(0, 0, scale.Z, 0), new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateTranslation(Vector3D translation)
+    {
+        return new(new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), new(translation.X, translation.Y, translation.Z, 1));
     }
 }
