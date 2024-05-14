@@ -27,19 +27,29 @@ public struct Vector4D(double x, double y, double z, double w)
         return new(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W);
     }
 
-    public static Vector4D operator *(Vector4D a, double scalar)
+    public static Vector4D operator *(Vector4D vector, Matrix4X4 matrix)
     {
-        return new(a.X * scalar, a.Y * scalar, a.Z * scalar, a.W * scalar);
+        double x = Dot(vector, matrix.Row1);
+        double y = Dot(vector, matrix.Row2);
+        double z = Dot(vector, matrix.Row3);
+        double w = Dot(vector, matrix.Row4);
+
+        return new(x, y, z, w);
     }
 
-    public static Vector4D operator *(double scalar, Vector4D a)
+    public static Vector4D operator *(Vector4D vector, double scalar)
     {
-        return a * scalar;
+        return new(vector.X * scalar, vector.Y * scalar, vector.Z * scalar, vector.W * scalar);
     }
 
-    public static Vector4D operator /(Vector4D a, double scalar)
+    public static Vector4D operator *(double scalar, Vector4D vector)
     {
-        return new(a.X / scalar, a.Y / scalar, a.Z / scalar, a.W / scalar);
+        return vector * scalar;
+    }
+
+    public static Vector4D operator /(Vector4D vector, double scalar)
+    {
+        return new(vector.X / scalar, vector.Y / scalar, vector.Z / scalar, vector.W / scalar);
     }
 
     public static double Dot(Vector4D a, Vector4D b)
@@ -50,5 +60,10 @@ public struct Vector4D(double x, double y, double z, double w)
     public static Vector4D Normalize(Vector4D a)
     {
         return a / a.Length;
+    }
+
+    public override readonly string ToString()
+    {
+        return $"({X}, {Y}, {Z}, {W})";
     }
 }

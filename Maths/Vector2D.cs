@@ -23,19 +23,27 @@ public struct Vector2D(double x, double y)
         return new(a.X - b.X, a.Y - b.Y);
     }
 
+    public static Vector2D operator *(Vector2D vector, Matrix3X2 matrix)
+    {
+        double x = Dot(vector, new Vector2D(matrix.M11, matrix.M21)) + matrix.M31;
+        double y = Dot(vector, new Vector2D(matrix.M12, matrix.M22)) + matrix.M32;
+
+        return new(x, y);
+    }
+
     public static Vector2D operator *(Vector2D a, double scalar)
     {
         return new(a.X * scalar, a.Y * scalar);
     }
 
-    public static Vector2D operator *(double scalar, Vector2D a)
+    public static Vector2D operator *(double scalar, Vector2D vector)
     {
-        return a * scalar;
+        return vector * scalar;
     }
 
-    public static Vector2D operator /(Vector2D a, double scalar)
+    public static Vector2D operator /(Vector2D vector, double scalar)
     {
-        return new(a.X / scalar, a.Y / scalar);
+        return new(vector.X / scalar, vector.Y / scalar);
     }
 
     public static double Dot(Vector2D a, Vector2D b)
@@ -51,5 +59,10 @@ public struct Vector2D(double x, double y)
     public static Vector2D Normalize(Vector2D a)
     {
         return a / a.Length;
+    }
+
+    public override readonly string ToString()
+    {
+        return $"({X}, {Y})";
     }
 }

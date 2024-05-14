@@ -80,11 +80,6 @@ public struct Matrix3X2(Vector2D row1, Vector2D row2, Vector2D row3)
         return matrix * scalar;
     }
 
-    public static Vector2D operator *(Matrix3X2 matrix, Vector2D vector)
-    {
-        return new Vector2D(Vector2D.Dot(matrix.Row1, vector), Vector2D.Dot(matrix.Row2, vector)) + matrix.Row3;
-    }
-
     public static Matrix3X2 operator /(Matrix3X2 matrix, double scalar)
     {
         Vector2D row1 = matrix.Row1 / scalar;

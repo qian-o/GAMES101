@@ -109,25 +109,6 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
         return matrix * scalar;
     }
 
-    public static Vector3D operator *(Matrix4X4 matrix, Vector3D vector)
-    {
-        double x = Vector3D.Dot(new(matrix.M11, matrix.M12, matrix.M13), vector) + matrix.M14;
-        double y = Vector3D.Dot(new(matrix.M21, matrix.M22, matrix.M23), vector) + matrix.M24;
-        double z = Vector3D.Dot(new(matrix.M31, matrix.M32, matrix.M33), vector) + matrix.M34;
-
-        return new(x, y, z);
-    }
-
-    public static Vector4D operator *(Matrix4X4 matrix, Vector4D vector)
-    {
-        double x = Vector4D.Dot(matrix.Row1, vector);
-        double y = Vector4D.Dot(matrix.Row2, vector);
-        double z = Vector4D.Dot(matrix.Row3, vector);
-        double w = Vector4D.Dot(matrix.Row4, vector);
-
-        return new(x, y, z, w);
-    }
-
     public static Matrix4X4 operator /(Matrix4X4 matrix, double scalar)
     {
         Vector4D row1 = matrix.Row1 / scalar;
