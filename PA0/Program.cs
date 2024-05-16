@@ -30,8 +30,7 @@ internal class Program
             Matrix3x2 rotate = Matrix3x2.CreateRotation((float)Angle.FromDegrees(45).Radians);
             Matrix3x2 translate = Matrix3x2.CreateTranslation(new Vector2(1, 2));
 
-            p = Vector2.Transform(p, rotate);
-            p = Vector2.Transform(p, translate);
+            p = Vector2.Transform(p, rotate * translate);
 
             Console.WriteLine("System.Numerics: " + p);
         }
