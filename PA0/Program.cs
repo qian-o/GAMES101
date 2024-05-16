@@ -15,11 +15,10 @@ internal class Program
         {
             Vector2D p = new(2, 1);
 
-            Matrix3X2 rotate = Matrix3X2.CreateRotation(Angle.FromDegrees(45));
-            Matrix3X2 translate = Matrix3X2.CreateTranslation(new Vector2D(1, 2));
+            Matrix3X3 rotate = Matrix3X3.CreateRotation(Angle.FromDegrees(45));
+            Matrix3X3 translate = Matrix3X3.CreateTranslation(new Vector2D(1, 2));
 
-            p *= rotate;
-            p *= translate;
+            p = translate * rotate * p;
 
             Console.WriteLine("Maths: " + p);
         }

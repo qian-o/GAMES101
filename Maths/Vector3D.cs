@@ -3,7 +3,7 @@
 namespace Maths;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct Vector3D(double x, double y, double z)
+public struct Vector3D(double x, double y, double z) : IEquatable<Vector3D>
 {
     public double X = x;
 
@@ -15,23 +15,34 @@ public struct Vector3D(double x, double y, double z)
 
     public readonly double Length => Math.Sqrt(LengthSquared);
 
-    public static Vector3D operator +(Vector3D a, Vector3D b)
+    public readonly bool Equals(Vector3D other)
     {
-        return new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        return GetHashCode() == other.GetHashCode();
     }
 
-    public static Vector3D operator -(Vector3D a, Vector3D b)
+    public override readonly bool Equals(object? obj)
     {
-        return new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        return obj is Vector3D d && Equals(d);
     }
 
-    public static Vector3D operator *(Vector3D vector, Matrix4X4 matrix)
+    public override readonly int GetHashCode()
     {
-        double x = Dot(vector, new(matrix.M11, matrix.M12, matrix.M13)) + matrix.M14;
-        double y = Dot(vector, new(matrix.M21, matrix.M22, matrix.M23)) + matrix.M24;
-        double z = Dot(vector, new(matrix.M31, matrix.M32, matrix.M33)) + matrix.M34;
+        return HashCode.Combine(X, Y, Z);
+    }
 
-        return new(x, y, z);
+    public override readonly string ToString()
+    {
+        return $"({X}, {Y}, {Z})";
+    }
+
+    public static Vector3D operator +(Vector3D left, Vector3D right)
+    {
+        return new(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
+    }
+
+    public static Vector3D operator -(Vector3D left, Vector3D right)
+    {
+        return new(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
     }
 
     public static Vector3D operator *(Vector3D vector, double scalar)
@@ -39,14 +50,19 @@ public struct Vector3D(double x, double y, double z)
         return new(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
     }
 
-    public static Vector3D operator *(double scalar, Vector3D vector)
-    {
-        return vector * scalar;
-    }
-
     public static Vector3D operator /(Vector3D vector, double scalar)
     {
         return new(vector.X / scalar, vector.Y / scalar, vector.Z / scalar);
+    }
+
+    public static bool operator ==(Vector3D left, Vector3D right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Vector3D left, Vector3D right)
+    {
+        return !(left == right);
     }
 
     public static double Dot(Vector3D a, Vector3D b)
@@ -62,10 +78,5 @@ public struct Vector3D(double x, double y, double z)
     public static Vector3D Normalize(Vector3D a)
     {
         return a / a.Length;
-    }
-
-    public override readonly string ToString()
-    {
-        return $"({X}, {Y}, {Z})";
     }
 }
