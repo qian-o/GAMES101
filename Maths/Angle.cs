@@ -4,7 +4,11 @@ public struct Angle(double radians) : IEquatable<Angle>
 {
     public double Radians = radians;
 
-    public readonly double Degrees => Radians * 180 / Math.PI;
+    public double Degrees
+    {
+        readonly get => Radians * 180 / Math.PI;
+        set => Radians = value * Math.PI / 180;
+    }
 
     public readonly bool Equals(Angle other)
     {
@@ -63,6 +67,9 @@ public struct Angle(double radians) : IEquatable<Angle>
 
     public static Angle FromDegrees(double degrees)
     {
-        return new(degrees * Math.PI / 180);
+        Angle angle = default;
+        angle.Degrees = degrees;
+
+        return angle;
     }
 }
