@@ -190,4 +190,53 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
     {
         return !(left == right);
     }
+
+    public static Matrix4X4 CreateRotationX(Angle angle)
+    {
+        double cos = Math.Cos(angle.Radians);
+        double sin = Math.Sin(angle.Radians);
+
+        return new(new(1, 0, 0, 0),
+                   new(0, cos, -sin, 0),
+                   new(0, sin, cos, 0),
+                   new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateRotationY(Angle angle)
+    {
+        double cos = Math.Cos(angle.Radians);
+        double sin = Math.Sin(angle.Radians);
+
+        return new(new(cos, 0, sin, 0),
+                   new(0, 1, 0, 0),
+                   new(-sin, 0, cos, 0),
+                   new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateRotationZ(Angle angle)
+    {
+        double cos = Math.Cos(angle.Radians);
+        double sin = Math.Sin(angle.Radians);
+
+        return new(new(cos, -sin, 0, 0),
+                   new(sin, cos, 0, 0),
+                   new(0, 0, 1, 0),
+                   new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateScale(Vector3D scale)
+    {
+        return new(new(scale.X, 0, 0, 0),
+                   new(0, scale.Y, 0, 0),
+                   new(0, 0, scale.Z, 0),
+                   new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateTranslation(Vector3D translation)
+    {
+        return new(new(1, 0, 0, translation.X),
+                   new(0, 1, 0, translation.Y),
+                   new(0, 0, 1, translation.Z),
+                   new(0, 0, 0, 1));
+    }
 }
