@@ -151,6 +151,11 @@ public struct Matrix3X3(Vector3D row1, Vector3D row2, Vector3D row3) : IEquatabl
         return !(left == right);
     }
 
+    public static Matrix3X3 Transpose(Matrix3X3 matrix)
+    {
+        return new(matrix.Column1, matrix.Column2, matrix.Column3);
+    }
+
     public static Matrix3X3 CreateRotation(Angle angle)
     {
         double cos = Math.Cos(angle.Radians);

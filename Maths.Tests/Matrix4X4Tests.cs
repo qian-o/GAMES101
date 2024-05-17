@@ -144,4 +144,23 @@ public class Matrix4X4Tests
 
         TestsHelper.AssertEqual(point1, point2);
     }
+
+    [TestMethod]
+    public void GenerateLookAtMatrix()
+    {
+        Vector3D cameraPosition = new(10, 0, 10);
+        Vector3D cameraTarget = new(0, 0, 0);
+        Vector3D cameraUpVector = new(0, 1, 2);
+
+        Vector3D point1 = new(1, 1, 1);
+        Vector3 point2 = new(1, 1, 1);
+
+        Matrix4X4 matrix1 = Matrix4X4.CreateLookAt(cameraPosition, cameraTarget, cameraUpVector);
+        Matrix4x4 matrix2 = Matrix4x4.CreateLookAt(cameraPosition.ToSystem(), cameraTarget.ToSystem(), cameraUpVector.ToSystem());
+
+        point1 = matrix1 * point1;
+        point2 = Vector3.Transform(point2, matrix2);
+
+        TestsHelper.AssertEqual(point1, point2);
+    }
 }

@@ -38,6 +38,11 @@ public struct Vector2D(double x, double y) : IEquatable<Vector2D>
         return new(left.X + right.X, left.Y + right.Y);
     }
 
+    public static Vector2D operator -(Vector2D vector)
+    {
+        return new(-vector.X, -vector.Y);
+    }
+
     public static Vector2D operator -(Vector2D left, Vector2D right)
     {
         return new(left.X - right.X, left.Y - right.Y);

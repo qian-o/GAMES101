@@ -42,6 +42,11 @@ public struct Vector4D(double x, double y, double z, double w) : IEquatable<Vect
         return new(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
     }
 
+    public static Vector4D operator -(Vector4D vector)
+    {
+        return new(-vector.X, -vector.Y, -vector.Z, -vector.W);
+    }
+
     public static Vector4D operator -(Vector4D left, Vector4D right)
     {
         return new(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);

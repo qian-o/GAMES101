@@ -191,6 +191,11 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
         return !(left == right);
     }
 
+    public static Matrix4X4 Transpose(Matrix4X4 matrix)
+    {
+        return new(matrix.Column1, matrix.Column2, matrix.Column3, matrix.Column4);
+    }
+
     public static Matrix4X4 CreateRotationX(Angle angle)
     {
         double cos = Math.Cos(angle.Radians);
@@ -238,5 +243,23 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
                    new(0, 1, 0, translation.Y),
                    new(0, 0, 1, translation.Z),
                    new(0, 0, 0, 1));
+    }
+
+    public static Matrix4X4 CreateLookAt(Vector3D cameraPosition, Vector3D cameraTarget, Vector3D cameraUpVector)
+    {
+        Vector3D e = cameraPosition;
+        Vector3D zAxis = Vector3D.Normalize(cameraTarget - cameraPosition);
+        Vector3D xAxis = Vector3D.Normalize(Vector3D.Cross(zAxis, cameraUpVector));
+        Vector3D yAxis = Vector3D.Cross(xAxis, zAxis);
+
+        Matrix4X4 rViewInverse = new(new(xAxis.X, yAxis.X, -zAxis.X, 0),
+                                     new(xAxis.Y, yAxis.Y, -zAxis.Y, 0),
+                                     new(xAxis.Z, yAxis.Z, -zAxis.Z, 0),
+                                     new(0, 0, 0, 1));
+
+        Matrix4X4 tView = CreateTranslation(-e);
+        Matrix4X4 rView = Transpose(rViewInverse);
+
+        return rView * tView;
     }
 }

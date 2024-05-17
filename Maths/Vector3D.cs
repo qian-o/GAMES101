@@ -40,6 +40,10 @@ public struct Vector3D(double x, double y, double z) : IEquatable<Vector3D>
         return new(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
     }
 
+    public static Vector3D operator -(Vector3D vector)
+    {
+        return new(-vector.X, -vector.Y, -vector.Z);
+    }
     public static Vector3D operator -(Vector3D left, Vector3D right)
     {
         return new(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
