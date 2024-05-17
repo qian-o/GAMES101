@@ -16,4 +16,12 @@ public class TestsHelper
         Assert.AreEqual(expected.Y, actual.Y, delta);
         Assert.AreEqual(expected.Z, actual.Z, delta);
     }
+
+    public static void AssertEqual(Vector4D expected, Vector4 actual, double delta = 0.0001)
+    {
+        Assert.AreEqual(expected.X, actual.X, delta);
+        Assert.AreEqual(expected.Y, actual.Y, delta);
+        Assert.AreEqual(expected.Z, actual.Z, delta);
+        Assert.AreEqual(expected.W, actual.W, delta);
+    }
 }
