@@ -262,4 +262,25 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
 
         return rView * tView;
     }
+
+    public static Matrix4X4 CreateOrthographic(double width, double height, double zNearPlane, double zFarPlane)
+    {
+        return CreateOrthographicOffCenter(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, zNearPlane, zFarPlane);
+    }
+
+    public static Matrix4X4 CreateOrthographicOffCenter(double left, double right, double bottom, double top, double zNearPlane, double zFarPlane)
+    {
+        double xTranslation = (right + left) / 2.0;
+        double yTranslation = (top + bottom) / 2.0;
+        double zTranslation = (zNearPlane + zFarPlane) / 2.0;
+        
+        double xScale = 2.0 / (right - left);
+        double yScale = 2.0 / (top - bottom);
+        double zScale = 2.0 / (zNearPlane - zFarPlane);
+
+        Matrix4X4 t = CreateTranslation(new Vector3D(-xTranslation, -yTranslation, -zTranslation));
+        Matrix4X4 s = CreateScale(new Vector3D(xScale, yScale, zScale));
+
+        return s * t;
+    }
 }

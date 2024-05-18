@@ -1,36 +1,14 @@
-﻿using System.Numerics;
-
-namespace Maths;
+﻿namespace Maths;
 
 public static class MathsHelper
 {
-    public static Vector2 ToSystem(this Vector2D vector)
+    public static float Lerp(float a, float b, float t)
     {
-        return new((float)vector.X, (float)vector.Y);
+        return a + ((b - a) * t);
     }
 
-    public static Vector2D ToMaths(this Vector2 vector)
+    public static double Lerp(double a, double b, double t)
     {
-        return new(vector.X, vector.Y);
-    }
-
-    public static Vector3 ToSystem(this Vector3D vector)
-    {
-        return new((float)vector.X, (float)vector.Y, (float)vector.Z);
-    }
-
-    public static Vector3D ToMaths(this Vector3 vector)
-    {
-        return new(vector.X, vector.Y, vector.Z);
-    }
-
-    public static Vector4 ToSystem(this Vector4D vector)
-    {
-        return new((float)vector.X, (float)vector.Y, (float)vector.Z, (float)vector.W);
-    }
-
-    public static Vector4D ToMaths(this Vector4 vector)
-    {
-        return new(vector.X, vector.Y, vector.Z, vector.W);
+        return a + ((b - a) * t);
     }
 }

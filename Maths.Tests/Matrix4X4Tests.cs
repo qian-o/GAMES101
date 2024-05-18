@@ -149,7 +149,7 @@ public class Matrix4X4Tests
     public void GenerateLookAtMatrix()
     {
         Vector3D cameraPosition = new(10, 0, 10);
-        Vector3D cameraTarget = new(0, 0, 0);
+        Vector3D cameraTarget = new(0, 0, -10);
         Vector3D cameraUpVector = new(0, 1, 2);
 
         Vector3D point1 = new(1, 1, 1);
@@ -160,6 +160,27 @@ public class Matrix4X4Tests
 
         point1 = matrix1 * point1;
         point2 = Vector3.Transform(point2, matrix2);
+
+        TestsHelper.AssertEqual(point1, point2);
+    }
+
+    [TestMethod]
+    [DataRow(960, 8, 0, 100)]
+    [DataRow(-960, 8, 100, 0)]
+    [DataRow(540, 80, 50, 100)]
+    [DataRow(-540, 80, 100, 50)]
+    public void GenerateOrthographicMatrix(double point, double z, double near, double far)
+    {
+        Vector3D point1 = new(point, point, z);
+        Vector3 point2 = new((float)point, (float)point, (float)z - (float)near);
+
+        Matrix4X4 matrix1 = Matrix4X4.CreateOrthographic(1920, 1080, near, far);
+        Matrix4x4 matrix2 = Matrix4x4.CreateOrthographic(1920, 1080, (float)near - (float)near, (float)far - (float)near);
+
+        point1 = matrix1 * point1;
+        point2 = Vector3.Transform(point2, matrix2);
+
+        point2.Z = MathsHelper.Lerp(1, -1, -point2.Z);
 
         TestsHelper.AssertEqual(point1, point2);
     }
