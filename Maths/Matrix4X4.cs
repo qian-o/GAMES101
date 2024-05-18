@@ -273,7 +273,7 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
         double xTranslation = (right + left) / 2.0;
         double yTranslation = (top + bottom) / 2.0;
         double zTranslation = (zNearPlane + zFarPlane) / 2.0;
-        
+
         double xScale = 2.0 / (right - left);
         double yScale = 2.0 / (top - bottom);
         double zScale = 2.0 / (zNearPlane - zFarPlane);
@@ -282,5 +282,26 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
         Matrix4X4 s = CreateScale(new Vector3D(xScale, yScale, zScale));
 
         return s * t;
+    }
+
+    public static Matrix4X4 CreatePerspective(double width, double height, double nearPlaneDistance, double farPlaneDistance)
+    {
+        return CreatePerspectiveOffCenter(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, nearPlaneDistance, farPlaneDistance);
+    }
+
+    public static Matrix4X4 CreatePerspectiveOffCenter(double left, double right, double bottom, double top, double nearPlaneDistance, double farPlaneDistance)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(nearPlaneDistance, 0.0);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(farPlaneDistance, 0.0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(nearPlaneDistance, farPlaneDistance);
+
+        Matrix4X4 perspToOrtho = new(new Vector4D(nearPlaneDistance, 0, 0, 0),
+                                     new Vector4D(0, nearPlaneDistance, 0, 0),
+                                     new Vector4D(0, 0, nearPlaneDistance + farPlaneDistance, -nearPlaneDistance * farPlaneDistance),
+                                     new Vector4D(0, 0, 1, 0));
+
+        Matrix4X4 ortho = CreateOrthographicOffCenter(left, right, bottom, top, nearPlaneDistance, farPlaneDistance);
+
+        return ortho * perspToOrtho;
     }
 }
