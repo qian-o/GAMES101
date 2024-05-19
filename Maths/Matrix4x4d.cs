@@ -268,9 +268,9 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         Vector3d yAxis = Vector3d.Cross(xAxis, zAxis);
 
         Matrix4x4d rViewInverse = new(new(xAxis.X, yAxis.X, -zAxis.X, 0),
-                                     new(xAxis.Y, yAxis.Y, -zAxis.Y, 0),
-                                     new(xAxis.Z, yAxis.Z, -zAxis.Z, 0),
-                                     new(0, 0, 0, 1));
+                                      new(xAxis.Y, yAxis.Y, -zAxis.Y, 0),
+                                      new(xAxis.Z, yAxis.Z, -zAxis.Z, 0),
+                                      new(0, 0, 0, 1));
 
         Matrix4x4d tView = CreateTranslation(-e);
         Matrix4x4d rView = Transpose(rViewInverse);
@@ -324,14 +324,17 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(farPlaneDistance, 0.0);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(nearPlaneDistance, farPlaneDistance);
 
+        // https://games-cn.org/forums/topic/%e4%bd%9c%e4%b8%9a%e4%b8%89%e7%9a%84%e7%89%9b%e5%80%92%e8%bf%87%e6%9d%a5%e4%ba%86/
+        Matrix4x4d scale = CreateScale(new Vector3d(1, 1, -1));
+
         Matrix4x4d perspToOrtho = new(new Vector4d(nearPlaneDistance, 0, 0, 0),
-                                     new Vector4d(0, nearPlaneDistance, 0, 0),
-                                     new Vector4d(0, 0, nearPlaneDistance + farPlaneDistance, -nearPlaneDistance * farPlaneDistance),
-                                     new Vector4d(0, 0, 1, 0));
+                                      new Vector4d(0, nearPlaneDistance, 0, 0),
+                                      new Vector4d(0, 0, nearPlaneDistance + farPlaneDistance, -nearPlaneDistance * farPlaneDistance),
+                                      new Vector4d(0, 0, 1, 0));
 
         Matrix4x4d ortho = CreateOrthographicOffCenter(left, right, bottom, top, nearPlaneDistance, farPlaneDistance);
 
-        return ortho * perspToOrtho;
+        return ortho * perspToOrtho * scale;
     }
 
     public static Matrix4x4d CreateViewport(double x, double y, double width, double height, double minDepth, double maxDepth)
