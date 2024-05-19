@@ -179,4 +179,9 @@ public struct Matrix3x3d(Vector3d row1, Vector3d row2, Vector3d row3) : IEquatab
                    new(0, 1, translation.Y),
                    new(0, 0, 1));
     }
+
+    public static Matrix3x3d CreateRotation(Angle angle, Vector2d centerPoint)
+    {
+        return CreateTranslation(centerPoint) * CreateRotation(angle) * CreateTranslation(-centerPoint);
+    }
 }

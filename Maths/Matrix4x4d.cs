@@ -245,6 +245,21 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
                    new(0, 0, 0, 1));
     }
 
+    public static Matrix4x4d CreateRotationX(Angle angle, Vector3d centerPoint)
+    {
+        return CreateTranslation(centerPoint) * CreateRotationX(angle) * CreateTranslation(-centerPoint);
+    }
+
+    public static Matrix4x4d CreateRotationY(Angle angle, Vector3d centerPoint)
+    {
+        return CreateTranslation(centerPoint) * CreateRotationY(angle) * CreateTranslation(-centerPoint);
+    }
+
+    public static Matrix4x4d CreateRotationZ(Angle angle, Vector3d centerPoint)
+    {
+        return CreateTranslation(centerPoint) * CreateRotationZ(angle) * CreateTranslation(-centerPoint);
+    }
+
     public static Matrix4x4d CreateLookAt(Vector3d cameraPosition, Vector3d cameraTarget, Vector3d cameraUpVector)
     {
         Vector3d e = cameraPosition;

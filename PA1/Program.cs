@@ -38,10 +38,6 @@ internal unsafe class Program
 
     private static void WindowRenderer_Update(double delta)
     {
-        _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), (double)_windowRenderer.Width / _windowRenderer.Height, 0.1f, 100.0f);
-
-        _rasterizer.SetViewport(0, 0, _windowRenderer.Width, _windowRenderer.Height);
-
         if (_windowRenderer.Keyboard.IsKeyPressed(Key.A))
         {
             angle += 10;
@@ -53,6 +49,9 @@ internal unsafe class Program
         }
 
         _rasterizer.Model = Matrix4x4d.CreateRotationZ(Angle.FromDegrees(angle));
+        _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), (double)_windowRenderer.Width / _windowRenderer.Height, 0.1f, 100.0f);
+
+        _rasterizer.SetViewport(0, 0, _windowRenderer.Width, _windowRenderer.Height);
     }
 
     private static void WindowRenderer_Render(double delta)
