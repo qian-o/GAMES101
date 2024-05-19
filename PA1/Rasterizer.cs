@@ -160,13 +160,6 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
         double bcp = Vector2d.Cross(bc, bp);
         double cap = Vector2d.Cross(ca, cp);
 
-        if (CCW)
-        {
-            return abp >= 0 && bcp >= 0 && cap >= 0;
-        }
-        else
-        {
-            return abp <= 0 && bcp <= 0 && cap <= 0;
-        }
+        return CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
     }
 }
