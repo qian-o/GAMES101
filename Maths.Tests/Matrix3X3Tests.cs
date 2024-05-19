@@ -14,10 +14,10 @@ public class Matrix3X3Tests
     {
         Angle angle = Angle.FromDegrees(degrees);
 
-        Vector2D point1 = new(1, 1);
+        Vector2d point1 = new(1, 1);
         Vector2 point2 = new(1, 1);
 
-        Matrix3X3 matrix1 = Matrix3X3.CreateRotation(angle);
+        Matrix3x3d matrix1 = Matrix3x3d.CreateRotation(angle);
         Matrix3x2 matrix2 = Matrix3x2.CreateRotation((float)angle.Radians);
 
         point1 = matrix1 * point1;
@@ -36,10 +36,10 @@ public class Matrix3X3Tests
     [DataRow(-1, -1)]
     public void GenerateScaleMatrix(double x, double y)
     {
-        Vector2D point1 = new(1, 1);
+        Vector2d point1 = new(1, 1);
         Vector2 point2 = new(1, 1);
 
-        Matrix3X3 matrix1 = Matrix3X3.CreateScale(new Vector2D(x, y));
+        Matrix3x3d matrix1 = Matrix3x3d.CreateScale(new Vector2d(x, y));
         Matrix3x2 matrix2 = Matrix3x2.CreateScale(new Vector2((float)x, (float)y));
 
         point1 = matrix1 * point1;
@@ -58,10 +58,10 @@ public class Matrix3X3Tests
     [DataRow(-1, -1)]
     public void GenerateTranslationMatrix(double x, double y)
     {
-        Vector2D point1 = new(1, 1);
+        Vector2d point1 = new(1, 1);
         Vector2 point2 = new(1, 1);
 
-        Matrix3X3 matrix1 = Matrix3X3.CreateTranslation(new Vector2D(x, y));
+        Matrix3x3d matrix1 = Matrix3x3d.CreateTranslation(new Vector2d(x, y));
         Matrix3x2 matrix2 = Matrix3x2.CreateTranslation(new Vector2((float)x, (float)y));
 
         point1 = matrix1 * point1;
@@ -82,12 +82,12 @@ public class Matrix3X3Tests
     {
         Angle angle = Angle.FromDegrees(degrees);
 
-        Vector2D point1 = new(1, 1);
+        Vector2d point1 = new(1, 1);
         Vector2 point2 = new(1, 1);
 
-        Matrix3X3 r1 = Matrix3X3.CreateRotation(angle);
-        Matrix3X3 s1 = Matrix3X3.CreateScale(new Vector2D(x, y));
-        Matrix3X3 t1 = Matrix3X3.CreateTranslation(new Vector2D(x, y));
+        Matrix3x3d r1 = Matrix3x3d.CreateRotation(angle);
+        Matrix3x3d s1 = Matrix3x3d.CreateScale(new Vector2d(x, y));
+        Matrix3x3d t1 = Matrix3x3d.CreateTranslation(new Vector2d(x, y));
         Matrix3x2 r2 = Matrix3x2.CreateRotation((float)angle.Radians);
         Matrix3x2 s2 = Matrix3x2.CreateScale(new Vector2((float)x, (float)y));
         Matrix3x2 t2 = Matrix3x2.CreateTranslation(new Vector2((float)x, (float)y));

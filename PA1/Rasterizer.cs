@@ -12,18 +12,18 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
     private int y;
     private int width;
     private int height;
-    private Matrix4X4 viewport;
+    private Matrix4x4d viewport;
     private Point[]? points;
     private Triangle[]? triangles;
-    private Matrix4X4 transform;
+    private Matrix4x4d transform;
 
     public bool FlipY { get; set; } = true;
 
-    public Matrix4X4 Model { get; set; }
+    public Matrix4x4d Model { get; set; }
 
-    public Matrix4X4 View { get; set; }
+    public Matrix4x4d View { get; set; }
 
-    public Matrix4X4 Projection { get; set; }
+    public Matrix4x4d Projection { get; set; }
 
     public void SetTriangles(Triangle[] triangles)
     {
@@ -49,7 +49,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             this.width = width;
             this.height = height;
 
-            viewport = Matrix4X4.CreateViewport(x, y, width, height, 0, 1);
+            viewport = Matrix4x4d.CreateViewport(x, y, width, height, 0, 1);
             points = new Point[(width - x) * (height - y)];
         }
     }
@@ -100,23 +100,23 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
 
     private bool IsPointInTriangle(Triangle triangle, int x, int y)
     {
-        Vector2D center = new(x + 0.5, y + 0.5);
+        Vector2d center = new(x + 0.5, y + 0.5);
 
-        Vector2D a = (transform * triangle.A.Position).XY();
-        Vector2D b = (transform * triangle.B.Position).XY();
-        Vector2D c = (transform * triangle.C.Position).XY();
+        Vector2d a = (transform * triangle.A.Position).XY();
+        Vector2d b = (transform * triangle.B.Position).XY();
+        Vector2d c = (transform * triangle.C.Position).XY();
 
-        Vector2D ab = b - a;
-        Vector2D bc = c - b;
-        Vector2D ca = a - c;
+        Vector2d ab = b - a;
+        Vector2d bc = c - b;
+        Vector2d ca = a - c;
 
-        Vector2D ap = center - a;
-        Vector2D bp = center - b;
-        Vector2D cp = center - c;
+        Vector2d ap = center - a;
+        Vector2d bp = center - b;
+        Vector2d cp = center - c;
 
-        double abp = Vector2D.Cross(ab, ap);
-        double bcp = Vector2D.Cross(bc, bp);
-        double cap = Vector2D.Cross(ca, cp);
+        double abp = Vector2d.Cross(ab, ap);
+        double bcp = Vector2d.Cross(bc, bp);
+        double cap = Vector2d.Cross(ca, cp);
 
         return abp >= 0 && bcp >= 0 && cap >= 0;
     }

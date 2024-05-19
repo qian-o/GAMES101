@@ -2,13 +2,13 @@
 
 namespace PA1;
 
-public struct Vertex(Vector3D position, Vector3D color = default, Vector2D texCoord = default, Vector3D normal = default)
+public struct Vertex(Vector3d position, Vector3d color = default, Vector2d texCoord = default, Vector3d normal = default)
 {
-    public Vector3D Position = position;
+    public Vector3d Position = position;
 
-    public Vector3D Color = color;
+    public Vector3d Color = color;
 
-    public Vector2D TexCoord = texCoord;
+    public Vector2d TexCoord = texCoord;
 
-    public Vector3D Normal = normal;
+    public Vector3d Normal = normal;
 }

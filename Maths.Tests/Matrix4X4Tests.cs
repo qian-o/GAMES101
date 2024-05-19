@@ -14,10 +14,10 @@ public class Matrix4X4Tests
     {
         Angle angle = Angle.FromDegrees(degrees);
 
-        Vector3D point1 = new(1, 1, 1);
+        Vector3d point1 = new(1, 1, 1);
         Vector3 point2 = new(1, 1, 1);
 
-        Matrix4X4 matrix1 = Matrix4X4.CreateRotationX(angle);
+        Matrix4x4d matrix1 = Matrix4x4d.CreateRotationX(angle);
         Matrix4x4 matrix2 = Matrix4x4.CreateRotationX((float)angle.Radians);
 
         point1 = matrix1 * point1;
@@ -35,10 +35,10 @@ public class Matrix4X4Tests
     {
         Angle angle = Angle.FromDegrees(degrees);
 
-        Vector3D point1 = new(1, 1, 1);
+        Vector3d point1 = new(1, 1, 1);
         Vector3 point2 = new(1, 1, 1);
 
-        Matrix4X4 matrix1 = Matrix4X4.CreateRotationY(angle);
+        Matrix4x4d matrix1 = Matrix4x4d.CreateRotationY(angle);
         Matrix4x4 matrix2 = Matrix4x4.CreateRotationY((float)angle.Radians);
 
         point1 = matrix1 * point1;
@@ -56,10 +56,10 @@ public class Matrix4X4Tests
     {
         Angle angle = Angle.FromDegrees(degrees);
 
-        Vector3D point1 = new(1, 1, 1);
+        Vector3d point1 = new(1, 1, 1);
         Vector3 point2 = new(1, 1, 1);
 
-        Matrix4X4 matrix1 = Matrix4X4.CreateRotationZ(angle);
+        Matrix4x4d matrix1 = Matrix4x4d.CreateRotationZ(angle);
         Matrix4x4 matrix2 = Matrix4x4.CreateRotationZ((float)angle.Radians);
 
         point1 = matrix1 * point1;
@@ -78,10 +78,10 @@ public class Matrix4X4Tests
     [DataRow(-1, -1, -1)]
     public void GenerateScaleMatrix(double x, double y, double z)
     {
-        Vector3D point1 = new(1, 1, 1);
+        Vector3d point1 = new(1, 1, 1);
         Vector3 point2 = new(1, 1, 1);
 
-        Matrix4X4 matrix1 = Matrix4X4.CreateScale(new Vector3D(x, y, z));
+        Matrix4x4d matrix1 = Matrix4x4d.CreateScale(new Vector3d(x, y, z));
         Matrix4x4 matrix2 = Matrix4x4.CreateScale(new Vector3((float)x, (float)y, (float)z));
 
         point1 = matrix1 * point1;
@@ -100,10 +100,10 @@ public class Matrix4X4Tests
     [DataRow(-1, -1, -1)]
     public void GenerateTranslationMatrix(double x, double y, double z)
     {
-        Vector3D point1 = new(1, 1, 1);
+        Vector3d point1 = new(1, 1, 1);
         Vector3 point2 = new(1, 1, 1);
 
-        Matrix4X4 matrix1 = Matrix4X4.CreateTranslation(new Vector3D(x, y, z));
+        Matrix4x4d matrix1 = Matrix4x4d.CreateTranslation(new Vector3d(x, y, z));
         Matrix4x4 matrix2 = Matrix4x4.CreateTranslation(new Vector3((float)x, (float)y, (float)z));
 
         point1 = matrix1 * point1;
@@ -124,14 +124,14 @@ public class Matrix4X4Tests
     {
         Angle angle = Angle.FromDegrees(degrees);
 
-        Vector3D point1 = new(1, 1, 1);
+        Vector3d point1 = new(1, 1, 1);
         Vector3 point2 = new(1, 1, 1);
 
-        Matrix4X4 rx1 = Matrix4X4.CreateRotationX(angle);
-        Matrix4X4 ry1 = Matrix4X4.CreateRotationY(angle);
-        Matrix4X4 rz1 = Matrix4X4.CreateRotationZ(angle);
-        Matrix4X4 s1 = Matrix4X4.CreateScale(new Vector3D(x, y, z));
-        Matrix4X4 t1 = Matrix4X4.CreateTranslation(new Vector3D(x, y, z));
+        Matrix4x4d rx1 = Matrix4x4d.CreateRotationX(angle);
+        Matrix4x4d ry1 = Matrix4x4d.CreateRotationY(angle);
+        Matrix4x4d rz1 = Matrix4x4d.CreateRotationZ(angle);
+        Matrix4x4d s1 = Matrix4x4d.CreateScale(new Vector3d(x, y, z));
+        Matrix4x4d t1 = Matrix4x4d.CreateTranslation(new Vector3d(x, y, z));
 
         Matrix4x4 rx2 = Matrix4x4.CreateRotationX((float)angle.Radians);
         Matrix4x4 ry2 = Matrix4x4.CreateRotationY((float)angle.Radians);

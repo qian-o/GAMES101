@@ -3,7 +3,7 @@
 namespace Maths;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct Vector4D(double x, double y, double z, double w) : IEquatable<Vector4D>
+public struct Vector4d(double x, double y, double z, double w) : IEquatable<Vector4d>
 {
     public double X = x;
 
@@ -13,11 +13,11 @@ public struct Vector4D(double x, double y, double z, double w) : IEquatable<Vect
 
     public double W = w;
 
-    public Vector4D(Vector2D vector, double z, double w) : this(vector.X, vector.Y, z, w)
+    public Vector4d(Vector2d vector, double z, double w) : this(vector.X, vector.Y, z, w)
     {
     }
 
-    public Vector4D(Vector3D vector, double w) : this(vector.X, vector.Y, vector.Z, w)
+    public Vector4d(Vector3d vector, double w) : this(vector.X, vector.Y, vector.Z, w)
     {
     }
 
@@ -25,14 +25,14 @@ public struct Vector4D(double x, double y, double z, double w) : IEquatable<Vect
 
     public readonly double Length => Math.Sqrt(LengthSquared);
 
-    public readonly bool Equals(Vector4D other)
+    public readonly bool Equals(Vector4d other)
     {
         return GetHashCode() == other.GetHashCode();
     }
 
     public override readonly bool Equals(object? obj)
     {
-        return obj is Vector4D d && Equals(d);
+        return obj is Vector4d d && Equals(d);
     }
 
     public override readonly int GetHashCode()
@@ -45,47 +45,47 @@ public struct Vector4D(double x, double y, double z, double w) : IEquatable<Vect
         return $"({X}, {Y}, {Z}, {W})";
     }
 
-    public static Vector4D operator +(Vector4D left, Vector4D right)
+    public static Vector4d operator +(Vector4d left, Vector4d right)
     {
         return new(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
     }
 
-    public static Vector4D operator -(Vector4D vector)
+    public static Vector4d operator -(Vector4d vector)
     {
         return new(-vector.X, -vector.Y, -vector.Z, -vector.W);
     }
 
-    public static Vector4D operator -(Vector4D left, Vector4D right)
+    public static Vector4d operator -(Vector4d left, Vector4d right)
     {
         return new(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
     }
 
-    public static Vector4D operator *(Vector4D vector, double scalar)
+    public static Vector4d operator *(Vector4d vector, double scalar)
     {
         return new(vector.X * scalar, vector.Y * scalar, vector.Z * scalar, vector.W * scalar);
     }
 
-    public static Vector4D operator /(Vector4D vector, double scalar)
+    public static Vector4d operator /(Vector4d vector, double scalar)
     {
         return new(vector.X / scalar, vector.Y / scalar, vector.Z / scalar, vector.W / scalar);
     }
 
-    public static bool operator ==(Vector4D left, Vector4D right)
+    public static bool operator ==(Vector4d left, Vector4d right)
     {
         return left.Equals(right);
     }
 
-    public static bool operator !=(Vector4D left, Vector4D right)
+    public static bool operator !=(Vector4d left, Vector4d right)
     {
         return !(left == right);
     }
 
-    public static double Dot(Vector4D a, Vector4D b)
+    public static double Dot(Vector4d a, Vector4d b)
     {
         return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z) + (a.W * b.W);
     }
 
-    public static Vector4D Normalize(Vector4D a)
+    public static Vector4d Normalize(Vector4d a)
     {
         return a / a.Length;
     }

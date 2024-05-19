@@ -4,20 +4,20 @@ namespace Maths.Tests;
 
 public class TestsHelper
 {
-    public static void AssertEqual(Vector2D expected, Vector2 actual, double delta = 0.0001)
+    public static void AssertEqual(Vector2d expected, Vector2 actual, double delta = 0.0001)
     {
         Assert.AreEqual(expected.X, actual.X, delta);
         Assert.AreEqual(expected.Y, actual.Y, delta);
     }
 
-    public static void AssertEqual(Vector3D expected, Vector3 actual, double delta = 0.0001)
+    public static void AssertEqual(Vector3d expected, Vector3 actual, double delta = 0.0001)
     {
         Assert.AreEqual(expected.X, actual.X, delta);
         Assert.AreEqual(expected.Y, actual.Y, delta);
         Assert.AreEqual(expected.Z, actual.Z, delta);
     }
 
-    public static void AssertEqual(Vector4D expected, Vector4 actual, double delta = 0.0001)
+    public static void AssertEqual(Vector4d expected, Vector4 actual, double delta = 0.0001)
     {
         Assert.AreEqual(expected.X, actual.X, delta);
         Assert.AreEqual(expected.Y, actual.Y, delta);
@@ -25,7 +25,7 @@ public class TestsHelper
         Assert.AreEqual(expected.W, actual.W, delta);
     }
 
-    public static void AssertEqual(Matrix3X3 expected, Matrix3X3 actual, double delta = 0.0001)
+    public static void AssertEqual(Matrix3x3d expected, Matrix3x3d actual, double delta = 0.0001)
     {
         for (int i = 0; i < 3; i++)
         {
@@ -36,7 +36,7 @@ public class TestsHelper
         }
     }
 
-    public static void AssertEqual(Matrix4X4 expected, Matrix4X4 actual, double delta = 0.0001)
+    public static void AssertEqual(Matrix4x4d expected, Matrix4x4d actual, double delta = 0.0001)
     {
         for (int i = 0; i < 4; i++)
         {
