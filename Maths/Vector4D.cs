@@ -13,6 +13,14 @@ public struct Vector4D(double x, double y, double z, double w) : IEquatable<Vect
 
     public double W = w;
 
+    public Vector4D(Vector2D vector, double z, double w) : this(vector.X, vector.Y, z, w)
+    {
+    }
+
+    public Vector4D(Vector3D vector, double w) : this(vector.X, vector.Y, vector.Z, w)
+    {
+    }
+
     public readonly double LengthSquared => X * X + Y * Y + Z * Z + W * W;
 
     public readonly double Length => Math.Sqrt(LengthSquared);

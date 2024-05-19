@@ -4,6 +4,16 @@ namespace Maths;
 
 public static class MathsExtensions
 {
+    public static Vector2D XY(this Vector3D vector)
+    {
+        return new(vector.X, vector.Y);
+    }
+
+    public static Vector4D XYZW(this Vector2D vector, double z = 0, double w = 1)
+    {
+        return new(vector.X, vector.Y, z, w);
+    }
+
     public static Vector2 ToSystem(this Vector2D vector)
     {
         return new((float)vector.X, (float)vector.Y);

@@ -11,6 +11,10 @@ public struct Vector3D(double x, double y, double z) : IEquatable<Vector3D>
 
     public double Z = z;
 
+    public Vector3D(Vector2D vector, double z) : this(vector.X, vector.Y, z)
+    {
+    }
+
     public readonly double LengthSquared => X * X + Y * Y + Z * Z;
 
     public readonly double Length => Math.Sqrt(LengthSquared);

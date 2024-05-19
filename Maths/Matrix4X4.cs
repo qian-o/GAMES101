@@ -289,6 +289,20 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
         return CreatePerspectiveOffCenter(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, nearPlaneDistance, farPlaneDistance);
     }
 
+    public static Matrix4X4 CreatePerspectiveFieldOfView(Angle fieldOfView, double aspectRatio, double nearPlaneDistance, double farPlaneDistance)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(fieldOfView.Radians, 0.0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(fieldOfView.Radians, Math.PI);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(aspectRatio, 0.0);
+
+        double top = nearPlaneDistance * Math.Tan(fieldOfView.Radians / 2.0);
+        double right = top * aspectRatio;
+        double bottom = -top;
+        double left = -right;
+
+        return CreatePerspectiveOffCenter(left, right, bottom, top, nearPlaneDistance, farPlaneDistance);
+    }
+
     public static Matrix4X4 CreatePerspectiveOffCenter(double left, double right, double bottom, double top, double nearPlaneDistance, double farPlaneDistance)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(nearPlaneDistance, 0.0);
@@ -303,5 +317,13 @@ public struct Matrix4X4(Vector4D row1, Vector4D row2, Vector4D row3, Vector4D ro
         Matrix4X4 ortho = CreateOrthographicOffCenter(left, right, bottom, top, nearPlaneDistance, farPlaneDistance);
 
         return ortho * perspToOrtho;
+    }
+
+    public static Matrix4X4 CreateViewport(double x, double y, double width, double height, double minDepth, double maxDepth)
+    {
+        return new(new(width / 2.0, 0, 0, x + (width / 2.0)),
+                   new(0, height / 2.0, 0, y + (height / 2.0)),
+                   new(0, 0, maxDepth - minDepth, minDepth),
+                   new(0, 0, 0, 1));
     }
 }
