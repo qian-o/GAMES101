@@ -7,6 +7,8 @@ internal unsafe class Program
 {
     private static WindowRenderer _windowRenderer = null!;
     private static Rasterizer _rasterizer = null!;
+    private static int vbo = 0;
+    private static int ibo = 0;
     private static double angle;
 
     private static void Main(string[] _)
@@ -33,7 +35,8 @@ internal unsafe class Program
         Vertex b = new(new(0.0, 2.0, -2.0));
         Vertex c = new(new(-2.0, -0.0, -2.0));
 
-        _rasterizer.SetTriangles([new(a, b, c)]);
+        vbo = _rasterizer.CreateVertexBuffer([a, b, c]);
+        ibo = _rasterizer.CreateIndexBuffer([0, 1, 2]);
     }
 
     private static void WindowRenderer_Update(double delta)
@@ -56,6 +59,7 @@ internal unsafe class Program
 
     private static void WindowRenderer_Render(double delta)
     {
-        _rasterizer.Render();
+        _rasterizer.Clear();
+        _rasterizer.Render(vbo, ibo);
     }
 }

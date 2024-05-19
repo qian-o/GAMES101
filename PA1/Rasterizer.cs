@@ -7,17 +7,20 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
 {
     private readonly Sdl _sdl = windowRenderer.Sdl;
     private readonly Renderer* _renderer = windowRenderer.Renderer;
+    private readonly Dictionary<int, Vertex[]> bufferVertexes = [];
+    private readonly Dictionary<int, int[]> bufferIndices = [];
 
     private int x;
     private int y;
     private int width;
     private int height;
     private Matrix4x4d viewport;
-    private Point[]? points;
-    private Triangle[]? triangles;
+    private Point[]? frameBuffer;
     private Matrix4x4d transform;
 
     public bool FlipY { get; set; } = true;
+
+    public bool CCW { get; set; } = true;
 
     public Matrix4x4d Model { get; set; }
 
@@ -25,9 +28,20 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
 
     public Matrix4x4d Projection { get; set; }
 
-    public void SetTriangles(Triangle[] triangles)
+    public int CreateVertexBuffer(Vertex[] vertexes)
     {
-        this.triangles = triangles;
+        int id = bufferVertexes.Count;
+        bufferVertexes.Add(id, vertexes);
+
+        return id;
+    }
+
+    public int CreateIndexBuffer(int[] indices)
+    {
+        int id = bufferIndices.Count;
+        bufferIndices.Add(id, indices);
+
+        return id;
     }
 
     public void SetViewport(int x, int y, int width, int height)
@@ -50,18 +64,46 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             this.height = height;
 
             viewport = Matrix4x4d.CreateViewport(x, y, width, height, 0, 1);
-            points = new Point[(width - x) * (height - y)];
+            frameBuffer = new Point[(width - x) * (height - y)];
         }
     }
 
-    public void Render()
+    public void Clear()
     {
-        if (points is null || triangles is null)
+        if (frameBuffer is null)
         {
             return;
         }
 
-        Array.Fill(points, new Point(-1, -1));
+        Array.Fill(frameBuffer, new Point(-1, -1));
+    }
+
+    public void Render(int vertexBufferId, int indexBufferId)
+    {
+        if (frameBuffer is null
+            || !bufferVertexes.TryGetValue(vertexBufferId, out Vertex[]? vertexes)
+            || !bufferIndices.TryGetValue(indexBufferId, out int[]? indices))
+        {
+            return;
+        }
+
+        Triangle[] triangles = new Triangle[indices.Length / 3];
+
+        for (int i = 0; i < indices.Length; i += 3)
+        {
+            Vertex a = vertexes[indices[i]];
+            Vertex b = vertexes[indices[i + 1]];
+            Vertex c = vertexes[indices[i + 2]];
+
+            if (CCW)
+            {
+                triangles[i / 3] = new Triangle(a, b, c);
+            }
+            else
+            {
+                triangles[i / 3] = new Triangle(c, b, a);
+            }
+        }
 
         transform = viewport * Projection * View * Model;
 
@@ -87,7 +129,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
                             indexY = height - j - 1;
                         }
 
-                        points[index] = new Point(indexX, indexY);
+                        frameBuffer[index] = new Point(indexX, indexY);
 
                         break;
                     }
@@ -95,7 +137,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             }
         });
 
-        _sdl.RenderDrawPoints(_renderer, points, points.Length);
+        _sdl.RenderDrawPoints(_renderer, frameBuffer, frameBuffer.Length);
     }
 
     private bool IsPointInTriangle(Triangle triangle, int x, int y)
@@ -118,6 +160,13 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
         double bcp = Vector2d.Cross(bc, bp);
         double cap = Vector2d.Cross(ca, cp);
 
-        return abp >= 0 && bcp >= 0 && cap >= 0;
+        if (CCW)
+        {
+            return abp >= 0 && bcp >= 0 && cap >= 0;
+        }
+        else
+        {
+            return abp <= 0 && bcp <= 0 && cap <= 0;
+        }
     }
 }
