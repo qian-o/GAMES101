@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 
-namespace PA1;
+namespace PA;
 
 public readonly unsafe struct FixedArray<T> : IDisposable where T : unmanaged
 {

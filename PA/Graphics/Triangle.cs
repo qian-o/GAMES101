@@ -1,4 +1,4 @@
-﻿namespace PA1;
+﻿namespace PA.Graphics;
 
 public struct Triangle(Vertex a, Vertex b, Vertex c)
 {

@@ -1,4 +1,5 @@
 ﻿using Maths;
+using PA.Graphics;
 using Silk.NET.Input;
 
 namespace PA1;

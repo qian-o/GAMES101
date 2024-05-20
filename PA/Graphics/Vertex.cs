@@ -1,6 +1,6 @@
 ﻿using Maths;
 
-namespace PA1;
+namespace PA.Graphics;
 
 public struct Vertex(Vector3d position, Vector3d color = default, Vector2d texCoord = default, Vector3d normal = default)
 {

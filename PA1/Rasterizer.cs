@@ -1,6 +1,8 @@
 ﻿using Maths;
+using PA.Graphics;
 using Silk.NET.Maths;
 using Silk.NET.SDL;
+using Vertex = PA.Graphics.Vertex;
 
 namespace PA1;
 

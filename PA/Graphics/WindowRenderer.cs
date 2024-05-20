@@ -4,7 +4,7 @@ using Silk.NET.Windowing;
 using SDLWindow = Silk.NET.SDL.Window;
 using SilkWindow = Silk.NET.Windowing.Window;
 
-namespace PA1;
+namespace PA.Graphics;
 
 public unsafe class WindowRenderer : IDisposable
 {

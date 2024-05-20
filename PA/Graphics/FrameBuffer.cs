@@ -1,7 +1,7 @@
 ﻿using Silk.NET.Maths;
 using Silk.NET.SDL;
 
-namespace PA1;
+namespace PA.Graphics;
 
 public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int height) : IDisposable
 {
@@ -18,8 +18,8 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
 
     public Vector3D<byte> this[int x, int y]
     {
-        get => Rgb24(_pixels[(y * Width) + x]);
-        set => _pixels[(y * Width) + x] = Abgr32(value);
+        get => Rgb24(_pixels[y * Width + x]);
+        set => _pixels[y * Width + x] = Abgr32(value);
     }
 
     public void Clear(Vector3D<byte> color)
