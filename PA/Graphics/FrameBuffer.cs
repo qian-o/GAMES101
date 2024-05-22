@@ -9,6 +9,8 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
     private readonly Renderer* _renderer = renderer;
     private readonly Texture* _texture = sdl.CreateTexture(renderer, (int)PixelFormatEnum.Abgr32, (int)TextureAccess.Streaming, width, height);
     private readonly FixedArray<Vector4D<byte>> _pixels = new(width * height);
+    private readonly FixedArray<double> _depths = new(width * height);
+    private readonly object _lock = new();
 
     public int Width { get; } = width;
 
@@ -16,15 +18,36 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
 
     public int Pitch { get; } = width * sizeof(Vector4D<byte>);
 
-    public Color this[int x, int y]
-    {
-        get => AbgrToRgba(_pixels[y * Width + x]);
-        set => _pixels[y * Width + x] = RgbaToAbgr(value);
-    }
-
     public void Clear(Color color)
     {
         _pixels.Fill(RgbaToAbgr(color));
+        _depths.Fill(double.MinValue);
+    }
+
+    public Color GetColor(int x, int y)
+    {
+        return AbgrToRgba(_pixels[GetIndex(x, y)]);
+    }
+
+    public void SetColor(int x, int y, Color color)
+    {
+        lock (_lock)
+        {
+            _pixels[GetIndex(x, y)] = RgbaToAbgr(color);
+        }
+    }
+
+    public double GetDepth(int x, int y)
+    {
+        return _depths[GetIndex(x, y)];
+    }
+
+    public void SetDepth(int x, int y, double depth)
+    {
+        lock (_lock)
+        {
+            _depths[GetIndex(x, y)] = depth;
+        }
     }
 
     public void Present(int x, int y, bool flipY)
@@ -43,6 +66,11 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
         _pixels.Dispose();
 
         GC.SuppressFinalize(this);
+    }
+
+    private int GetIndex(int x, int y)
+    {
+        return y * Width + x;
     }
 
     private static Color AbgrToRgba(Vector4D<byte> color)

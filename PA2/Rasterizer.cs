@@ -1,8 +1,8 @@
 ﻿using Maths;
 using PA;
 using PA.Graphics;
-using Silk.NET.Maths;
 using Silk.NET.SDL;
+using Color = PA.Color;
 using Vertex = PA.Graphics.Vertex;
 
 namespace PA2;
@@ -96,45 +96,99 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
 
         transform = viewport * Projection * View * Model;
 
-        Parallel.For(x, width, i =>
-        {
-            for (int j = y; j < height; j++)
-            {
-                foreach (Triangle triangle in triangles)
-                {
-                    if (IsPointInTriangle(triangle, i, j))
-                    {
-                        frameBuffer[i, j] = new(255, 255, 255);
-
-                        break;
-                    }
-                }
-            }
-        });
+        Parallel.ForEach(triangles, RasterizeTriangle);
 
         frameBuffer.Present(x, y, FlipY);
     }
 
-    private bool IsPointInTriangle(Triangle triangle, int x, int y)
+    private void RasterizeTriangle(Triangle triangle)
     {
-        Vector2d center = new(x + 0.5, y + 0.5);
+        if (frameBuffer is null)
+        {
+            return;
+        }
 
         Vector2d a = (transform * triangle.A.Position).XY();
         Vector2d b = (transform * triangle.B.Position).XY();
         Vector2d c = (transform * triangle.C.Position).XY();
 
-        Vector2d ab = b - a;
-        Vector2d bc = c - b;
-        Vector2d ca = a - c;
+        Box2d box = Box2d.FromPoints(a, b, c);
 
-        Vector2d ap = center - a;
-        Vector2d bp = center - b;
-        Vector2d cp = center - c;
+        int minX = (int)Math.Max(box.MinX, 0);
+        int minY = (int)Math.Max(box.MinY, 0);
+        int maxX = (int)Math.Min(box.MaxX, width - 1);
+        int maxY = (int)Math.Min(box.MaxY, height - 1);
+
+        for (int x = minX; x <= maxX; x++)
+        {
+            for (int y = minY; y <= maxY; y++)
+            {
+                if (IsPointInTriangle([a, b, c], x, y))
+                {
+                    (double alpha, double beta, double gamma) = ComputeBarycentric2D([a, b, c], x, y);
+
+                    Vector3d abg = new(alpha, beta, gamma);
+
+                    Vector3d vectorX = new(triangle.A.Position.X, triangle.B.Position.X, triangle.C.Position.X);
+                    Vector3d vectorY = new(triangle.A.Position.Y, triangle.B.Position.Y, triangle.C.Position.Y);
+                    Vector3d vectorZ = new(triangle.A.Position.Z, triangle.B.Position.Z, triangle.C.Position.Z);
+
+                    Vector3d colorR = new(triangle.A.Color.Rd, triangle.B.Color.Rd, triangle.C.Color.Rd);
+                    Vector3d colorG = new(triangle.A.Color.Gd, triangle.B.Color.Gd, triangle.C.Color.Gd);
+                    Vector3d colorB = new(triangle.A.Color.Bd, triangle.B.Color.Bd, triangle.C.Color.Bd);
+
+                    Vector3d interpPosition = new(Vector3d.Dot(abg, vectorX), Vector3d.Dot(abg, vectorY), Vector3d.Dot(abg, vectorZ));
+                    Color interpColor = new(Vector3d.Dot(abg, colorR), Vector3d.Dot(abg, colorG), Vector3d.Dot(abg, colorB));
+
+                    double depth = frameBuffer.GetDepth(x, y);
+
+                    if (interpPosition.Z > depth)
+                    {
+                        frameBuffer.SetDepth(x, y, interpPosition.Z);
+                        frameBuffer.SetColor(x, y, interpColor);
+                    }
+                }
+            }
+        }
+    }
+
+    private bool IsPointInTriangle(Vector2d[] vectors, int x, int y)
+    {
+        Vector2d center = new(x + 0.5, y + 0.5);
+
+        Vector2d ab = vectors[1] - vectors[0];
+        Vector2d bc = vectors[2] - vectors[1];
+        Vector2d ca = vectors[0] - vectors[2];
+
+        Vector2d ap = center - vectors[0];
+        Vector2d bp = center - vectors[1];
+        Vector2d cp = center - vectors[2];
 
         double abp = Vector2d.Cross(ab, ap);
         double bcp = Vector2d.Cross(bc, bp);
         double cap = Vector2d.Cross(ca, cp);
 
         return CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
+    }
+
+    private static (double Alpha, double Beta, double Gamma) ComputeBarycentric2D(Vector2d[] vectors, int x, int y)
+    {
+        Vector2d center = new(x + 0.5, y + 0.5);
+
+        Vector2d ab = vectors[1] - vectors[0];
+        Vector2d bc = vectors[2] - vectors[1];
+        Vector2d ca = vectors[0] - vectors[2];
+
+        Vector2d ap = center - vectors[0];
+        Vector2d bp = center - vectors[1];
+        Vector2d cp = center - vectors[2];
+
+        double abp = Vector2d.Cross(ab, ap);
+        double bcp = Vector2d.Cross(bc, bp);
+        double cap = Vector2d.Cross(ca, cp);
+
+        double area = Vector2d.Cross(ab, -ca);
+
+        return (bcp / area, cap / area, abp / area);
     }
 }

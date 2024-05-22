@@ -1,4 +1,5 @@
 ﻿using Maths;
+using PA;
 using PA.Graphics;
 using PA2;
 
@@ -28,12 +29,12 @@ internal class Program
         _rasterizer.Model = Matrix4x4d.Identity;
         _rasterizer.View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 5.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0));
 
-        Vertex a = new(new(2.0, 0.0, -2.0), color: new(217, 238, 185));
-        Vertex b = new(new(0.0, 2.0, -2.0), color: new(217, 238, 185));
-        Vertex c = new(new(-2.0, 0.0, -2.0), color: new(217, 238, 185));
+        Vertex a = new(new(2.0, 0.0, -2.0), color: Colors.Red);
+        Vertex b = new(new(0.0, 2.0, -2.0), color: Colors.Green);
+        Vertex c = new(new(-2.0, 0.0, -2.0), color: Colors.Blue);
         Vertex d = new(new(3.5, -1.0, -5.0), color: new(185, 217, 238));
         Vertex e = new(new(2.5, 1.5, -5.0), color: new(185, 217, 238));
-        Vertex f = new(new(-1.0, 0.5, -5.0), color: new(185, 217, 238));
+        Vertex f = new(new(-1.0, 0.5, -1.0), color: new(185, 217, 238));
 
         vbo = _rasterizer.CreateVertexBuffer([a, b, c, d, e, f]);
         ibo = _rasterizer.CreateIndexBuffer([0, 1, 2, 3, 4, 5]);
