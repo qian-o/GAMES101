@@ -1,4 +1,4 @@
-﻿namespace PA;
+﻿namespace PA.Graphics;
 
 public static class Colors
 {

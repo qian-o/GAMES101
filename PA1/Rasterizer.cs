@@ -1,5 +1,4 @@
 ﻿using Maths;
-using PA;
 using PA.Graphics;
 using Silk.NET.SDL;
 using Vertex = PA.Graphics.Vertex;

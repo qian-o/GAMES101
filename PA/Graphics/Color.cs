@@ -1,4 +1,4 @@
-﻿namespace PA;
+﻿namespace PA.Graphics;
 
 public struct Color(byte r, byte g, byte b, byte a)
 {
@@ -48,7 +48,7 @@ public struct Color(byte r, byte g, byte b, byte a)
 
     public static Color FromUint(uint argb)
     {
-        return new((byte)((argb >> 16) & 0xFF), (byte)((argb >> 8) & 0xFF), (byte)(argb & 0xFF), (byte)((argb >> 24) & 0xFF));
+        return new((byte)(argb >> 16 & 0xFF), (byte)(argb >> 8 & 0xFF), (byte)(argb & 0xFF), (byte)(argb >> 24 & 0xFF));
     }
 
     public static Color FromRgb(byte r, byte g, byte b)
