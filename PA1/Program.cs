@@ -32,9 +32,9 @@ internal unsafe class Program
         _rasterizer.Model = Matrix4x4d.Identity;
         _rasterizer.View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 5.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0));
 
-        Vertex a = new(new(2.0, -2.0, -2.0));
+        Vertex a = new(new(2.0, 0.0, -2.0));
         Vertex b = new(new(0.0, 2.0, -2.0));
-        Vertex c = new(new(-2.0, -2.0, -2.0));
+        Vertex c = new(new(-2.0, 0.0, -2.0));
 
         vbo = _rasterizer.CreateVertexBuffer([a, b, c]);
         ibo = _rasterizer.CreateIndexBuffer([0, 1, 2]);
