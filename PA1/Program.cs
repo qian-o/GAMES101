@@ -15,7 +15,6 @@ internal unsafe class Program
     private static void Main(string[] _)
     {
         _windowRenderer = new("PA 1");
-
         _windowRenderer.Load += WindowRenderer_Load;
         _windowRenderer.Update += WindowRenderer_Update;
         _windowRenderer.Render += WindowRenderer_Render;
@@ -61,6 +60,7 @@ internal unsafe class Program
     private static void WindowRenderer_Render(double delta)
     {
         _rasterizer.Clear();
+
         _rasterizer.Render(vbo, ibo);
     }
 }

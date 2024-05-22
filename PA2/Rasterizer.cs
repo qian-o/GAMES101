@@ -1,10 +1,11 @@
 ﻿using Maths;
 using PA;
 using PA.Graphics;
+using Silk.NET.Maths;
 using Silk.NET.SDL;
 using Vertex = PA.Graphics.Vertex;
 
-namespace PA1;
+namespace PA2;
 
 public unsafe class Rasterizer(WindowRenderer windowRenderer)
 {

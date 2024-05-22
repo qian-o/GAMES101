@@ -16,15 +16,15 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
 
     public int Pitch { get; } = width * sizeof(Vector4D<byte>);
 
-    public Vector3D<byte> this[int x, int y]
+    public Color this[int x, int y]
     {
-        get => Rgb24(_pixels[y * Width + x]);
-        set => _pixels[y * Width + x] = Abgr32(value);
+        get => AbgrToRgba(_pixels[y * Width + x]);
+        set => _pixels[y * Width + x] = RgbaToAbgr(value);
     }
 
-    public void Clear(Vector3D<byte> color)
+    public void Clear(Color color)
     {
-        _pixels.Fill(Abgr32(color));
+        _pixels.Fill(RgbaToAbgr(color));
     }
 
     public void Present(int x, int y, bool flipY)
@@ -45,13 +45,13 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
         GC.SuppressFinalize(this);
     }
 
-    private static Vector3D<byte> Rgb24(Vector4D<byte> color)
+    private static Color AbgrToRgba(Vector4D<byte> color)
     {
-        return new Vector3D<byte>(color.Z, color.Y, color.X);
+        return new(color.W, color.Z, color.Y, color.X);
     }
 
-    private static Vector4D<byte> Abgr32(Vector3D<byte> color)
+    private static Vector4D<byte> RgbaToAbgr(Color color)
     {
-        return new Vector4D<byte>(255, color.Z, color.Y, color.X);
+        return new(color.A, color.B, color.G, color.R);
     }
 }
