@@ -14,7 +14,7 @@ internal unsafe class Program
 
     private static void Main(string[] _)
     {
-        _windowRenderer = new();
+        _windowRenderer = new("PA 1");
 
         _windowRenderer.Load += WindowRenderer_Load;
         _windowRenderer.Update += WindowRenderer_Update;
