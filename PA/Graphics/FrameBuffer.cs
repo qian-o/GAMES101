@@ -10,7 +10,6 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
     private readonly Texture* _texture = sdl.CreateTexture(renderer, (int)PixelFormatEnum.Abgr32, (int)TextureAccess.Streaming, width, height);
     private readonly FixedArray<Vector4D<byte>> _pixels = new(width * height);
     private readonly FixedArray<double> _depths = new(width * height);
-    private readonly object _lock = new();
 
     public int Width { get; } = width;
 
@@ -31,10 +30,7 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
 
     public void SetColor(int x, int y, Color color)
     {
-        lock (_lock)
-        {
-            _pixels[GetIndex(x, y)] = RgbaToAbgr(color);
-        }
+        _pixels[GetIndex(x, y)] = RgbaToAbgr(color);
     }
 
     public double GetDepth(int x, int y)
@@ -44,10 +40,7 @@ public unsafe class FrameBuffer(Sdl sdl, Renderer* renderer, int width, int heig
 
     public void SetDepth(int x, int y, double depth)
     {
-        lock (_lock)
-        {
-            _depths[GetIndex(x, y)] = depth;
-        }
+        _depths[GetIndex(x, y)] = depth;
     }
 
     public void Present(int x, int y, bool flipY)

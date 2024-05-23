@@ -12,6 +12,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
     private readonly Renderer* _renderer = windowRenderer.Renderer;
     private readonly Dictionary<int, Vertex[]> bufferVertexes = [];
     private readonly Dictionary<int, int[]> bufferIndices = [];
+    private readonly object _lock = new();
 
     private int x;
     private int y;
@@ -139,12 +140,9 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
                     Vector3d interpPosition = new(Vector3d.Dot(abg, vectorX), Vector3d.Dot(abg, vectorY), Vector3d.Dot(abg, vectorZ));
                     Color interpColor = new(Vector3d.Dot(abg, colorR), Vector3d.Dot(abg, colorG), Vector3d.Dot(abg, colorB));
 
-                    double depth = frameBuffer.GetDepth(x, y);
-
-                    if (interpPosition.Z > depth)
+                    lock (_lock)
                     {
-                        frameBuffer.SetDepth(x, y, interpPosition.Z);
-                        frameBuffer.SetColor(x, y, interpColor);
+                        UpdatePixel(frameBuffer, x, y, interpPosition, interpColor);
                     }
                 }
             }
@@ -168,6 +166,17 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
         double cap = Vector2d.Cross(ca, cp);
 
         return CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
+    }
+
+    private static void UpdatePixel(FrameBuffer frameBuffer, int x, int y, Vector3d interpPosition, Color interpColor)
+    {
+        double depth = frameBuffer.GetDepth(x, y);
+
+        if (interpPosition.Z > depth)
+        {
+            frameBuffer.SetDepth(x, y, interpPosition.Z);
+            frameBuffer.SetColor(x, y, interpColor);
+        }
     }
 
     private static (double Alpha, double Beta, double Gamma) ComputeBarycentric2D(Vector2d[] vectors, int x, int y)
