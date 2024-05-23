@@ -102,7 +102,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
                 {
                     if (IsPointInTriangle(triangle, i, j))
                     {
-                        frameBuffer.SetColor(i, j, new(255, 255, 255));
+                        frameBuffer.SetPixel(i, j, 0, new Pixel(new(255, 255, 255), 0.0));
 
                         break;
                     }

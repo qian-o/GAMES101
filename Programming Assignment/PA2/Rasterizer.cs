@@ -1,18 +1,18 @@
-﻿using Maths;
+﻿using System.Collections.ObjectModel;
+using Maths;
 using PA.Graphics;
 using Silk.NET.SDL;
-using Color = PA.Graphics.Color;
 using Vertex = PA.Graphics.Vertex;
 
 namespace PA2;
 
-public unsafe class Rasterizer(WindowRenderer windowRenderer)
+public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sampleCount = SampleCount.SampleCount1)
 {
     private readonly Sdl _sdl = windowRenderer.Sdl;
     private readonly Renderer* _renderer = windowRenderer.Renderer;
+    private readonly SampleCount _sampleCount = sampleCount;
     private readonly Dictionary<int, Vertex[]> bufferVertexes = [];
     private readonly Dictionary<int, int[]> bufferIndices = [];
-    private readonly object _lock = new();
 
     private int x;
     private int y;
@@ -60,7 +60,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             viewport = Matrix4x4d.CreateViewport(x, y, width, height, 1, -1);
 
             frameBuffer?.Dispose();
-            frameBuffer = new FrameBuffer(_sdl, _renderer, width, height);
+            frameBuffer = new FrameBuffer(_sdl, _renderer, width, height, _sampleCount);
         }
     }
 
@@ -119,39 +119,73 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
         int maxX = (int)Math.Min(box.MaxX, width - 1);
         int maxY = (int)Math.Min(box.MaxY, height - 1);
 
+        ReadOnlyCollection<(double OffsetX, double OffsetY)> pattern = frameBuffer.Pattern;
+
         for (int x = minX; x <= maxX; x++)
         {
             for (int y = minY; y <= maxY; y++)
             {
-                if (IsPointInTriangle([a, b, c], x, y))
+                List<int> hitIndices = [];
+                List<(double Alpha, double Beta, double Gamma)> hitABGs = [];
+                for (int i = 0; i < pattern.Count; i++)
                 {
-                    (double alpha, double beta, double gamma) = ComputeBarycentric2D([a, b, c], x, y);
+                    (double offsetX, double offsetY) = pattern[i];
+
+                    double px = x + offsetX;
+                    double py = y + offsetY;
+
+                    if (IsPointInTriangle([a, b, c], px, py))
+                    {
+                        hitIndices.Add(i);
+                        hitABGs.Add(ComputeBarycentric2D([a, b, c], px, py));
+                    }
+                }
+
+                if (hitIndices.Count == 0)
+                {
+                    continue;
+                }
+
+                List<int> candidateIndices = [];
+                List<double> candidateDepths = [];
+
+                for (int i = 0; i < hitIndices.Count; i++)
+                {
+                    int hitIndex = hitIndices[i];
+                    (double alpha, double beta, double gamma) = hitABGs[i];
 
                     Vector3d abg = new(alpha, beta, gamma);
 
-                    Vector3d vectorX = new(triangle.A.Position.X, triangle.B.Position.X, triangle.C.Position.X);
-                    Vector3d vectorY = new(triangle.A.Position.Y, triangle.B.Position.Y, triangle.C.Position.Y);
                     Vector3d vectorZ = new(triangle.A.Position.Z, triangle.B.Position.Z, triangle.C.Position.Z);
 
-                    Vector3d colorR = new(triangle.A.Color.Rd, triangle.B.Color.Rd, triangle.C.Color.Rd);
-                    Vector3d colorG = new(triangle.A.Color.Gd, triangle.B.Color.Gd, triangle.C.Color.Gd);
-                    Vector3d colorB = new(triangle.A.Color.Bd, triangle.B.Color.Bd, triangle.C.Color.Bd);
+                    double depth = Vector3d.Dot(abg, vectorZ);
 
-                    Vector3d interpPosition = new(Vector3d.Dot(abg, vectorX), Vector3d.Dot(abg, vectorY), Vector3d.Dot(abg, vectorZ));
-                    Color interpColor = new(Vector3d.Dot(abg, colorR), Vector3d.Dot(abg, colorG), Vector3d.Dot(abg, colorB));
-
-                    lock (_lock)
+                    if (depth > frameBuffer.GetPixel(x, y, hitIndex).Depth)
                     {
-                        UpdatePixel(frameBuffer, x, y, interpPosition, interpColor);
+                        candidateIndices.Add(hitIndex);
+                        candidateDepths.Add(depth);
                     }
+                }
+
+                if (candidateIndices.Count == 0)
+                {
+                    continue;
+                }
+
+                for (int i = 0; i < candidateIndices.Count; i++)
+                {
+                    int candidateIndex = candidateIndices[i];
+                    double candidateDepth = candidateDepths[i];
+
+                    frameBuffer.SetPixel(x, y, candidateIndex, new Pixel(triangle.A.Color, candidateDepth));
                 }
             }
         }
     }
 
-    private bool IsPointInTriangle(Vector2d[] vectors, int x, int y)
+    private bool IsPointInTriangle(Vector2d[] vectors, double x, double y)
     {
-        Vector2d center = new(x + 0.5, y + 0.5);
+        Vector2d center = new(x, y);
 
         Vector2d ab = vectors[1] - vectors[0];
         Vector2d bc = vectors[2] - vectors[1];
@@ -168,20 +202,9 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
         return CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
     }
 
-    private static void UpdatePixel(FrameBuffer frameBuffer, int x, int y, Vector3d interpPosition, Color interpColor)
+    private static (double Alpha, double Beta, double Gamma) ComputeBarycentric2D(Vector2d[] vectors, double x, double y)
     {
-        double depth = frameBuffer.GetDepth(x, y);
-
-        if (interpPosition.Z > depth)
-        {
-            frameBuffer.SetDepth(x, y, interpPosition.Z);
-            frameBuffer.SetColor(x, y, interpColor);
-        }
-    }
-
-    private static (double Alpha, double Beta, double Gamma) ComputeBarycentric2D(Vector2d[] vectors, int x, int y)
-    {
-        Vector2d center = new(x + 0.5, y + 0.5);
+        Vector2d center = new(x, y);
 
         Vector2d ab = vectors[1] - vectors[0];
         Vector2d bc = vectors[2] - vectors[1];
