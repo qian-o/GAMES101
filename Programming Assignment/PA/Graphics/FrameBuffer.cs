@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Maths;
+﻿using Maths;
 using Silk.NET.Maths;
 using Silk.NET.SDL;
 
@@ -97,11 +96,14 @@ public unsafe class FrameBuffer : IDisposable
 
         _finalColorBuffer = new FixedArray<Color>(width * height);
         _finalDepthBuffer = new FixedArray<double>(width * height);
+
+        Pattern = [.. _pattern];
+        Pixels = [.. _pixels];
     }
 
-    public ReadOnlyCollection<Vector2d> Pattern => Array.AsReadOnly(_pattern);
+    public Vector2d[] Pattern { get; }
 
-    public ReadOnlyCollection<Pixel> Pixels => Array.AsReadOnly(_pixels);
+    public Pixel[] Pixels { get; }
 
     public void Clear(Color color)
     {
@@ -195,6 +197,9 @@ public unsafe class FrameBuffer : IDisposable
             _colorBuffer[i].Dispose();
             _depthBuffer[i].Dispose();
         }
+
+        _finalColorBuffer.Dispose();
+        _finalDepthBuffer.Dispose();
 
         GC.SuppressFinalize(this);
     }

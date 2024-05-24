@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Maths;
+﻿using Maths;
 using PA.Graphics;
 using Silk.NET.SDL;
 using Vertex = PA.Graphics.Vertex;
@@ -9,7 +8,7 @@ namespace PA2;
 public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sampleCount = SampleCount.SampleCount1)
 {
     #region Structs
-    private struct RasterizeTriangleInfo
+    private struct TriangleInfo
     {
         public Triangle Triangle;
 
@@ -111,7 +110,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
         transform = viewport * Projection * View * Model;
 
-        RasterizeTriangleInfo[] rasterizeTriangleInfos = new RasterizeTriangleInfo[triangles.Length];
+        TriangleInfo[] triangleInfos = new TriangleInfo[triangles.Length];
         for (int i = 0; i < triangles.Length; i++)
         {
             Triangle triangle = triangles[i];
@@ -122,7 +121,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
             Box2d box = Box2d.FromPoints(a, b, c);
 
-            rasterizeTriangleInfos[i] = new RasterizeTriangleInfo
+            triangleInfos[i] = new TriangleInfo
             {
                 Triangle = triangle,
                 A = a,
@@ -134,37 +133,30 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
         Parallel.ForEach(frameBuffer.Pixels, (pixel) =>
         {
-            foreach (RasterizeTriangleInfo rasterizeTriangleInfo in rasterizeTriangleInfos)
+            foreach (TriangleInfo triangleInfo in triangleInfos)
             {
-                RasterizeTriangle(pixel, rasterizeTriangleInfo);
+                RasterizeTriangle(pixel, triangleInfo);
             }
         });
 
         frameBuffer.Present(x, y, FlipY);
     }
 
-    private void RasterizeTriangle(Pixel pixel, RasterizeTriangleInfo info)
+    private void RasterizeTriangle(Pixel pixel, TriangleInfo triangleInfo)
     {
-        if (frameBuffer is null)
+        if (!triangleInfo.Box.Contains(pixel.X, pixel.Y))
         {
             return;
         }
 
-        if (!info.Box.Contains(pixel.X, pixel.Y))
-        {
-            return;
-        }
+        Vector2d[] pattern = frameBuffer!.Pattern;
 
-        Triangle triangle = info.Triangle;
-        Vector2d a = info.A;
-        Vector2d b = info.B;
-        Vector2d c = info.C;
+        Triangle triangle = triangleInfo.Triangle;
+        Vector2d a = triangleInfo.A;
+        Vector2d b = triangleInfo.B;
+        Vector2d c = triangleInfo.C;
 
-        ReadOnlyCollection<Vector2d> pattern = frameBuffer.Pattern;
-
-        List<int> hitIndices = new(pattern.Count);
-        List<double> hitDepths = new(pattern.Count);
-        for (int index = 0; index < pattern.Count; index++)
+        for (int index = 0; index < pattern.Length; index++)
         {
             Vector2d offset = pattern[index];
 
@@ -181,23 +173,10 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
                 if (depth > frameBuffer.GetDepth(pixel, index))
                 {
-                    hitIndices.Add(index);
-                    hitDepths.Add(depth);
+                    frameBuffer.SetColor(pixel, index, triangle.A.Color);
+                    frameBuffer.SetDepth(pixel, index, depth);
                 }
             }
-        }
-
-        if (hitIndices.Count == 0)
-        {
-            return;
-        }
-
-        for (int i = 0; i < hitIndices.Count; i++)
-        {
-            int hitIndex = hitIndices[i];
-
-            frameBuffer.SetColor(pixel, hitIndex, triangle.A.Color);
-            frameBuffer.SetDepth(pixel, hitIndex, hitDepths[i]);
         }
     }
 
