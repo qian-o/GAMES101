@@ -37,26 +37,6 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
         return $"({R}, {G}, {B}, {A})";
     }
 
-    public static Color operator +(Color left, Color right)
-    {
-        return new(Clamp(left.R + right.R), Clamp(left.G + right.G), Clamp(left.B + right.B), Clamp(left.A + right.A));
-    }
-
-    public static Color operator -(Color left, Color right)
-    {
-        return new(Clamp(left.R - right.R), Clamp(left.G - right.G), Clamp(left.B - right.B), Clamp(left.A - right.A));
-    }
-
-    public static Color operator *(Color color, int scalar)
-    {
-        return new(Clamp(color.R * scalar), Clamp(color.G * scalar), Clamp(color.B * scalar), Clamp(color.A * scalar));
-    }
-
-    public static Color operator /(Color color, int scalar)
-    {
-        return new(Clamp(color.R / scalar), Clamp(color.G / scalar), Clamp(color.B / scalar), Clamp(color.A / scalar));
-    }
-
     public static bool operator ==(Color left, Color right)
     {
         return left.Equals(right);
@@ -82,17 +62,17 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
         return new(r, g, b, a);
     }
 
-    public static Color FromRgb(int r, int g, int b)
+    public static Color FromRgb(uint r, uint g, uint b)
     {
         return new(Clamp(r), Clamp(g), Clamp(b));
     }
 
-    public static Color FromRgba(int r, int g, int b, int a)
+    public static Color FromRgba(uint r, uint g, uint b, uint a)
     {
         return new(Clamp(r), Clamp(g), Clamp(b), Clamp(a));
     }
 
-    private static byte Clamp(int value)
+    private static byte Clamp(uint value)
     {
         return (byte)Math.Clamp(value, 0, 255);
     }

@@ -1,6 +1,6 @@
 ﻿namespace PA.Graphics;
 
-public enum SampleCount
+public enum SampleCount : uint
 {
     SampleCount1 = 1,
 

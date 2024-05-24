@@ -163,13 +163,11 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             double x = pixel.X + offset.X;
             double y = pixel.Y + offset.Y;
 
-            if (IsPointInTriangle([a, b, c], x, y))
+            if (IsPointInTriangle([a, b, c], x, y, out Vector3d abg))
             {
-                (double alpha, double beta, double gamma) = ComputeBarycentric2D([a, b, c], x, y);
-
                 Vector3d vectorZ = new(triangle.A.Position.Z, triangle.B.Position.Z, triangle.C.Position.Z);
 
-                double depth = Vector3d.Dot(new Vector3d(alpha, beta, gamma), vectorZ);
+                double depth = Vector3d.Dot(abg, vectorZ);
 
                 if (depth > frameBuffer.GetDepth(pixel, index))
                 {
@@ -180,7 +178,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         }
     }
 
-    private bool IsPointInTriangle(Vector2d[] vectors, double x, double y)
+    private bool IsPointInTriangle(Vector2d[] vectors, double x, double y, out Vector3d abg)
     {
         Vector2d center = new(x, y);
 
@@ -196,27 +194,12 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         double bcp = Vector2d.Cross(bc, bp);
         double cap = Vector2d.Cross(ca, cp);
 
-        return CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
-    }
+        double area = Math.Abs(Vector2d.Cross(ab, ca)) * 0.5;
 
-    private static (double Alpha, double Beta, double Gamma) ComputeBarycentric2D(Vector2d[] vectors, double x, double y)
-    {
-        Vector2d center = new(x, y);
+        bool isHit = CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
 
-        Vector2d ab = vectors[1] - vectors[0];
-        Vector2d bc = vectors[2] - vectors[1];
-        Vector2d ca = vectors[0] - vectors[2];
+        abg = isHit ? new(bcp / area, cap / area, abp / area) : default;
 
-        Vector2d ap = center - vectors[0];
-        Vector2d bp = center - vectors[1];
-        Vector2d cp = center - vectors[2];
-
-        double abp = Vector2d.Cross(ab, ap);
-        double bcp = Vector2d.Cross(bc, bp);
-        double cap = Vector2d.Cross(ca, cp);
-
-        double area = Vector2d.Cross(ab, -ca);
-
-        return (bcp / area, cap / area, abp / area);
+        return isHit;
     }
 }

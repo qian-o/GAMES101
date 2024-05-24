@@ -12,7 +12,7 @@ public unsafe class FrameBuffer : IDisposable
     private readonly Renderer* _renderer;
     private readonly int _width;
     private readonly int _height;
-    private readonly int _sampleCount;
+    private readonly uint _sampleCount;
     private readonly int _pitch;
     private readonly Texture* _texture;
     private readonly Vector2d[] _pattern;
@@ -28,7 +28,7 @@ public unsafe class FrameBuffer : IDisposable
         _renderer = renderer;
         _width = width;
         _height = height;
-        _sampleCount = (int)sampleCount;
+        _sampleCount = (uint)sampleCount;
         _pitch = width * sizeof(Color);
         _texture = sdl.CreateTexture(renderer, (int)PixelFormatEnum.Abgr32, (int)TextureAccess.Streaming, width, height);
         _pattern = sampleCount switch
@@ -173,10 +173,10 @@ public unsafe class FrameBuffer : IDisposable
         {
             Parallel.ForEach(_pixels, (pixel) =>
             {
-                int r = 0;
-                int g = 0;
-                int b = 0;
-                int a = 0;
+                uint r = 0;
+                uint g = 0;
+                uint b = 0;
+                uint a = 0;
                 double depth = double.MinValue;
 
                 for (int i = 0; i < _sampleCount; i++)
