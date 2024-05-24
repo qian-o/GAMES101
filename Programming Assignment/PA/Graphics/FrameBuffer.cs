@@ -1,4 +1,5 @@
-﻿using Maths;
+﻿using System.Runtime.CompilerServices;
+using Maths;
 using Silk.NET.Maths;
 using Silk.NET.SDL;
 
@@ -15,10 +16,10 @@ public unsafe class FrameBuffer : IDisposable
     private readonly Texture* _texture;
     private readonly Vector2d[] _pattern;
     private readonly Pixel[] _pixels;
-    private readonly FixedArray<Color>[] _colorBuffer;
-    private readonly FixedArray<double>[] _depthBuffer;
-    private readonly FixedArray<Color> _finalColorBuffer;
-    private readonly FixedArray<double> _finalDepthBuffer;
+    private readonly Color[][] _colorBuffer;
+    private readonly double[][] _depthBuffer;
+    private readonly Color[] _finalColorBuffer;
+    private readonly double[] _finalDepthBuffer;
 
     public FrameBuffer(Sdl sdl, Renderer* renderer, int width, int height, SampleCount sampleCount = SampleCount.SampleCount1)
     {
@@ -86,16 +87,16 @@ public unsafe class FrameBuffer : IDisposable
             _pixels[i] = new Pixel(x, y);
         }
 
-        _colorBuffer = new FixedArray<Color>[_sampleCount];
-        _depthBuffer = new FixedArray<double>[_sampleCount];
+        _colorBuffer = new Color[_sampleCount][];
+        _depthBuffer = new double[_sampleCount][];
         for (int i = 0; i < _sampleCount; i++)
         {
-            _colorBuffer[i] = new FixedArray<Color>(width * height);
-            _depthBuffer[i] = new FixedArray<double>(width * height);
+            _colorBuffer[i] = new Color[width * height];
+            _depthBuffer[i] = new double[width * height];
         }
 
-        _finalColorBuffer = new FixedArray<Color>(width * height);
-        _finalDepthBuffer = new FixedArray<double>(width * height);
+        _finalColorBuffer = new Color[width * height];
+        _finalDepthBuffer = new double[width * height];
 
         Pattern = [.. _pattern];
         Pixels = [.. _pixels];
@@ -109,11 +110,12 @@ public unsafe class FrameBuffer : IDisposable
     {
         for (int i = 0; i < _sampleCount; i++)
         {
-            _colorBuffer[i].Fill(color);
-            _depthBuffer[i].Fill(double.MinValue);
+            Array.Fill(_colorBuffer[i], color);
+            Array.Fill(_depthBuffer[i], double.MinValue);
         }
 
-        _finalColorBuffer.Fill(color);
+        Array.Fill(_finalColorBuffer, color);
+        Array.Fill(_finalDepthBuffer, double.MinValue);
     }
 
     public Color GetColor(Pixel pixel, int index)
@@ -158,48 +160,53 @@ public unsafe class FrameBuffer : IDisposable
 
     public void Present(int x, int y, bool flipY)
     {
-        Rectangle<int> dst = new(x, y, _width, _height);
+        Rectangle<int> destination = new(x, y, _width, _height);
         RendererFlip flip = flipY ? RendererFlip.Vertical : RendererFlip.None;
 
         if (_sampleCount == 1)
         {
-            _colorBuffer[0].Copy(_finalColorBuffer);
-            _depthBuffer[0].Copy(_finalDepthBuffer);
+            Array.Copy(_colorBuffer[0], _finalColorBuffer, _finalColorBuffer.Length);
+            Array.Copy(_depthBuffer[0], _finalDepthBuffer, _finalDepthBuffer.Length);
         }
         else
         {
             Parallel.ForEach(_pixels, (pixel) =>
             {
-                Color color = GetFinalColor(pixel);
-                double depth = GetFinalDepth(pixel);
+                int r = 0;
+                int g = 0;
+                int b = 0;
+                int a = 0;
+                double depth = double.MinValue;
 
                 for (int i = 0; i < _sampleCount; i++)
                 {
-                    color += GetColor(pixel, i) / _sampleCount;
-                    depth = Math.Max(depth, GetDepth(pixel, i));
+                    Color color = GetColor(pixel, i);
+                    double d = GetDepth(pixel, i);
+
+                    r += color.R;
+                    g += color.G;
+                    b += color.B;
+                    a += color.A;
+                    depth = Math.Max(depth, d);
                 }
 
-                SetFinalColor(pixel, color);
+                r /= _sampleCount;
+                g /= _sampleCount;
+                b /= _sampleCount;
+                a /= _sampleCount;
+
+                SetFinalColor(pixel, Color.FromRgba(r, g, b, a));
                 SetFinalDepth(pixel, depth);
             });
         }
 
-        _sdl.UpdateTexture(_texture, null, _finalColorBuffer.Buffer, _pitch);
-        _sdl.RenderCopyEx(_renderer, _texture, null, &dst, 0.0, null, flip);
+        _sdl.UpdateTexture(_texture, null, Unsafe.AsPointer(ref _finalColorBuffer[0]), _pitch);
+        _sdl.RenderCopyEx(_renderer, _texture, null, &destination, 0.0, null, flip);
     }
 
     public void Dispose()
     {
         _sdl.DestroyTexture(_texture);
-
-        for (int i = 0; i < _sampleCount; i++)
-        {
-            _colorBuffer[i].Dispose();
-            _depthBuffer[i].Dispose();
-        }
-
-        _finalColorBuffer.Dispose();
-        _finalDepthBuffer.Dispose();
 
         GC.SuppressFinalize(this);
     }

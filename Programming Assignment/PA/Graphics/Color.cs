@@ -82,6 +82,16 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
         return new(r, g, b, a);
     }
 
+    public static Color FromRgb(int r, int g, int b)
+    {
+        return new(Clamp(r), Clamp(g), Clamp(b));
+    }
+
+    public static Color FromRgba(int r, int g, int b, int a)
+    {
+        return new(Clamp(r), Clamp(g), Clamp(b), Clamp(a));
+    }
+
     private static byte Clamp(int value)
     {
         return (byte)Math.Clamp(value, 0, 255);
