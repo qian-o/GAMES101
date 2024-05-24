@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using Maths;
 using Silk.NET.Maths;
 using Silk.NET.SDL;
@@ -202,6 +203,17 @@ public unsafe class FrameBuffer : IDisposable
 
         _sdl.UpdateTexture(_texture, null, Unsafe.AsPointer(ref _finalColorBuffer[0]), _pitch);
         _sdl.RenderCopyEx(_renderer, _texture, null, &destination, 0.0, null, flip);
+    }
+
+    public void ProcessingPixels(Action<Pixel> action)
+    {
+        Parallel.ForEach(Partitioner.Create(0, _pixels.Length), (range) =>
+        {
+            for (int i = range.Item1; i < range.Item2; i++)
+            {
+                action(_pixels[i]);
+            }
+        });
     }
 
     public void Dispose()

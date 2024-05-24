@@ -131,7 +131,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             };
         }
 
-        Parallel.ForEach(frameBuffer.Pixels, (pixel) =>
+        frameBuffer.ProcessingPixels((pixel) =>
         {
             foreach (TriangleInfo triangleInfo in triangleInfos)
             {

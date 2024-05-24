@@ -94,7 +94,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
 
         transform = viewport * Projection * View * Model;
 
-        Parallel.ForEach(frameBuffer.Pixels, (pixel) =>
+        frameBuffer.ProcessingPixels((pixel) =>
         {
             foreach (Triangle triangle in triangles)
             {
