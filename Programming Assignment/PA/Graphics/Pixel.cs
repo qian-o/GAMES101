@@ -1,8 +1,11 @@
-﻿namespace PA.Graphics;
+﻿using System.Runtime.InteropServices;
 
-public struct Pixel(Color color, double depth)
+namespace PA.Graphics;
+
+[StructLayout(LayoutKind.Sequential)]
+public struct Pixel(int x, int y)
 {
-    public Color Color = color;
+    public int X = x;
 
-    public double Depth = depth;
+    public int Y = y;
 }

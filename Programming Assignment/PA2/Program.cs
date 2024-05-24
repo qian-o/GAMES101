@@ -16,7 +16,7 @@ internal class Program
         _windowRenderer.Update += WindowRenderer_Update;
         _windowRenderer.Render += WindowRenderer_Render;
 
-        _rasterizer = new Rasterizer(_windowRenderer, SampleCount.SampleCount16);
+        _rasterizer = new Rasterizer(_windowRenderer, SampleCount.SampleCount4);
 
         _windowRenderer.Run();
 

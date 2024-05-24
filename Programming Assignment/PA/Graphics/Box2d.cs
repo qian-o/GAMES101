@@ -12,6 +12,11 @@ public struct Box2d(double minX, double minY, double maxX, double maxY)
 
     public double MaxY = maxY;
 
+    public readonly bool Contains(double x, double y)
+    {
+        return x >= MinX && x <= MaxX && y >= MinY && y <= MaxY;
+    }
+
     public static Box2d FromPoints(params Vector2d[] points)
     {
         double minX = double.MaxValue;

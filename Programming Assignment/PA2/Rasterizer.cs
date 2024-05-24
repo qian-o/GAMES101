@@ -8,6 +8,21 @@ namespace PA2;
 
 public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sampleCount = SampleCount.SampleCount1)
 {
+    #region Structs
+    private struct RasterizeTriangleInfo
+    {
+        public Triangle Triangle;
+
+        public Vector2d A;
+
+        public Vector2d B;
+
+        public Vector2d C;
+
+        public Box2d Box;
+    }
+    #endregion
+
     private readonly Sdl _sdl = windowRenderer.Sdl;
     private readonly Renderer* _renderer = windowRenderer.Renderer;
     private readonly SampleCount _sampleCount = sampleCount;
@@ -96,90 +111,94 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
         transform = viewport * Projection * View * Model;
 
-        Parallel.ForEach(triangles, RasterizeTriangle);
+        RasterizeTriangleInfo[] rasterizeTriangleInfos = new RasterizeTriangleInfo[triangles.Length];
+        for (int i = 0; i < triangles.Length; i++)
+        {
+            Triangle triangle = triangles[i];
+
+            Vector2d a = (transform * triangle.A.Position).XY();
+            Vector2d b = (transform * triangle.B.Position).XY();
+            Vector2d c = (transform * triangle.C.Position).XY();
+
+            Box2d box = Box2d.FromPoints(a, b, c);
+
+            rasterizeTriangleInfos[i] = new RasterizeTriangleInfo
+            {
+                Triangle = triangle,
+                A = a,
+                B = b,
+                C = c,
+                Box = box
+            };
+        }
+
+        Parallel.ForEach(frameBuffer.Pixels, (pixel) =>
+        {
+            foreach (RasterizeTriangleInfo rasterizeTriangleInfo in rasterizeTriangleInfos)
+            {
+                RasterizeTriangle(pixel, rasterizeTriangleInfo);
+            }
+        });
 
         frameBuffer.Present(x, y, FlipY);
     }
 
-    private void RasterizeTriangle(Triangle triangle)
+    private void RasterizeTriangle(Pixel pixel, RasterizeTriangleInfo info)
     {
         if (frameBuffer is null)
         {
             return;
         }
 
-        Vector2d a = (transform * triangle.A.Position).XY();
-        Vector2d b = (transform * triangle.B.Position).XY();
-        Vector2d c = (transform * triangle.C.Position).XY();
+        Triangle triangle = info.Triangle;
+        Vector2d a = info.A;
+        Vector2d b = info.B;
+        Vector2d c = info.C;
+        Box2d box = info.Box;
 
-        Box2d box = Box2d.FromPoints(a, b, c);
-
-        int minX = (int)Math.Max(box.MinX, 0);
-        int minY = (int)Math.Max(box.MinY, 0);
-        int maxX = (int)Math.Min(box.MaxX, width - 1);
-        int maxY = (int)Math.Min(box.MaxY, height - 1);
-
-        ReadOnlyCollection<(double OffsetX, double OffsetY)> pattern = frameBuffer.Pattern;
-
-        for (int x = minX; x <= maxX; x++)
+        if (!box.Contains(pixel.X, pixel.Y))
         {
-            for (int y = minY; y <= maxY; y++)
+            return;
+        }
+
+        ReadOnlyCollection<Vector2d> pattern = frameBuffer.Pattern;
+
+        List<int> hitIndices = [];
+        List<double> hitDepths = [];
+        for (int index = 0; index < pattern.Count; index++)
+        {
+            Vector2d offset = pattern[index];
+
+            double x = pixel.X + offset.X;
+            double y = pixel.Y + offset.Y;
+
+            if (IsPointInTriangle([a, b, c], x, y))
             {
-                List<int> hitIndices = [];
-                List<(double Alpha, double Beta, double Gamma)> hitABGs = [];
-                for (int i = 0; i < pattern.Count; i++)
+                (double alpha, double beta, double gamma) = ComputeBarycentric2D([a, b, c], x, y);
+
+                Vector3d vectorZ = new(triangle.A.Position.Z, triangle.B.Position.Z, triangle.C.Position.Z);
+
+                double depth = Vector3d.Dot(new Vector3d(alpha, beta, gamma), vectorZ);
+
+                if (depth > frameBuffer.GetDepth(pixel, index))
                 {
-                    (double offsetX, double offsetY) = pattern[i];
-
-                    double px = x + offsetX;
-                    double py = y + offsetY;
-
-                    if (IsPointInTriangle([a, b, c], px, py))
-                    {
-                        hitIndices.Add(i);
-                        hitABGs.Add(ComputeBarycentric2D([a, b, c], px, py));
-                    }
-                }
-
-                if (hitIndices.Count == 0)
-                {
-                    continue;
-                }
-
-                List<int> candidateIndices = [];
-                List<double> candidateDepths = [];
-
-                for (int i = 0; i < hitIndices.Count; i++)
-                {
-                    int hitIndex = hitIndices[i];
-                    (double alpha, double beta, double gamma) = hitABGs[i];
-
-                    Vector3d abg = new(alpha, beta, gamma);
-
-                    Vector3d vectorZ = new(triangle.A.Position.Z, triangle.B.Position.Z, triangle.C.Position.Z);
-
-                    double depth = Vector3d.Dot(abg, vectorZ);
-
-                    if (depth > frameBuffer.GetPixel(x, y, hitIndex).Depth)
-                    {
-                        candidateIndices.Add(hitIndex);
-                        candidateDepths.Add(depth);
-                    }
-                }
-
-                if (candidateIndices.Count == 0)
-                {
-                    continue;
-                }
-
-                for (int i = 0; i < candidateIndices.Count; i++)
-                {
-                    int candidateIndex = candidateIndices[i];
-                    double candidateDepth = candidateDepths[i];
-
-                    frameBuffer.SetPixel(x, y, candidateIndex, new Pixel(triangle.A.Color, candidateDepth));
+                    hitIndices.Add(index);
+                    hitDepths.Add(depth);
                 }
             }
+        }
+
+        if (hitIndices.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < hitIndices.Count; i++)
+        {
+            int hitIndex = hitIndices[i];
+
+            frameBuffer.SetColor(pixel, hitIndex, triangle.A.Color);
+            frameBuffer.SetDepth(pixel, hitIndex, hitDepths[i]);
         }
     }
 

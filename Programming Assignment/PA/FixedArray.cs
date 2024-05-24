@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace PA;
@@ -39,6 +40,11 @@ public readonly unsafe struct FixedArray<T> : IDisposable where T : unmanaged
             Span<T> values = new(buffer + range.Item1, length);
             values.Fill(value);
         });
+    }
+
+    public void Copy(FixedArray<T> destination)
+    {
+        Unsafe.CopyBlock(destination.Buffer, _buffer, (uint)(_length * sizeof(T)));
     }
 
     public readonly void Dispose()
