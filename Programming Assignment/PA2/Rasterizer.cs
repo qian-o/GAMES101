@@ -150,21 +150,20 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             return;
         }
 
-        Triangle triangle = info.Triangle;
-        Vector2d a = info.A;
-        Vector2d b = info.B;
-        Vector2d c = info.C;
-        Box2d box = info.Box;
-
-        if (!box.Contains(pixel.X, pixel.Y))
+        if (!info.Box.Contains(pixel.X, pixel.Y))
         {
             return;
         }
 
+        Triangle triangle = info.Triangle;
+        Vector2d a = info.A;
+        Vector2d b = info.B;
+        Vector2d c = info.C;
+
         ReadOnlyCollection<Vector2d> pattern = frameBuffer.Pattern;
 
-        List<int> hitIndices = [];
-        List<double> hitDepths = [];
+        List<int> hitIndices = new(pattern.Count);
+        List<double> hitDepths = new(pattern.Count);
         for (int index = 0; index < pattern.Count; index++)
         {
             Vector2d offset = pattern[index];

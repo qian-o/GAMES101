@@ -134,6 +134,26 @@ public unsafe class FrameBuffer : IDisposable
         _depthBuffer[index][GetIndex(pixel)] = depth;
     }
 
+    public Color GetFinalColor(Pixel pixel)
+    {
+        return _finalColorBuffer[GetIndex(pixel)];
+    }
+
+    public double GetFinalDepth(Pixel pixel)
+    {
+        return _finalDepthBuffer[GetIndex(pixel)];
+    }
+
+    public void SetFinalColor(Pixel pixel, Color color)
+    {
+        _finalColorBuffer[GetIndex(pixel)] = color;
+    }
+
+    public void SetFinalDepth(Pixel pixel, double depth)
+    {
+        _finalDepthBuffer[GetIndex(pixel)] = depth;
+    }
+
     public void Present(int x, int y, bool flipY)
     {
         Rectangle<int> dst = new(x, y, _width, _height);
@@ -146,19 +166,19 @@ public unsafe class FrameBuffer : IDisposable
         }
         else
         {
-            Parallel.For(0, _finalColorBuffer.Length, (index) =>
+            Parallel.ForEach(_pixels, (pixel) =>
             {
-                Color color = new(0, 0, 0, 0);
-                double depth = double.MinValue;
+                Color color = GetFinalColor(pixel);
+                double depth = GetFinalDepth(pixel);
 
                 for (int i = 0; i < _sampleCount; i++)
                 {
-                    color += _colorBuffer[i][index] / _sampleCount;
-                    depth = Math.Max(depth, _depthBuffer[i][index]);
+                    color += GetColor(pixel, i) / _sampleCount;
+                    depth = Math.Max(depth, GetDepth(pixel, i));
                 }
 
-                _finalColorBuffer[index] = color;
-                _finalDepthBuffer[index] = depth;
+                SetFinalColor(pixel, color);
+                SetFinalDepth(pixel, depth);
             });
         }
 

@@ -17,38 +17,6 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
     {
     }
 
-    public Color(float r, float g, float b, float a) : this(ClampToByte(r), ClampToByte(g), ClampToByte(b), ClampToByte(a))
-    {
-    }
-
-    public Color(float r, float g, float b) : this(r, g, b, 1.0f)
-    {
-    }
-
-    public Color(double r, double g, double b, double a) : this(ClampToByte(r), ClampToByte(g), ClampToByte(b), ClampToByte(a))
-    {
-    }
-
-    public Color(double r, double g, double b) : this(r, g, b, 1.0)
-    {
-    }
-
-    public readonly float Af => A / 255.0f;
-
-    public readonly float Bf => B / 255.0f;
-
-    public readonly float Gf => G / 255.0f;
-
-    public readonly float Rf => R / 255.0f;
-
-    public readonly double Ad => A / 255.0;
-
-    public readonly double Bd => B / 255.0;
-
-    public readonly double Gd => G / 255.0;
-
-    public readonly double Rd => R / 255.0;
-
     public readonly bool Equals(Color other)
     {
         return GetHashCode() == other.GetHashCode();
@@ -71,22 +39,22 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
 
     public static Color operator +(Color left, Color right)
     {
-        return new(left.Rd + right.Rd, left.Gd + right.Gd, left.Bd + right.Bd, left.Ad + right.Ad);
+        return new(Clamp(left.R + right.R), Clamp(left.G + right.G), Clamp(left.B + right.B), Clamp(left.A + right.A));
     }
 
     public static Color operator -(Color left, Color right)
     {
-        return new(left.Rd - right.Rd, left.Gd - right.Gd, left.Bd - right.Bd, left.Ad - right.Ad);
+        return new(Clamp(left.R - right.R), Clamp(left.G - right.G), Clamp(left.B - right.B), Clamp(left.A - right.A));
     }
 
-    public static Color operator *(Color color, double scalar)
+    public static Color operator *(Color color, int scalar)
     {
-        return new(color.Rd * scalar, color.Gd * scalar, color.Bd * scalar, color.Ad * scalar);
+        return new(Clamp(color.R * scalar), Clamp(color.G * scalar), Clamp(color.B * scalar), Clamp(color.A * scalar));
     }
 
-    public static Color operator /(Color color, double scalar)
+    public static Color operator /(Color color, int scalar)
     {
-        return new(color.Rd / scalar, color.Gd / scalar, color.Bd / scalar, color.Ad / scalar);
+        return new(Clamp(color.R / scalar), Clamp(color.G / scalar), Clamp(color.B / scalar), Clamp(color.A / scalar));
     }
 
     public static bool operator ==(Color left, Color right)
@@ -114,33 +82,8 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
         return new(r, g, b, a);
     }
 
-    public static Color FromRgb(float r, float g, float b)
+    private static byte Clamp(int value)
     {
-        return new(r, g, b);
-    }
-
-    public static Color FromRgba(float r, float g, float b, float a)
-    {
-        return new(r, g, b, a);
-    }
-
-    public static Color FromRgb(double r, double g, double b)
-    {
-        return new(r, g, b);
-    }
-
-    public static Color FromRgba(double r, double g, double b, double a)
-    {
-        return new(r, g, b, a);
-    }
-
-    private static byte ClampToByte(float value)
-    {
-        return (byte)Math.Max(0, Math.Min(255, value * 255));
-    }
-
-    private static byte ClampToByte(double value)
-    {
-        return (byte)Math.Max(0, Math.Min(255, value * 255));
+        return (byte)Math.Clamp(value, 0, 255);
     }
 }
