@@ -1,5 +1,8 @@
 ﻿namespace PA.Graphics;
 
+/// <summary>
+/// Represents all the system-defined colors.
+/// </summary>
 public static class Colors
 {
     /// <summary>Gets the system-defined color that has an ARGB value of <c>#FFF0F8FF</c>.</summary>

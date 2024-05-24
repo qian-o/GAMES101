@@ -205,15 +205,25 @@ public unsafe class FrameBuffer : IDisposable
         _sdl.RenderCopyEx(_renderer, _texture, null, &destination, 0.0, null, flip);
     }
 
-    public void ProcessingPixels(Action<Pixel> action)
+    public void ProcessingPixels(Action<Pixel> action, bool isSingleThread = false)
     {
-        Parallel.ForEach(Partitioner.Create(0, _pixels.Length), (range) =>
+        if (isSingleThread)
         {
-            for (int i = range.Item1; i < range.Item2; i++)
+            foreach (Pixel pixel in _pixels)
             {
-                action(_pixels[i]);
+                action(pixel);
             }
-        });
+        }
+        else
+        {
+            Parallel.ForEach(Partitioner.Create(0, _pixels.Length), (range) =>
+            {
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    action(_pixels[i]);
+                }
+            });
+        }
     }
 
     public void Dispose()

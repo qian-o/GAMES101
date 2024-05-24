@@ -165,13 +165,13 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
             if (IsPointInTriangle([a, b, c], x, y, out Vector3d abg))
             {
-                Vector3d vectorZ = new(triangle.A.Position.Z, triangle.B.Position.Z, triangle.C.Position.Z);
+                Vertex vertex = Vertex.Interpolate(triangle.A, triangle.B, triangle.C, abg);
 
-                double depth = Vector3d.Dot(abg, vectorZ);
+                double depth = vertex.Position.Z;
 
                 if (depth > frameBuffer.GetDepth(pixel, index))
                 {
-                    frameBuffer.SetColor(pixel, index, triangle.A.Color);
+                    frameBuffer.SetColor(pixel, index, vertex.Color);
                     frameBuffer.SetDepth(pixel, index, depth);
                 }
             }
@@ -194,7 +194,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         double bcp = Vector2d.Cross(bc, bp);
         double cap = Vector2d.Cross(ca, cp);
 
-        double area = Math.Abs(Vector2d.Cross(ab, ca)) * 0.5;
+        double area = Math.Abs(Vector2d.Cross(ab, ca));
 
         bool isHit = CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
 

@@ -37,6 +37,26 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
         return $"({R}, {G}, {B}, {A})";
     }
 
+    public static Color operator +(Color left, Color right)
+    {
+        return new(Clamp(left.R + right.R), Clamp(left.G + right.G), Clamp(left.B + right.B), Clamp(left.A + right.A));
+    }
+
+    public static Color operator -(Color left, Color right)
+    {
+        return new(Clamp(left.R - right.R), Clamp(left.G - right.G), Clamp(left.B - right.B), Clamp(left.A - right.A));
+    }
+
+    public static Color operator *(Color color, double scalar)
+    {
+        return new(Clamp(color.R * scalar), Clamp(color.G * scalar), Clamp(color.B * scalar), Clamp(color.A * scalar));
+    }
+
+    public static Color operator /(Color color, double scalar)
+    {
+        return new(Clamp(color.R / scalar), Clamp(color.G / scalar), Clamp(color.B / scalar), Clamp(color.A / scalar));
+    }
+
     public static bool operator ==(Color left, Color right)
     {
         return left.Equals(right);
@@ -49,7 +69,12 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
 
     public static Color FromUint(uint argb)
     {
-        return new((byte)(argb >> 16 & 0xFF), (byte)(argb >> 8 & 0xFF), (byte)(argb & 0xFF), (byte)(argb >> 24 & 0xFF));
+        return FromRgba((byte)((argb & 0x00ff0000) >> 0x10), (byte)((argb & 0x0000ff00) >> 0x8), (byte)(argb & 0x000000ff), (byte)((argb & 0xff000000) >> 0x18));
+    }
+
+    public static Color FromInt(int argb)
+    {
+        return FromRgba((byte)((argb & 0x00ff0000) >> 0x10), (byte)((argb & 0x0000ff00) >> 0x8), (byte)(argb & 0x000000ff), (byte)((argb & 0xff000000) >> 0x18));
     }
 
     public static Color FromRgb(byte r, byte g, byte b)
@@ -73,6 +98,11 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
     }
 
     private static byte Clamp(uint value)
+    {
+        return (byte)Math.Clamp(value, 0, 255);
+    }
+
+    private static byte Clamp(double value)
     {
         return (byte)Math.Clamp(value, 0, 255);
     }

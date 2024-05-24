@@ -48,6 +48,7 @@ public struct Vector3d(double x, double y, double z) : IEquatable<Vector3d>
     {
         return new(-vector.X, -vector.Y, -vector.Z);
     }
+    
     public static Vector3d operator -(Vector3d left, Vector3d right)
     {
         return new(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
