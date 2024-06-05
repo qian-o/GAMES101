@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using Maths;
 
 namespace PA.Graphics;
 
@@ -95,6 +96,11 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
     public static Color FromRgba(uint r, uint g, uint b, uint a)
     {
         return new(Clamp(r), Clamp(g), Clamp(b), Clamp(a));
+    }
+
+    public static Color FromColor(Vector4d vector)
+    {
+        return new(Clamp(vector.X * 255.0), Clamp(vector.Y * 255), Clamp(vector.Z * 255), Clamp(vector.W * 255));
     }
 
     private static byte Clamp(uint value)

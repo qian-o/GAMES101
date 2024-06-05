@@ -9,11 +9,6 @@ public static class MathsExtensions
         return new(vector.X, vector.Y);
     }
 
-    public static Vector4d XYZW(this Vector2d vector, double z = 0, double w = 1)
-    {
-        return new(vector.X, vector.Y, z, w);
-    }
-
     public static Vector2 ToSystem(this Vector2d vector)
     {
         return new((float)vector.X, (float)vector.Y);
