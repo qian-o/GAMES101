@@ -12,4 +12,10 @@
 		<ProjectReference Include="..\PA\PA.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="Models\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>

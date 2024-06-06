@@ -226,6 +226,29 @@ public unsafe class FrameBuffer : IDisposable
         }
     }
 
+    public void ProcessingPixelsByBox(Box2d box, Action<Pixel> action, bool isSingleThread = false)
+    {
+        Pixel[] pixels = Pixels.AsParallel().Where((pixel) => box.Contains(pixel.X, pixel.Y)).ToArray();
+
+        if (isSingleThread)
+        {
+            foreach (Pixel pixel in pixels)
+            {
+                action(pixel);
+            }
+        }
+        else
+        {
+            Parallel.ForEach(Partitioner.Create(0, pixels.Length), (range) =>
+            {
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    action(pixels[i]);
+                }
+            });
+        }
+    }
+
     public void Dispose()
     {
         _sdl.DestroyTexture(_texture);

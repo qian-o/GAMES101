@@ -12,6 +12,16 @@ public struct Box2d(double minX, double minY, double maxX, double maxY)
 
     public double MaxY = maxY;
 
+    public static Box2d operator +(Box2d left, Box2d right)
+    {
+        double minX = Math.Min(left.MinX, right.MinX);
+        double minY = Math.Min(left.MinY, right.MinY);
+        double maxX = Math.Max(left.MaxX, right.MaxX);
+        double maxY = Math.Max(left.MaxY, right.MaxY);
+
+        return new Box2d(minX, minY, maxX, maxY);
+    }
+
     public readonly bool Contains(double x, double y)
     {
         return x >= MinX && x <= MaxX && y >= MinY && y <= MaxY;

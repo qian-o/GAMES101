@@ -26,7 +26,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
     private readonly Renderer* _renderer = windowRenderer.Renderer;
     private readonly SampleCount _sampleCount = sampleCount;
     private readonly Dictionary<int, Vertex[]> bufferVertexes = [];
-    private readonly Dictionary<int, int[]> bufferIndices = [];
+    private readonly Dictionary<int, uint[]> bufferIndices = [];
 
     private int x;
     private int y;
@@ -54,7 +54,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         return id;
     }
 
-    public int CreateIndexBuffer(int[] indices)
+    public int CreateIndexBuffer(uint[] indices)
     {
         int id = bufferIndices.Count;
         bufferIndices.Add(id, indices);
@@ -92,7 +92,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
     {
         if (frameBuffer is null
             || !bufferVertexes.TryGetValue(vertexBufferId, out Vertex[]? vertexes)
-            || !bufferIndices.TryGetValue(indexBufferId, out int[]? indices))
+            || !bufferIndices.TryGetValue(indexBufferId, out uint[]? indices))
         {
             return;
         }
@@ -110,7 +110,9 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
         transform = viewport * Projection * View * Model;
 
+        Box2d box = new(double.MaxValue, double.MaxValue, double.MinValue, double.MinValue);
         TriangleInfo[] triangleInfos = new TriangleInfo[triangles.Length];
+
         for (int i = 0; i < triangles.Length; i++)
         {
             Triangle triangle = triangles[i];
@@ -119,7 +121,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             Vector2d b = (transform * triangle.B.Position).XY();
             Vector2d c = (transform * triangle.C.Position).XY();
 
-            Box2d box = Box2d.FromPoints(a, b, c);
+            box += Box2d.FromPoints(a, b, c);
 
             triangleInfos[i] = new TriangleInfo
             {
@@ -131,7 +133,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             };
         }
 
-        frameBuffer.ProcessingPixels((pixel) =>
+        frameBuffer.ProcessingPixelsByBox(box, (pixel) =>
         {
             foreach (TriangleInfo triangleInfo in triangleInfos)
             {
@@ -171,7 +173,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
                 if (depth > frameBuffer.GetDepth(pixel, index))
                 {
-                    frameBuffer.SetColor(pixel, index, vertex.Color);
+                    frameBuffer.SetColor(pixel, index, Colors.Red);
                     frameBuffer.SetDepth(pixel, index, depth);
                 }
             }

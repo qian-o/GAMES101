@@ -1,4 +1,5 @@
 ﻿using Maths;
+using PA;
 using PA.Graphics;
 
 namespace PA3;
@@ -7,8 +8,9 @@ internal class Program
 {
     private static WindowRenderer _windowRenderer = null!;
     private static Rasterizer _rasterizer = null!;
-    private static int vbo = 0;
-    private static int ibo = 0;
+    private static AssimpParsing _assimpParsing = null!;
+    private static int[] vbo = [];
+    private static int[] ibo = [];
 
     private static void Main(string[] _)
     {
@@ -17,7 +19,8 @@ internal class Program
         _windowRenderer.Update += WindowRenderer_Update;
         _windowRenderer.Render += WindowRenderer_Render;
 
-        _rasterizer = new Rasterizer(_windowRenderer, SampleCount.SampleCount4);
+        _rasterizer = new Rasterizer(_windowRenderer);
+        _assimpParsing = new AssimpParsing(Path.Combine("Models", "spot", "spot_triangulated_good.obj"));
 
         _windowRenderer.Run();
 
@@ -29,15 +32,16 @@ internal class Program
         _rasterizer.Model = Matrix4x4d.Identity;
         _rasterizer.View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 5.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0));
 
-        Vertex a = new(new(2.0, 0.0, -2.0), color: new(255, 0, 0));
-        Vertex b = new(new(0.0, 2.0, -2.0), color: new(0, 255, 0));
-        Vertex c = new(new(-2.0, 0.0, -2.0), color: new(0, 0, 255));
-        Vertex d = new(new(3.5, -1.0, -5.0), color: new(185, 217, 238));
-        Vertex e = new(new(2.5, 1.5, -5.0), color: new(185, 217, 238));
-        Vertex f = new(new(-1.0, 0.5, -1.0), color: new(185, 217, 238));
+        int index = 0;
+        vbo = new int[_assimpParsing.MeshNames.Length];
+        ibo = new int[_assimpParsing.MeshNames.Length];
+        foreach (string mesh in _assimpParsing.MeshNames)
+        {
+            vbo[index] = _rasterizer.CreateVertexBuffer(_assimpParsing.Vertices(mesh));
+            ibo[index] = _rasterizer.CreateIndexBuffer(_assimpParsing.Indices(mesh));
 
-        vbo = _rasterizer.CreateVertexBuffer([a, b, c, d, e, f]);
-        ibo = _rasterizer.CreateIndexBuffer([0, 1, 2, 3, 4, 5]);
+            index++;
+        }
     }
 
     private static void WindowRenderer_Update(double delta)
@@ -51,6 +55,9 @@ internal class Program
     {
         _rasterizer.Clear();
 
-        _rasterizer.Render(vbo, ibo);
+        for (int i = 0; i < vbo.Length; i++)
+        {
+            _rasterizer.Render(vbo[i], ibo[i]);
+        }
     }
 }
