@@ -146,11 +146,6 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
     private void RasterizeTriangle(Pixel pixel, TriangleInfo triangleInfo)
     {
-        if (!triangleInfo.Box.Contains(pixel.X, pixel.Y))
-        {
-            return;
-        }
-
         Vector2d[] pattern = frameBuffer!.Pattern;
 
         Triangle triangle = triangleInfo.Triangle;
