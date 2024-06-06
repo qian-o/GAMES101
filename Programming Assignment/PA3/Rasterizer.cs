@@ -1,6 +1,7 @@
 ﻿using Maths;
 using PA.Graphics;
 using Silk.NET.SDL;
+using Color = PA.Graphics.Color;
 using Vertex = PA.Graphics.Vertex;
 
 namespace PA3;
@@ -45,6 +46,8 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
     public Matrix4x4d View { get; set; }
 
     public Matrix4x4d Projection { get; set; }
+
+    public Func<Vertex, Color>? Frag { get; set; }
 
     public int CreateVertexBuffer(Vertex[] vertexes)
     {
@@ -168,7 +171,9 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
                 if (depth > frameBuffer.GetDepth(pixel, index))
                 {
-                    frameBuffer.SetColor(pixel, index, Colors.Red);
+                    Color color = Frag?.Invoke(vertex) ?? Colors.White;
+
+                    frameBuffer.SetColor(pixel, index, color);
                     frameBuffer.SetDepth(pixel, index, depth);
                 }
             }

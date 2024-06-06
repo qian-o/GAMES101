@@ -9,6 +9,7 @@ internal class Program
     private static WindowRenderer _windowRenderer = null!;
     private static Rasterizer _rasterizer = null!;
     private static AssimpParsing _assimpParsing = null!;
+    private static Sampler2d _sampler = null!;
     private static int[] vbo = [];
     private static int[] ibo = [];
 
@@ -21,6 +22,7 @@ internal class Program
 
         _rasterizer = new Rasterizer(_windowRenderer);
         _assimpParsing = new AssimpParsing(Path.Combine("Models", "spot", "spot_triangulated_good.obj"));
+        _sampler = new Sampler2d(Path.Combine("Models", "spot", "spot_texture.png"));
 
         _windowRenderer.Run();
 
@@ -31,6 +33,8 @@ internal class Program
     {
         _rasterizer.Model = Matrix4x4d.Identity;
         _rasterizer.View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 5.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0));
+
+        _rasterizer.Frag = TextureFragmentShader;
 
         int index = 0;
         vbo = new int[_assimpParsing.MeshNames.Length];
@@ -46,6 +50,7 @@ internal class Program
 
     private static void WindowRenderer_Update(double delta)
     {
+        _rasterizer.Model = Matrix4x4d.CreateRotationY(Angle.FromDegrees(25.0)) * _rasterizer.Model;
         _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), (double)_windowRenderer.Width / _windowRenderer.Height, 0.1, 100.0);
 
         _rasterizer.SetViewport(0, 0, _windowRenderer.Width, _windowRenderer.Height);
@@ -59,5 +64,12 @@ internal class Program
         {
             _rasterizer.Render(vbo[i], ibo[i]);
         }
+    }
+
+    private static Color TextureFragmentShader(Vertex vertex)
+    {
+        Vector2d uv = vertex.TexCoord;
+
+        return _sampler.Sample(uv.X, uv.Y);
     }
 }
