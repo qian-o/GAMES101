@@ -65,9 +65,19 @@ public struct Vector4d(double x, double y, double z, double w) : IEquatable<Vect
         return new(vector.X * scalar, vector.Y * scalar, vector.Z * scalar, vector.W * scalar);
     }
 
+    public static Vector4d operator *(Vector4d left, Vector4d right)
+    {
+        return new(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
+    }
+
     public static Vector4d operator /(Vector4d vector, double scalar)
     {
         return new(vector.X / scalar, vector.Y / scalar, vector.Z / scalar, vector.W / scalar);
+    }
+
+    public static Vector4d operator /(Vector4d left, Vector4d right)
+    {
+        return new(left.X / right.X, left.Y / right.Y, left.Z / right.Z, left.W / right.W);
     }
 
     public static bool operator ==(Vector4d left, Vector4d right)
@@ -88,5 +98,10 @@ public struct Vector4d(double x, double y, double z, double w) : IEquatable<Vect
     public static Vector4d Normalize(Vector4d a)
     {
         return a / a.Length;
+    }
+
+    public static Vector4d Pow(Vector4d a, double b)
+    {
+        return new(Math.Pow(a.X, b), Math.Pow(a.Y, b), Math.Pow(a.Z, b), Math.Pow(a.W, b));
     }
 }

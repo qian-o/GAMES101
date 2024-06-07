@@ -53,9 +53,19 @@ public struct Vector2d(double x, double y) : IEquatable<Vector2d>
         return new(vector.X * scalar, vector.Y * scalar);
     }
 
+    public static Vector2d operator *(Vector2d left, Vector2d right)
+    {
+        return new(left.X * right.X, left.Y * right.Y);
+    }
+
     public static Vector2d operator /(Vector2d vector, double scalar)
     {
         return new(vector.X / scalar, vector.Y / scalar);
+    }
+
+    public static Vector2d operator /(Vector2d left, Vector2d right)
+    {
+        return new(left.X / right.X, left.Y / right.Y);
     }
 
     public static bool operator ==(Vector2d left, Vector2d right)
@@ -81,5 +91,10 @@ public struct Vector2d(double x, double y) : IEquatable<Vector2d>
     public static Vector2d Normalize(Vector2d a)
     {
         return a / a.Length;
+    }
+
+    public static Vector2d Pow(Vector2d a, double b)
+    {
+        return new(Math.Pow(a.X, b), Math.Pow(a.Y, b));
     }
 }

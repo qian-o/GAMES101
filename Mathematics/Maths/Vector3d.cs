@@ -59,9 +59,19 @@ public struct Vector3d(double x, double y, double z) : IEquatable<Vector3d>
         return new(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
     }
 
+    public static Vector3d operator *(Vector3d left, Vector3d right)
+    {
+        return new(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
+    }
+
     public static Vector3d operator /(Vector3d vector, double scalar)
     {
         return new(vector.X / scalar, vector.Y / scalar, vector.Z / scalar);
+    }
+
+    public static Vector3d operator /(Vector3d left, Vector3d right)
+    {
+        return new(left.X / right.X, left.Y / right.Y, left.Z / right.Z);
     }
 
     public static bool operator ==(Vector3d left, Vector3d right)
@@ -87,5 +97,10 @@ public struct Vector3d(double x, double y, double z) : IEquatable<Vector3d>
     public static Vector3d Normalize(Vector3d a)
     {
         return a / a.Length;
+    }
+
+    public static Vector3d Pow(Vector3d a, double b)
+    {
+        return new(Math.Pow(a.X, b), Math.Pow(a.Y, b), Math.Pow(a.Z, b));
     }
 }

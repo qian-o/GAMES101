@@ -38,6 +38,16 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
         return $"({R}, {G}, {B}, {A})";
     }
 
+    public readonly Vector3d ToVector3d()
+    {
+        return new(R / 255.0, G / 255.0, B / 255.0);
+    }
+
+    public readonly Vector4d ToVector4d()
+    {
+        return new(R / 255.0, G / 255.0, B / 255.0, A / 255.0);
+    }
+
     public static Color operator +(Color left, Color right)
     {
         return new(Clamp(left.R + right.R), Clamp(left.G + right.G), Clamp(left.B + right.B), Clamp(left.A + right.A));
@@ -96,6 +106,11 @@ public struct Color(byte r, byte g, byte b, byte a) : IEquatable<Color>
     public static Color FromRgba(uint r, uint g, uint b, uint a)
     {
         return new(Clamp(r), Clamp(g), Clamp(b), Clamp(a));
+    }
+
+    public static Color FromColor(Vector3d vector)
+    {
+        return new(Clamp(vector.X * 255.0), Clamp(vector.Y * 255), Clamp(vector.Z * 255));
     }
 
     public static Color FromColor(Vector4d vector)

@@ -8,21 +8,6 @@ namespace PA3;
 
 public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sampleCount = SampleCount.SampleCount1)
 {
-    #region Structs
-    private struct TriangleInfo
-    {
-        public Triangle Triangle;
-
-        public Vector2d A;
-
-        public Vector2d B;
-
-        public Vector2d C;
-
-        public Box2d Box;
-    }
-    #endregion
-
     private readonly Sdl _sdl = windowRenderer.Sdl;
     private readonly Renderer* _renderer = windowRenderer.Renderer;
     private readonly SampleCount _sampleCount = sampleCount;
@@ -35,7 +20,6 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
     private int height;
     private Matrix4x4d viewport;
     private FrameBuffer? frameBuffer;
-    private Matrix4x4d transform;
 
     public bool FlipY { get; set; } = true;
 
@@ -105,56 +89,57 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         for (int i = 0; i < indices.Length; i += 3)
         {
             Vertex a = vertexes[indices[i]];
+            a.Color = Color.FromRgb(148, 121, 92);
+
             Vertex b = vertexes[indices[i + 1]];
+            b.Color = Color.FromRgb(148, 121, 92);
+
             Vertex c = vertexes[indices[i + 2]];
+            c.Color = Color.FromRgb(148, 121, 92);
 
             triangles[i / 3] = new Triangle(a, b, c);
         }
-
-        transform = viewport * Projection * View * Model;
-
-        Box2d box = new(double.MaxValue, double.MaxValue, double.MinValue, double.MinValue);
-        TriangleInfo[] triangleInfos = new TriangleInfo[triangles.Length];
 
         for (int i = 0; i < triangles.Length; i++)
         {
             Triangle triangle = triangles[i];
 
-            Vector2d a = (transform * triangle.A.Position).XY();
-            Vector2d b = (transform * triangle.B.Position).XY();
-            Vector2d c = (transform * triangle.C.Position).XY();
+            Matrix4x4d mv = View * Model;
+            Matrix4x4d mvpv = viewport * Projection * mv;
+            Matrix4x4d.Invert(mv, out Matrix4x4d invTrans);
+            invTrans = Matrix4x4d.Transpose(invTrans);
 
-            box += Box2d.FromPoints(a, b, c);
+            Triangle viewTriangle = triangles[i];
+            viewTriangle.A.Position = mv * viewTriangle.A.Position;
+            viewTriangle.B.Position = mv * viewTriangle.B.Position;
+            viewTriangle.C.Position = mv * viewTriangle.C.Position;
+            viewTriangle.A.Normal = invTrans * viewTriangle.A.Normal;
+            viewTriangle.B.Normal = invTrans * viewTriangle.B.Normal;
+            viewTriangle.C.Normal = invTrans * viewTriangle.C.Normal;
 
-            triangleInfos[i] = new TriangleInfo
+            Triangle viewportTriangle = triangles[i];
+            viewportTriangle.A.Position = mvpv * viewportTriangle.A.Position;
+            viewportTriangle.B.Position = mvpv * viewportTriangle.B.Position;
+            viewportTriangle.C.Position = mvpv * viewportTriangle.C.Position;
+
+            Box2d box = Box2d.FromPoints(viewportTriangle.A.Position.XY(), viewportTriangle.B.Position.XY(), viewportTriangle.C.Position.XY());
+
+            frameBuffer.ProcessingPixelsByBox(box, (pixel) =>
             {
-                Triangle = triangle,
-                A = a,
-                B = b,
-                C = c,
-                Box = box
-            };
+                RasterizeTriangle(pixel, viewTriangle, viewportTriangle);
+            });
         }
-
-        frameBuffer.ProcessingPixelsByBox(box, (pixel) =>
-        {
-            foreach (TriangleInfo triangleInfo in triangleInfos)
-            {
-                RasterizeTriangle(pixel, triangleInfo);
-            }
-        });
 
         frameBuffer.Present(x, y, FlipY);
     }
 
-    private void RasterizeTriangle(Pixel pixel, TriangleInfo triangleInfo)
+    private void RasterizeTriangle(Pixel pixel, Triangle viewTriangle, Triangle viewportTriangle)
     {
         Vector2d[] pattern = frameBuffer!.Pattern;
 
-        Triangle triangle = triangleInfo.Triangle;
-        Vector2d a = triangleInfo.A;
-        Vector2d b = triangleInfo.B;
-        Vector2d c = triangleInfo.C;
+        Vector2d a = viewportTriangle.A.Position.XY();
+        Vector2d b = viewportTriangle.B.Position.XY();
+        Vector2d c = viewportTriangle.C.Position.XY();
 
         for (int index = 0; index < pattern.Length; index++)
         {
@@ -165,11 +150,11 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
             if (IsPointInTriangle([a, b, c], x, y, out Vector3d abg))
             {
-                Vertex vertex = Vertex.Interpolate(triangle.A, triangle.B, triangle.C, abg);
+                Vertex vertex = Vertex.Interpolate(viewTriangle.A, viewTriangle.B, viewTriangle.C, abg);
 
                 double depth = vertex.Position.Z;
 
-                if (depth > frameBuffer.GetDepth(pixel, index))
+                if (depth >= frameBuffer.GetDepth(pixel, index))
                 {
                     Color color = Frag?.Invoke(vertex) ?? Colors.White;
 
