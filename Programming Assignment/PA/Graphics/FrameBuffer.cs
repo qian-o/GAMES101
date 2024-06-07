@@ -112,11 +112,11 @@ public unsafe class FrameBuffer : IDisposable
         for (int i = 0; i < _sampleCount; i++)
         {
             Array.Fill(_colorBuffer[i], color);
-            Array.Fill(_depthBuffer[i], double.MinValue);
+            Array.Fill(_depthBuffer[i], double.NegativeInfinity);
         }
 
         Array.Fill(_finalColorBuffer, color);
-        Array.Fill(_finalDepthBuffer, double.MinValue);
+        Array.Fill(_finalDepthBuffer, double.NegativeInfinity);
     }
 
     public Color GetColor(Pixel pixel, int index)

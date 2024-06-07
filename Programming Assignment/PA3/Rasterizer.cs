@@ -105,8 +105,13 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         for (int i = 0; i < indices.Length; i += 3)
         {
             Vertex a = vertexes[indices[i]];
+            a.Color = Color.FromRgb(148, 121, 92);
+
             Vertex b = vertexes[indices[i + 1]];
+            b.Color = Color.FromRgb(148, 121, 92);
+
             Vertex c = vertexes[indices[i + 2]];
+            c.Color = Color.FromRgb(148, 121, 92);
 
             triangles[i / 3] = new Triangle(a, b, c);
         }
@@ -169,7 +174,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
                 double depth = vertex.Position.Z;
 
-                if (depth > frameBuffer.GetDepth(pixel, index))
+                if (depth >= frameBuffer.GetDepth(pixel, index))
                 {
                     Color color = Frag?.Invoke(vertex) ?? Colors.White;
 
