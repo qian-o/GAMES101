@@ -230,6 +230,11 @@ public unsafe class FrameBuffer : IDisposable
     {
         Pixel[] pixels = Pixels.AsParallel().Where((pixel) => box.Contains(pixel.X, pixel.Y)).ToArray();
 
+        if (pixels.Length == 0)
+        {
+            return;
+        }
+
         if (isSingleThread)
         {
             foreach (Pixel pixel in pixels)

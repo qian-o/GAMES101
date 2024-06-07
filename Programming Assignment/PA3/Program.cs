@@ -57,7 +57,7 @@ internal class Program
 
     private static void WindowRenderer_Update(double delta)
     {
-        _rasterizer.Model = Matrix4x4d.CreateRotationY(Angle.FromDegrees(125.0));
+        _rasterizer.Model = Matrix4x4d.CreateRotationY(Angle.FromDegrees(140.0));
         _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), (double)_windowRenderer.Width / _windowRenderer.Height, 0.1, 100.0);
 
         _rasterizer.SetViewport(0, 0, _windowRenderer.Width, _windowRenderer.Height);
@@ -80,15 +80,14 @@ internal class Program
         Vector3d ks = new(0.7937, 0.7937, 0.7937);
 
         Light l1 = new() { Position = new(20, 20, 20), Intensity = new(500, 500, 500) };
-        Light l2 = new() { Position = new(-20, 20, 0), Intensity = new(250, 250, 250) };
+        Light l2 = new() { Position = new(-20, 20, 0), Intensity = new(500, 500, 500) };
 
-        Light[] lights = { l1, l2 };
+        Light[] lights = [l1, l2];
         Vector3d ambLightIntensity = new(10, 10, 10);
-        Vector3d eyePos = new(0, 0, 10);
+        Vector3d eyePos = new(0, 0, 5.0);
 
         double p = 150;
 
-        Color color = vertex.Color;
         Vector3d point = vertex.Position;
         Vector3d normal = vertex.Normal;
 
@@ -96,11 +95,11 @@ internal class Program
         foreach (Light light in lights)
         {
             Vector3d l = Vector3d.Normalize(light.Position - point);
-            Vector3d n = Vector3d.Normalize(-normal);
+            Vector3d n = Vector3d.Normalize(normal);
             Vector3d v = Vector3d.Normalize(eyePos - point);
 
             // 光源强度 = 光源强度 / 距离^2
-            Vector3d ir2 = light.Intensity / Math.Pow((light.Position - point).Length, 2);
+            Vector3d ir2 = light.Intensity / (light.Position - point).LengthSquared;
 
             // 漫反射
             // 通过光线与法线的夹角来计算漫反射。
