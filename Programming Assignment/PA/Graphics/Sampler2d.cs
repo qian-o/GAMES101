@@ -33,7 +33,12 @@ public class Sampler2d : IDisposable
 
         int index = (y * _stbiImage.Width + x) * 4;
 
-        return new Vector4d(_stbiImage.Data[index + 0] / 255.0, _stbiImage.Data[index + 1] / 255.0, _stbiImage.Data[index + 2] / 255.0, _stbiImage.Data[index + 3] / 255.0);
+        return new Vector4d(_stbiImage.Data[index + 0], _stbiImage.Data[index + 1], _stbiImage.Data[index + 2], _stbiImage.Data[index + 3]);
+    }
+
+    public Vector4d SampleNormalized(double u, double v)
+    {
+        return Sample(u, v) / 255.0;
     }
 
     public void Dispose()
