@@ -28,7 +28,7 @@ internal class Program
         _rasterizer.Model = Matrix4x4d.Identity;
         _rasterizer.View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 5.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0));
 
-        Vertex a = new(new(2.0, 0.0, -2.0), color: new(1, 0, 0,1));
+        Vertex a = new(new(2.0, 0.0, -2.0), color: new(1, 0, 0, 1));
         Vertex b = new(new(0.0, 2.0, -2.0), color: new(0, 1, 0, 1));
         Vertex c = new(new(-2.0, 0.0, -2.0), color: new(0, 0, 1, 1));
         Vertex d = new(new(3.5, -1.0, -5.0), color: new(185 / 255.0, 217 / 255.0, 238 / 255.0, 1));
