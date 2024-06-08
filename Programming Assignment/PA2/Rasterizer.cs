@@ -85,7 +85,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             return;
         }
 
-        frameBuffer.Clear(Colors.Black);
+        frameBuffer.Clear();
     }
 
     public void Render(int vertexBufferId, int indexBufferId)

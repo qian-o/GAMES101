@@ -1,7 +1,6 @@
 ﻿using Maths;
 using PA.Graphics;
 using Silk.NET.SDL;
-using Color = PA.Graphics.Color;
 using Vertex = PA.Graphics.Vertex;
 
 namespace PA3;
@@ -31,7 +30,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
     public Matrix4x4d Projection { get; set; }
 
-    public Func<Vertex, Color>? Frag { get; set; }
+    public Func<Vertex, Vector4d>? Frag { get; set; }
 
     public int CreateVertexBuffer(Vertex[] vertexes)
     {
@@ -72,7 +71,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             return;
         }
 
-        frameBuffer.Clear(Colors.Black);
+        frameBuffer.Clear();
     }
 
     public void Render(int vertexBufferId, int indexBufferId)
@@ -89,13 +88,13 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         for (int i = 0; i < indices.Length; i += 3)
         {
             Vertex a = vertexes[indices[i]];
-            a.Color = Color.FromRgb(148, 121, 92);
+            a.Color = new Vector4d(148 / 255.0, 121 / 255.0, 92 / 255.0, 1);
 
             Vertex b = vertexes[indices[i + 1]];
-            b.Color = Color.FromRgb(148, 121, 92);
+            b.Color = new Vector4d(148 / 255.0, 121 / 255.0, 92 / 255.0, 1);
 
             Vertex c = vertexes[indices[i + 2]];
-            c.Color = Color.FromRgb(148, 121, 92);
+            c.Color = new Vector4d(148 / 255.0, 121 / 255.0, 92 / 255.0, 1);
 
             triangles[i / 3] = new Triangle(a, b, c);
         }
@@ -156,7 +155,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
                 if (depth >= frameBuffer.GetDepth(pixel, index))
                 {
-                    Color color = Frag?.Invoke(vertex) ?? Colors.White;
+                    Vector4d color = Frag?.Invoke(vertex) ?? new Vector4d(1, 1, 1, 1);
 
                     frameBuffer.SetColor(pixel, index, color);
                     frameBuffer.SetDepth(pixel, index, depth);

@@ -9,6 +9,11 @@ public static class MathsExtensions
         return new(vector.X, vector.Y);
     }
 
+    public static Vector3d XYZ(this Vector4d vector)
+    {
+        return new(vector.X, vector.Y, vector.Z);
+    }
+
     public static Vector2 ToSystem(this Vector2d vector)
     {
         return new((float)vector.X, (float)vector.Y);

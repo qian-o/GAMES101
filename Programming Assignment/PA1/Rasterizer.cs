@@ -69,7 +69,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             return;
         }
 
-        frameBuffer.Clear(Colors.Black);
+        frameBuffer.Clear();
     }
 
     public void Render(int vertexBufferId, int indexBufferId)
@@ -100,7 +100,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             {
                 if (IsPointInTriangle(triangle, pixel.X, pixel.Y))
                 {
-                    frameBuffer.SetColor(pixel, 0, new(255, 255, 255));
+                    frameBuffer.SetColor(pixel, 0, new(1, 1, 1, 1));
 
                     break;
                 }

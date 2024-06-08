@@ -1,4 +1,5 @@
-﻿using StbiSharp;
+﻿using Maths;
+using StbiSharp;
 
 namespace PA.Graphics;
 
@@ -18,7 +19,11 @@ public class Sampler2d : IDisposable
         _stbiImage = Stbi.LoadFromMemory(File.ReadAllBytes(image), 4);
     }
 
-    public Color Sample(double u, double v)
+    public int Width => _stbiImage.Width;
+
+    public int Height => _stbiImage.Height;
+
+    public Vector4d Sample(double u, double v)
     {
         int x = (int)(u * _stbiImage.Width);
         int y = (int)(v * _stbiImage.Height);
@@ -28,7 +33,7 @@ public class Sampler2d : IDisposable
 
         int index = (y * _stbiImage.Width + x) * 4;
 
-        return new Color(_stbiImage.Data[index + 0], _stbiImage.Data[index + 1], _stbiImage.Data[index + 2], _stbiImage.Data[index + 3]);
+        return new Vector4d(_stbiImage.Data[index + 0] / 255.0, _stbiImage.Data[index + 1] / 255.0, _stbiImage.Data[index + 2] / 255.0, _stbiImage.Data[index + 3] / 255.0);
     }
 
     public void Dispose()

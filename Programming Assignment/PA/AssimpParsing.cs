@@ -60,7 +60,7 @@ public unsafe class AssimpParsing
 
                 if (mesh->MColors[0] != null)
                 {
-                    vertices[i].Color = Color.FromColor((*&mesh->MColors[0][i]).ToMaths());
+                    vertices[i].Color = (*&mesh->MColors[0][i]).ToMaths();
                 }
 
                 if (mesh->MTextureCoords[0] != null)

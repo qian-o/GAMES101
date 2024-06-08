@@ -28,7 +28,9 @@ public unsafe class WindowRenderer : IDisposable
         _sdl = Sdl.GetApi();
 
         _window.Title = title;
+
         _window.Initialize();
+        _window.Center();
 
         _renderer = _sdl.CreateRenderer((SDLWindow*)_window.Native!.Sdl!, -1, (int)RendererFlags.Accelerated);
         _inputContext = _window.CreateInput();
