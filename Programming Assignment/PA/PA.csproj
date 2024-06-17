@@ -10,8 +10,13 @@
 	<ItemGroup>
 		<PackageReference Include="ILGPU" Version="1.5.1" />
 		<PackageReference Include="Silk.NET.Assimp" Version="2.21.0" />
+		<PackageReference Include="Silk.NET.Input" Version="2.21.0" />
 		<PackageReference Include="Silk.NET.Input.Sdl" Version="2.21.0" />
+		<PackageReference Include="Silk.NET.OpenGL" Version="2.21.0" />
+		<PackageReference Include="Silk.NET.OpenGL.Extensions.ImGui" Version="2.21.0" />
+		<PackageReference Include="Silk.NET.Windowing" Version="2.21.0" />
 		<PackageReference Include="Silk.NET.Windowing.Sdl" Version="2.21.0" />
+		<PackageReference Include="SkiaSharp" Version="2.88.8" />
 		<PackageReference Include="StbiSharp" Version="1.2.1" />
 	</ItemGroup>
 
