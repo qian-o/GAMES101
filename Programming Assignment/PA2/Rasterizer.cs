@@ -132,7 +132,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             };
         }
 
-        frameBuffer.ProcessingPixels((pixel) =>
+        ParallelHelper.Foreach(frameBuffer.Pixels, (pixel) =>
         {
             foreach (TriangleInfo triangleInfo in triangleInfos)
             {
@@ -150,16 +150,14 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             return;
         }
 
-        Vector2d[] pattern = frameBuffer!.Pattern;
-
         Triangle triangle = triangleInfo.Triangle;
         Vector2d a = triangleInfo.A;
         Vector2d b = triangleInfo.B;
         Vector2d c = triangleInfo.C;
 
-        for (int index = 0; index < pattern.Length; index++)
+        for (int sample = 0; sample < frameBuffer!.Samples; sample++)
         {
-            Vector2d offset = pattern[index];
+            Vector2d offset = frameBuffer.Patterns[sample];
 
             float x = pixel.X + offset.X;
             float y = pixel.Y + offset.Y;
@@ -170,10 +168,9 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
                 float depth = vertex.Position.Z;
 
-                if (depth > frameBuffer.GetDepth(pixel, index))
+                if (depth > frameBuffer[pixel, sample].Depth)
                 {
-                    frameBuffer.SetColor(pixel, index, vertex.Color);
-                    frameBuffer.SetDepth(pixel, index, depth);
+                    frameBuffer[pixel, sample] = new Fragment(vertex.Color, depth);
                 }
             }
         }

@@ -21,4 +21,8 @@
 		<ProjectReference Include="..\..\Mathematics\Maths\Maths.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Helpers\" />
+	</ItemGroup>
+
 </Project>

@@ -124,7 +124,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
             Box2d box = Box2d.FromPoints(viewportTriangle.A.Position.XY(), viewportTriangle.B.Position.XY(), viewportTriangle.C.Position.XY());
 
-            frameBuffer.ProcessingPixelsByBox(box, (pixel) =>
+            ParallelHelper.ProcessingPixels(frameBuffer.Pixels, box, (pixel) =>
             {
                 RasterizeTriangle(pixel, viewTriangle, viewportTriangle);
             });
@@ -135,15 +135,13 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
     private void RasterizeTriangle(Pixel pixel, Triangle viewTriangle, Triangle viewportTriangle)
     {
-        Vector2d[] pattern = frameBuffer!.Pattern;
-
         Vector2d a = viewportTriangle.A.Position.XY();
         Vector2d b = viewportTriangle.B.Position.XY();
         Vector2d c = viewportTriangle.C.Position.XY();
 
-        for (int index = 0; index < pattern.Length; index++)
+        for (int sample = 0; sample < frameBuffer!.Samples; sample++)
         {
-            Vector2d offset = pattern[index];
+            Vector2d offset = frameBuffer.Patterns[sample];
 
             float x = pixel.X + offset.X;
             float y = pixel.Y + offset.Y;
@@ -154,12 +152,11 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
                 float depth = vertex.Position.Z;
 
-                if (depth >= frameBuffer.GetDepth(pixel, index))
+                if (depth >= frameBuffer[pixel, sample].Depth)
                 {
-                    Vector4d color = Frag?.Invoke(vertex) ?? new Vector4d(1, 1, 1, 1);
+                    Vector4d color = Frag?.Invoke(vertex) ?? new Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
 
-                    frameBuffer.SetColor(pixel, index, color);
-                    frameBuffer.SetDepth(pixel, index, depth);
+                    frameBuffer[pixel, sample] = new(color, depth);
                 }
             }
         }
