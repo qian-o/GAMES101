@@ -17,8 +17,8 @@ public unsafe class FrameBuffer : IDisposable
 
         Width = width;
         Height = height;
-        Patterns = GeneratePatterns(sampleCount);
         Pixels = new Pixel[width * height];
+        Patterns = GenPatterns(sampleCount);
         Texture = _gl.GenTexture();
 
         _colorBuffer = new Buffer<Vector4d>[Samples];
@@ -33,11 +33,11 @@ public unsafe class FrameBuffer : IDisposable
 
     public int Height { get; }
 
+    public Pixel[] Pixels { get; }
+
     public Vector2d[] Patterns { get; }
 
     public int Samples => Patterns.Length;
-
-    public Pixel[] Pixels { get; }
 
     public uint Texture { get; }
 
@@ -140,7 +140,7 @@ public unsafe class FrameBuffer : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public static Vector2d[] GeneratePatterns(SampleCount sampleCount)
+    public static Vector2d[] GenPatterns(SampleCount sampleCount)
     {
         return sampleCount switch
         {
@@ -187,7 +187,7 @@ public unsafe class FrameBuffer : IDisposable
                 new(0.875f, 0.9375f),
                 new(0.0625f, 0.0f)
             ],
-            _ => throw new ArgumentOutOfRangeException(nameof(sampleCount)),
+            _ => throw new ArgumentOutOfRangeException(nameof(sampleCount))
         };
     }
 }
