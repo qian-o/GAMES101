@@ -17,14 +17,14 @@ public unsafe class FrameBuffer : IDisposable
 
         Width = width;
         Height = height;
-        Pixels = new Pixel[width * height];
+        Pixels = new Pixel[Width * Height];
         Patterns = GenPatterns(sampleCount);
         Texture = _gl.GenTexture();
 
         _colorBuffer = new Buffer<Vector4d>[Samples];
         _depthBuffer = new Buffer<float>[Samples];
-        _finalColorBuffer = new Buffer<Vector4d>(width * height);
-        _finalDepthBuffer = new Buffer<float>(width * height);
+        _finalColorBuffer = new Buffer<Vector4d>(Width * Height);
+        _finalDepthBuffer = new Buffer<float>(Width * Height);
 
         Init();
     }
@@ -83,11 +83,11 @@ public unsafe class FrameBuffer : IDisposable
 
     public void Clear(Vector4d color = default, float depth = float.NegativeInfinity)
     {
-        for (int i = 0; i < Samples; i++)
+        Parallel.For(0, Samples, (i) =>
         {
             _colorBuffer[i].Fill(color);
             _depthBuffer[i].Fill(depth);
-        }
+        });
     }
 
     public void Present()
