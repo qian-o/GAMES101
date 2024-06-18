@@ -1,7 +1,6 @@
-﻿using Maths;
+﻿using ImGuiNET;
+using Maths;
 using PA.Graphics;
-using Silk.NET.Input;
-using Silk.NET.SDL;
 
 internal unsafe class Program
 {
@@ -13,19 +12,7 @@ internal unsafe class Program
         _windowRenderer = new("PA 4");
         _windowRenderer.Render += WindowRenderer_Render;
 
-        _windowRenderer.Mouse.Click += (_, button, position) =>
-        {
-            if (button == MouseButton.Left)
-            {
-                _points.Add(position.ToMaths());
-            }
-            else if (button == MouseButton.Right)
-            {
-                _points.Clear();
-            }
-        };
-
-        _points = new(4);
+        _points = [];
 
         _windowRenderer.Run();
 
@@ -34,22 +21,27 @@ internal unsafe class Program
 
     private static void WindowRenderer_Render(double delta)
     {
-        _windowRenderer.Sdl.SetRenderDrawColor(_windowRenderer.Renderer, 0, 0, 0, 255);
-        _windowRenderer.Sdl.RenderClear(_windowRenderer.Renderer);
-
-        _windowRenderer.Sdl.SetRenderDrawColor(_windowRenderer.Renderer, 255, 255, 255, 255);
-        foreach (Vector2d point in _points)
+        if (ImGui.IsMouseClicked(ImGuiMouseButton.Left))
         {
-            FRect rect = new((float)point.X - 2.5f, (float)point.Y - 2.5f, 5, 5);
-
-            _windowRenderer.Sdl.RenderFillRectF(_windowRenderer.Renderer, ref rect);
+            _points.Add(ImGui.GetMousePos().ToMaths());
+        }
+        else if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
+        {
+            _points.Clear();
         }
 
-        NaiveBezier(_windowRenderer.Sdl, _windowRenderer.Renderer);
-        Bezier(_windowRenderer.Sdl, _windowRenderer.Renderer);
+        ImDrawListPtr drawListPtr = ImGui.GetForegroundDrawList();
+
+        foreach (Vector2d point in _points)
+        {
+            drawListPtr.AddCircleFilled(point.ToSystem(), 2.5f, 0xFFFFFFFF);
+        }
+
+        NaiveBezier(drawListPtr);
+        Bezier(drawListPtr);
     }
 
-    private static void NaiveBezier(Sdl sdl, Renderer* renderer)
+    private static void NaiveBezier(ImDrawListPtr drawListPtr)
     {
         if (_points.Count < 4)
         {
@@ -61,8 +53,6 @@ internal unsafe class Program
         Vector2d p2 = _points[2];
         Vector2d p3 = _points[3];
 
-        sdl.SetRenderDrawColor(renderer, 255, 0, 0, 255);
-
         for (double t = 0; t <= 1.0; t += 0.0001)
         {
             Vector2d point = (p0 * Math.Pow(1 - t, 3))
@@ -70,7 +60,7 @@ internal unsafe class Program
                              + (p2 * 3 * (1 - t) * Math.Pow(t, 2))
                              + (p3 * Math.Pow(t, 3));
 
-            sdl.RenderDrawPointF(renderer, (float)point.X, (float)point.Y);
+            drawListPtr.AddCircleFilled(point.ToSystem(), 1.0f, 0xFF0000FF);
         }
     }
 
@@ -90,20 +80,18 @@ internal unsafe class Program
         return RecursiveBezier(newControlPoints, t);
     }
 
-    private static void Bezier(Sdl sdl, Renderer* renderer)
+    private static void Bezier(ImDrawListPtr drawListPtr)
     {
         if (_points.Count == 0)
         {
             return;
         }
 
-        sdl.SetRenderDrawColor(renderer, 0, 255, 0, 255);
-
         for (double t = 0; t <= 1.0; t += 0.0001)
         {
             Vector2d point = RecursiveBezier([.. _points], t);
 
-            sdl.RenderDrawPointF(renderer, (float)point.X, (float)point.Y);
+            drawListPtr.AddCircleFilled(point.ToSystem(), 1.0f, 0xFF00FF00);
         }
     }
 }

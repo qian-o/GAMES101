@@ -1,21 +1,23 @@
-﻿using Silk.NET.Input;
-using Silk.NET.SDL;
+﻿using System.Runtime.InteropServices;
+using ImGuiNET;
+using Silk.NET.Input;
+using Silk.NET.OpenGL;
+using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
-using SDLWindow = Silk.NET.SDL.Window;
-using SilkWindow = Silk.NET.Windowing.Window;
 
 namespace PA.Graphics;
 
 public unsafe class WindowRenderer : IDisposable
 {
-    private readonly string _title;
     private readonly IWindow _window;
-    private readonly Sdl _sdl;
-    private readonly Renderer* _renderer;
-    private readonly IInputContext _inputContext;
-    private readonly IMouse _mouse;
-    private readonly IKeyboard _keyboard;
-    private readonly List<double> _fpsSamples;
+
+    private GL? gl;
+    private IInputContext? inputContext;
+    private ImGuiController? imGuiController;
+    private IMouse? mouse;
+    private IKeyboard? keyboard;
+    private bool isInitialized;
+    private bool firstFrame = true;
 
     public event Action? Load;
     public event Action<double>? Update;
@@ -23,56 +25,82 @@ public unsafe class WindowRenderer : IDisposable
 
     public WindowRenderer(string title)
     {
-        _title = title;
-        _window = SilkWindow.Create(WindowOptions.DefaultVulkan);
-        _sdl = Sdl.GetApi();
+        WindowOptions windowOptions = WindowOptions.Default;
+        windowOptions.Title = title;
+        windowOptions.API = new GraphicsAPI()
+        {
+            API = ContextAPI.OpenGL,
+            Profile = ContextProfile.Core,
+            Version = new APIVersion(4, 6)
+        };
+        windowOptions.VSync = false;
 
-        _window.Title = title;
-
-        _window.Initialize();
-        _window.Center();
-
-        _renderer = _sdl.CreateRenderer((SDLWindow*)_window.Native!.Sdl!, -1, (int)RendererFlags.Accelerated);
-        _inputContext = _window.CreateInput();
-        _mouse = _inputContext.Mice[0];
-        _keyboard = _inputContext.Keyboards[0];
-        _fpsSamples = new(60);
+        _window = Window.Create(windowOptions);
     }
 
-    public Sdl Sdl => _sdl;
+    public GL GL => ThrowIfNotInitialized(gl);
 
-    public Renderer* Renderer => _renderer;
+    public ImGuiController ImGuiController => ThrowIfNotInitialized(imGuiController);
+
+    public IMouse Mouse => ThrowIfNotInitialized(mouse);
+
+    public IKeyboard Keyboard => ThrowIfNotInitialized(keyboard);
 
     public int Width => _window.Size.X;
 
     public int Height => _window.Size.Y;
 
-    public IMouse Mouse => _mouse;
-
-    public IKeyboard Keyboard => _keyboard;
-
     public void Run()
     {
-        Load?.Invoke();
+        _window.Load += () =>
+        {
+            _window.Center();
 
-        _window.Update += delta => Update?.Invoke(delta);
+            gl = _window.CreateOpenGL();
+            inputContext = _window.CreateInput();
+            imGuiController = new ImGuiController(gl, _window, inputContext);
+            mouse = inputContext.Mice[0];
+            keyboard = inputContext.Keyboards[0];
+
+            isInitialized = true;
+
+            Load?.Invoke();
+        };
+
+        _window.Update += delta =>
+        {
+            Update?.Invoke(delta);
+        };
 
         _window.Render += delta =>
         {
-            Render?.Invoke(delta);
+            GL.Clear((uint)(GLEnum.ColorBufferBit | GLEnum.DepthBufferBit));
+            GL.Viewport(0, 0, (uint)Width, (uint)Height);
 
-            _sdl.RenderPresent(_renderer);
-
-            _fpsSamples.Add(delta);
-
-            if (_fpsSamples.Count == _fpsSamples.Capacity)
+            ImGuiController.Update((float)delta);
             {
-                double fps = 1.0 / _fpsSamples.Average();
+                if (firstFrame)
+                {
+                    ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 
-                _window.Title = $"{_title} - FPS: {fps:0.00}";
+                    firstFrame = true;
+                }
 
-                _fpsSamples.Clear();
+                ImGui.DockSpaceOverViewport();
+
+                Render?.Invoke(delta);
+
+                if (ImGui.Begin("Info"))
+                {
+                    ImGui.Text($"Renderer : {Marshal.PtrToStringAnsi((nint)GL.GetString(GLEnum.Renderer))}");
+                    ImGui.Text($"Version : OpenGL {Marshal.PtrToStringAnsi((nint)GL.GetString(GLEnum.Version))}");
+                    ImGui.Text($"Vendor : {Marshal.PtrToStringAnsi((nint)GL.GetString(GLEnum.Vendor))}");
+                    ImGui.Text($"FPS : {ImGui.GetIO().Framerate}");
+
+                    ImGui.End();
+                }
             }
+            ImGuiController.Render();
         };
 
         _window.Run();
@@ -80,12 +108,23 @@ public unsafe class WindowRenderer : IDisposable
 
     public void Dispose()
     {
-        _sdl.DestroyRenderer(_renderer);
-        _sdl.Dispose();
+        imGuiController?.Dispose();
+        inputContext?.Dispose();
+        gl?.Dispose();
 
         _window.Close();
         _window.Dispose();
 
         GC.SuppressFinalize(this);
+    }
+
+    private T ThrowIfNotInitialized<T>(T? value)
+    {
+        if (!isInitialized)
+        {
+            throw new InvalidOperationException("Window not initialized yet.");
+        }
+
+        return value!;
     }
 }

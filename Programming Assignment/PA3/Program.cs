@@ -1,4 +1,6 @@
-﻿using Maths;
+﻿using System.Numerics;
+using ImGuiNET;
+using Maths;
 using PA;
 using PA.Graphics;
 
@@ -28,7 +30,6 @@ internal class Program
         _windowRenderer.Update += WindowRenderer_Update;
         _windowRenderer.Render += WindowRenderer_Render;
 
-        _rasterizer = new Rasterizer(_windowRenderer);
         _assimpParsing = new AssimpParsing(Path.Combine("Models", "spot", "spot_triangulated_good.obj"));
 
         if (args.Length == 0)
@@ -70,10 +71,13 @@ internal class Program
 
     private static void WindowRenderer_Load()
     {
-        _rasterizer.Model = Matrix4x4d.Identity;
-        _rasterizer.View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 4.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0));
+        _rasterizer = new Rasterizer(_windowRenderer)
+        {
+            Model = Matrix4x4d.Identity,
+            View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 4.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0)),
 
-        _rasterizer.Frag = _shader;
+            Frag = _shader
+        };
 
         int index = 0;
         vbo = new int[_assimpParsing.MeshNames.Length];
@@ -97,12 +101,31 @@ internal class Program
 
     private static void WindowRenderer_Render(double delta)
     {
-        _rasterizer.Clear();
-
-        for (int i = 0; i < vbo.Length; i++)
+        ImGui.Begin("PA 3");
         {
-            _rasterizer.Render(vbo[i], ibo[i]);
+            Vector2 size = ImGui.GetContentRegionAvail();
+
+            _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), size.X / size.Y, 0.1, 100.0);
+
+            _rasterizer.SetViewport(0, 0, (int)size.X, (int)size.Y);
+
+            _rasterizer.Clear();
+
+            for (int i = 0; i < vbo.Length; i++)
+            {
+                _rasterizer.Render(vbo[i], ibo[i]);
+            }
+
+            if (_rasterizer.FlipY)
+            {
+                ImGui.Image((nint)_rasterizer.FrameBuffer!.Texture, size, new Vector2(0.0f, 1.0f), new Vector2(1.0f, 0.0f));
+            }
+            else
+            {
+                ImGui.Image((nint)_rasterizer.FrameBuffer!.Texture, size);
+            }
         }
+        ImGui.End();
     }
 
     private static Vector4d NormalFragmentShader(Vertex vertex)

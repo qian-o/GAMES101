@@ -1,6 +1,6 @@
 ﻿using Maths;
 using PA.Graphics;
-using Silk.NET.SDL;
+using Silk.NET.OpenGL;
 using Vertex = PA.Graphics.Vertex;
 
 namespace PA2;
@@ -22,8 +22,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
     }
     #endregion
 
-    private readonly Sdl _sdl = windowRenderer.Sdl;
-    private readonly Renderer* _renderer = windowRenderer.Renderer;
+    private readonly GL _gl = windowRenderer.GL;
     private readonly SampleCount _sampleCount = sampleCount;
     private readonly Dictionary<int, Vertex[]> bufferVertexes = [];
     private readonly Dictionary<int, int[]> bufferIndices = [];
@@ -45,6 +44,8 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
     public Matrix4x4d View { get; set; }
 
     public Matrix4x4d Projection { get; set; }
+
+    public FrameBuffer? FrameBuffer => frameBuffer;
 
     public int CreateVertexBuffer(Vertex[] vertexes)
     {
@@ -74,7 +75,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             viewport = Matrix4x4d.CreateViewport(x, y, width, height, 1, -1);
 
             frameBuffer?.Dispose();
-            frameBuffer = new FrameBuffer(_sdl, _renderer, width, height, _sampleCount);
+            frameBuffer = new FrameBuffer(_gl, width, height, _sampleCount);
         }
     }
 
@@ -139,7 +140,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
             }
         });
 
-        frameBuffer.Present(x, y, FlipY);
+        frameBuffer.Present();
     }
 
     private void RasterizeTriangle(Pixel pixel, TriangleInfo triangleInfo)

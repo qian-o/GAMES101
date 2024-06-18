@@ -1,4 +1,6 @@
-﻿using Maths;
+﻿using System.Numerics;
+using ImGuiNET;
+using Maths;
 using PA.Graphics;
 using Silk.NET.Input;
 
@@ -19,8 +21,6 @@ internal unsafe class Program
         _windowRenderer.Update += WindowRenderer_Update;
         _windowRenderer.Render += WindowRenderer_Render;
 
-        _rasterizer = new Rasterizer(_windowRenderer);
-
         _windowRenderer.Run();
 
         _windowRenderer.Dispose();
@@ -28,8 +28,11 @@ internal unsafe class Program
 
     private static void WindowRenderer_Load()
     {
-        _rasterizer.Model = Matrix4x4d.Identity;
-        _rasterizer.View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 5.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0));
+        _rasterizer = new Rasterizer(_windowRenderer)
+        {
+            Model = Matrix4x4d.Identity,
+            View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 5.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0))
+        };
 
         Vertex a = new(new(2.0, 0.0, -2.0));
         Vertex b = new(new(0.0, 2.0, -2.0));
@@ -52,15 +55,31 @@ internal unsafe class Program
         }
 
         _rasterizer.Model = Matrix4x4d.CreateRotationZ(Angle.FromDegrees(angle));
-        _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), (double)_windowRenderer.Width / _windowRenderer.Height, 0.1, 100.0);
-
-        _rasterizer.SetViewport(0, 0, _windowRenderer.Width, _windowRenderer.Height);
     }
 
     private static void WindowRenderer_Render(double delta)
     {
-        _rasterizer.Clear();
+        ImGui.Begin("PA 1");
+        {
+            Vector2 size = ImGui.GetContentRegionAvail();
 
-        _rasterizer.Render(vbo, ibo);
+            _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), size.X / size.Y, 0.1, 100.0);
+
+            _rasterizer.SetViewport(0, 0, (int)size.X, (int)size.Y);
+
+            _rasterizer.Clear();
+
+            _rasterizer.Render(vbo, ibo);
+
+            if (_rasterizer.FlipY)
+            {
+                ImGui.Image((nint)_rasterizer.FrameBuffer!.Texture, size, new Vector2(0.0f, 1.0f), new Vector2(1.0f, 0.0f));
+            }
+            else
+            {
+                ImGui.Image((nint)_rasterizer.FrameBuffer!.Texture, size);
+            }
+        }
+        ImGui.End();
     }
 }

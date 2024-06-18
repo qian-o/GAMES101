@@ -1,14 +1,13 @@
 ﻿using Maths;
 using PA.Graphics;
-using Silk.NET.SDL;
+using Silk.NET.OpenGL;
 using Vertex = PA.Graphics.Vertex;
 
 namespace PA1;
 
 public unsafe class Rasterizer(WindowRenderer windowRenderer)
 {
-    private readonly Sdl _sdl = windowRenderer.Sdl;
-    private readonly Renderer* _renderer = windowRenderer.Renderer;
+    private readonly GL _gl = windowRenderer.GL;
     private readonly Dictionary<int, Vertex[]> bufferVertexes = [];
     private readonly Dictionary<int, int[]> bufferIndices = [];
 
@@ -29,6 +28,8 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
     public Matrix4x4d View { get; set; }
 
     public Matrix4x4d Projection { get; set; }
+
+    public FrameBuffer? FrameBuffer => frameBuffer;
 
     public int CreateVertexBuffer(Vertex[] vertexes)
     {
@@ -58,7 +59,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             viewport = Matrix4x4d.CreateViewport(x, y, width, height, 1, -1);
 
             frameBuffer?.Dispose();
-            frameBuffer = new FrameBuffer(_sdl, _renderer, width, height);
+            frameBuffer = new FrameBuffer(_gl, width, height);
         }
     }
 
@@ -107,7 +108,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             }
         });
 
-        frameBuffer.Present(x, y, FlipY);
+        frameBuffer.Present();
     }
 
     private bool IsPointInTriangle(Triangle triangle, int x, int y)
