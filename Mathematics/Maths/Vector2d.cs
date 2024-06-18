@@ -3,15 +3,15 @@
 namespace Maths;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct Vector2d(double x, double y) : IEquatable<Vector2d>
+public struct Vector2d(float x, float y) : IEquatable<Vector2d>
 {
-    public double X = x;
+    public float X = x;
 
-    public double Y = y;
+    public float Y = y;
 
-    public readonly double LengthSquared => X * X + Y * Y;
+    public readonly float LengthSquared => X * X + Y * Y;
 
-    public readonly double Length => Math.Sqrt(LengthSquared);
+    public readonly float Length => MathF.Sqrt(LengthSquared);
 
     public readonly bool Equals(Vector2d other)
     {
@@ -48,7 +48,7 @@ public struct Vector2d(double x, double y) : IEquatable<Vector2d>
         return new(left.X - right.X, left.Y - right.Y);
     }
 
-    public static Vector2d operator *(Vector2d vector, double scalar)
+    public static Vector2d operator *(Vector2d vector, float scalar)
     {
         return new(vector.X * scalar, vector.Y * scalar);
     }
@@ -58,7 +58,7 @@ public struct Vector2d(double x, double y) : IEquatable<Vector2d>
         return new(left.X * right.X, left.Y * right.Y);
     }
 
-    public static Vector2d operator /(Vector2d vector, double scalar)
+    public static Vector2d operator /(Vector2d vector, float scalar)
     {
         return new(vector.X / scalar, vector.Y / scalar);
     }
@@ -78,12 +78,12 @@ public struct Vector2d(double x, double y) : IEquatable<Vector2d>
         return !(left == right);
     }
 
-    public static double Dot(Vector2d a, Vector2d b)
+    public static float Dot(Vector2d a, Vector2d b)
     {
         return (a.X * b.X) + (a.Y * b.Y);
     }
 
-    public static double Cross(Vector2d a, Vector2d b)
+    public static float Cross(Vector2d a, Vector2d b)
     {
         return (a.X * b.Y) - (a.Y * b.X);
     }
@@ -93,8 +93,8 @@ public struct Vector2d(double x, double y) : IEquatable<Vector2d>
         return a / a.Length;
     }
 
-    public static Vector2d Pow(Vector2d a, double b)
+    public static Vector2d Pow(Vector2d a, float b)
     {
-        return new(Math.Pow(a.X, b), Math.Pow(a.Y, b));
+        return new(MathF.Pow(a.X, b), MathF.Pow(a.Y, b));
     }
 }

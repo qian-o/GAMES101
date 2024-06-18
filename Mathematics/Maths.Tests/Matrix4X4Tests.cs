@@ -10,7 +10,7 @@ public class Matrix4X4Tests
     [DataRow(90)]
     [DataRow(180)]
     [DataRow(360)]
-    public void GenerateRotationXMatrix(double degrees)
+    public void GenerateRotationXMatrix(float degrees)
     {
         Angle angle = Angle.FromDegrees(degrees);
 
@@ -31,7 +31,7 @@ public class Matrix4X4Tests
     [DataRow(90)]
     [DataRow(180)]
     [DataRow(360)]
-    public void GenerateRotationYMatrix(double degrees)
+    public void GenerateRotationYMatrix(float degrees)
     {
         Angle angle = Angle.FromDegrees(degrees);
 
@@ -52,7 +52,7 @@ public class Matrix4X4Tests
     [DataRow(90)]
     [DataRow(180)]
     [DataRow(360)]
-    public void GenerateRotationZMatrix(double degrees)
+    public void GenerateRotationZMatrix(float degrees)
     {
         Angle angle = Angle.FromDegrees(degrees);
 
@@ -76,7 +76,7 @@ public class Matrix4X4Tests
     [DataRow(-0.4, -0.3, -0.2)]
     [DataRow(-0.5, -0.5, -0.5)]
     [DataRow(-1, -1, -1)]
-    public void GenerateScaleMatrix(double x, double y, double z)
+    public void GenerateScaleMatrix(float x, float y, float z)
     {
         Vector3d point1 = new(1, 1, 1);
         Vector3 point2 = new(1, 1, 1);
@@ -98,7 +98,7 @@ public class Matrix4X4Tests
     [DataRow(-0.4, -0.3, -0.2)]
     [DataRow(-0.5, -0.5, -0.5)]
     [DataRow(-1, -1, -1)]
-    public void GenerateTranslationMatrix(double x, double y, double z)
+    public void GenerateTranslationMatrix(float x, float y, float z)
     {
         Vector3d point1 = new(1, 1, 1);
         Vector3 point2 = new(1, 1, 1);
@@ -120,7 +120,7 @@ public class Matrix4X4Tests
     [DataRow(180, -0.4, -0.3, -0.2)]
     [DataRow(90, -0.5, -0.5, -0.5)]
     [DataRow(0, -1, -1, -1)]
-    public void GenerateMultiplesMatrix(double degrees, double x, double y, double z)
+    public void GenerateMultiplesMatrix(float degrees, float x, float y, float z)
     {
         Angle angle = Angle.FromDegrees(degrees);
 

@@ -74,7 +74,7 @@ internal class Program
         _rasterizer = new Rasterizer(_windowRenderer)
         {
             Model = Matrix4x4d.Identity,
-            View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 4.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0)),
+            View = Matrix4x4d.CreateLookAt(new(0.0f, 0.0f, 4.0f), new(0.0f, 0.0f, 0.0f), new(0.0f, 1.0f, 0.0f)),
 
             Frag = _shader
         };
@@ -91,21 +91,21 @@ internal class Program
         }
     }
 
-    private static void WindowRenderer_Update(double delta)
+    private static void WindowRenderer_Update(float delta)
     {
-        _rasterizer.Model = Matrix4x4d.CreateRotationY(Angle.FromDegrees(140.0));
-        _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), (double)_windowRenderer.Width / _windowRenderer.Height, 0.1, 100.0);
+        _rasterizer.Model = Matrix4x4d.CreateRotationY(Angle.FromDegrees(140.0f));
+        _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), (float)_windowRenderer.Width / _windowRenderer.Height, 0.1f, 100.0f);
 
         _rasterizer.SetViewport(0, 0, _windowRenderer.Width, _windowRenderer.Height);
     }
 
-    private static void WindowRenderer_Render(double delta)
+    private static void WindowRenderer_Render(float delta)
     {
         ImGui.Begin("PA 3");
         {
             Vector2 size = ImGui.GetContentRegionAvail();
 
-            _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), size.X / size.Y, 0.1, 100.0);
+            _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), size.X / size.Y, 0.1f, 100.0f);
 
             _rasterizer.SetViewport(0, 0, (int)size.X, (int)size.Y);
 
@@ -130,23 +130,23 @@ internal class Program
 
     private static Vector4d NormalFragmentShader(Vertex vertex)
     {
-        return new Vector4d((Vector3d.Normalize(vertex.Normal) + 1.0) / 2.0, 1.0);
+        return new Vector4d((Vector3d.Normalize(vertex.Normal) + 1.0f) / 2.0f, 1.0f);
     }
 
     private static Vector4d PhongFragmentShader(Vertex vertex)
     {
-        Vector3d ka = new(0.005, 0.005, 0.005);
+        Vector3d ka = new(0.005f, 0.005f, 0.005f);
         Vector3d kd = vertex.Color.XYZ();
-        Vector3d ks = new(0.7937, 0.7937, 0.7937);
+        Vector3d ks = new(0.7937f, 0.7937f, 0.7937f);
 
         Light l1 = new() { Position = new(20, 20, 20), Intensity = new(500, 500, 500) };
         Light l2 = new() { Position = new(-20, 20, 0), Intensity = new(500, 500, 500) };
 
         Light[] lights = [l1, l2];
         Vector3d ambLightIntensity = new(10, 10, 10);
-        Vector3d eyePos = new(0, 0, 10.0);
+        Vector3d eyePos = new(0, 0, 10.0f);
 
-        double p = 150;
+        float p = 150;
 
         Vector3d point = vertex.Position;
         Vector3d normal = vertex.Normal;
@@ -173,7 +173,7 @@ internal class Program
             // 通过光线与视线的中间向量并与法线的夹角来计算镜面反射。
             {
                 Vector3d h = Vector3d.Normalize(l + v);
-                Vector3d ls = ks * ir2 * Math.Pow(Math.Max(Vector3d.Dot(n, h), 0), p);
+                Vector3d ls = ks * ir2 * MathF.Pow(MathF.Max(Vector3d.Dot(n, h), 0), p);
 
                 resultColor += ls;
             }
@@ -190,18 +190,18 @@ internal class Program
 
     private static Vector4d TextureFragmentShader(Vertex vertex)
     {
-        Vector3d ka = new(0.005, 0.005, 0.005);
+        Vector3d ka = new(0.005f, 0.005f, 0.005f);
         Vector3d kd = _sampler.SampleNormalized(vertex.TexCoord.X, vertex.TexCoord.Y).XYZ();
-        Vector3d ks = new(0.7937, 0.7937, 0.7937);
+        Vector3d ks = new(0.7937f, 0.7937f, 0.7937f);
 
         Light l1 = new() { Position = new(20, 20, 20), Intensity = new(500, 500, 500) };
         Light l2 = new() { Position = new(-20, 20, 0), Intensity = new(500, 500, 500) };
 
         Light[] lights = [l1, l2];
         Vector3d ambLightIntensity = new(10, 10, 10);
-        Vector3d eyePos = new(0, 0, 10.0);
+        Vector3d eyePos = new(0, 0, 10.0f);
 
-        double p = 150;
+        float p = 150;
 
         Vector3d point = vertex.Position;
         Vector3d normal = vertex.Normal;
@@ -228,7 +228,7 @@ internal class Program
             // 通过光线与视线的中间向量并与法线的夹角来计算镜面反射。
             {
                 Vector3d h = Vector3d.Normalize(l + v);
-                Vector3d ls = ks * ir2 * Math.Pow(Math.Max(Vector3d.Dot(n, h), 0), p);
+                Vector3d ls = ks * ir2 * MathF.Pow(MathF.Max(Vector3d.Dot(n, h), 0), p);
 
                 resultColor += ls;
             }
@@ -247,15 +247,15 @@ internal class Program
     {
         Vector3d normal = vertex.Normal;
 
-        double kh = 0.2;
-        double kn = 0.1;
+        float kh = 0.2f;
+        float kn = 0.1f;
 
-        double u = vertex.TexCoord.X;
-        double v = vertex.TexCoord.Y;
+        float u = vertex.TexCoord.X;
+        float v = vertex.TexCoord.Y;
 
-        double x = normal.X * normal.Y / Math.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
-        double y = Math.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
-        double z = normal.Z * normal.Y / Math.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+        float x = normal.X * normal.Y / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+        float y = MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+        float z = normal.Z * normal.Y / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
 
         Vector3d t = new(x, y, z);
         Vector3d b = Vector3d.Cross(normal, t);
@@ -263,42 +263,42 @@ internal class Program
         Matrix3x3d tbn = new(t, b, normal);
         tbn = Matrix3x3d.Transpose(tbn);
 
-        double du = kh * kn * (_sampler.Sample(u + (1.0 / _sampler.Width), v).XYZ().Length - _sampler.Sample(u, v).XYZ().Length);
-        double dv = kh * kn * (_sampler.Sample(u, v + (1.0 / _sampler.Height)).XYZ().Length - _sampler.Sample(u, v).XYZ().Length);
+        float du = kh * kn * (_sampler.Sample(u + (1.0f / _sampler.Width), v).XYZ().Length - _sampler.Sample(u, v).XYZ().Length);
+        float dv = kh * kn * (_sampler.Sample(u, v + (1.0f / _sampler.Height)).XYZ().Length - _sampler.Sample(u, v).XYZ().Length);
 
-        Vector3d ln = new(-du, -dv, 1.0);
+        Vector3d ln = new(-du, -dv, 1.0f);
         normal = Vector3d.Normalize(tbn * ln);
 
-        return new Vector4d(normal, 1.0);
+        return new Vector4d(normal, 1.0f);
     }
 
     private static Vector4d DisplacementFragmentShader(Vertex vertex)
     {
-        Vector3d ka = new(0.005, 0.005, 0.005);
+        Vector3d ka = new(0.005f, 0.005f, 0.005f);
         Vector3d kd = vertex.Color.XYZ();
-        Vector3d ks = new(0.7937, 0.7937, 0.7937);
+        Vector3d ks = new(0.7937f, 0.7937f, 0.7937f);
 
         Light l1 = new() { Position = new(20, 20, 20), Intensity = new(500, 500, 500) };
         Light l2 = new() { Position = new(-20, 20, 0), Intensity = new(500, 500, 500) };
 
         Light[] lights = [l1, l2];
         Vector3d ambLightIntensity = new(10, 10, 10);
-        Vector3d eyePos = new(0, 0, 10.0);
+        Vector3d eyePos = new(0, 0, 10.0f);
 
-        double p = 150;
+        float p = 150;
 
         Vector3d point = vertex.Position;
         Vector3d normal = vertex.Normal;
 
-        double kh = 0.2;
-        double kn = 0.1;
+        float kh = 0.2f;
+        float kn = 0.1f;
 
-        double tu = vertex.TexCoord.X;
-        double tv = vertex.TexCoord.Y;
+        float tu = vertex.TexCoord.X;
+        float tv = vertex.TexCoord.Y;
 
-        double x = normal.X * normal.Y / Math.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
-        double y = Math.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
-        double z = normal.Z * normal.Y / Math.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+        float x = normal.X * normal.Y / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+        float y = MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+        float z = normal.Z * normal.Y / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
 
         Vector3d t = new(x, y, z);
         Vector3d b = Vector3d.Cross(normal, t);
@@ -306,10 +306,10 @@ internal class Program
         Matrix3x3d tbn = new(t, b, normal);
         tbn = Matrix3x3d.Transpose(tbn);
 
-        double du = kh * kn * (_sampler.Sample(tu + (1.0 / _sampler.Width), tv).XYZ().Length - _sampler.Sample(tu, tv).XYZ().Length);
-        double dv = kh * kn * (_sampler.Sample(tu, tv + (1.0 / _sampler.Height)).XYZ().Length - _sampler.Sample(tu, tv).XYZ().Length);
+        float du = kh * kn * (_sampler.Sample(tu + (1.0f / _sampler.Width), tv).XYZ().Length - _sampler.Sample(tu, tv).XYZ().Length);
+        float dv = kh * kn * (_sampler.Sample(tu, tv + (1.0f / _sampler.Height)).XYZ().Length - _sampler.Sample(tu, tv).XYZ().Length);
 
-        Vector3d ln = new(-du, -dv, 1.0);
+        Vector3d ln = new(-du, -dv, 1.0f);
 
         point += normal * kn * _sampler.Sample(tu, tv).XYZ().Length;
         normal = Vector3d.Normalize(tbn * ln);
@@ -336,7 +336,7 @@ internal class Program
             // 通过光线与视线的中间向量并与法线的夹角来计算镜面反射。
             {
                 Vector3d h = Vector3d.Normalize(l + v);
-                Vector3d ls = ks * ir2 * Math.Pow(Math.Max(Vector3d.Dot(n, h), 0), p);
+                Vector3d ls = ks * ir2 * MathF.Pow(MathF.Max(Vector3d.Dot(n, h), 0), p);
 
                 resultColor += ls;
             }

@@ -12,7 +12,7 @@ internal unsafe class Program
     private static Rasterizer _rasterizer = null!;
     private static int vbo = 0;
     private static int ibo = 0;
-    private static double angle;
+    private static float angle;
 
     private static void Main(string[] _)
     {
@@ -31,18 +31,18 @@ internal unsafe class Program
         _rasterizer = new Rasterizer(_windowRenderer)
         {
             Model = Matrix4x4d.Identity,
-            View = Matrix4x4d.CreateLookAt(new(0.0, 0.0, 5.0), new(0.0, 0.0, 0.0), new(0.0, 1.0, 0.0))
+            View = Matrix4x4d.CreateLookAt(new(0.0f, 0.0f, 5.0f), new(0.0f, 0.0f, 0.0f), new(0.0f, 1.0f, 0.0f))
         };
 
-        Vertex a = new(new(2.0, 0.0, -2.0));
-        Vertex b = new(new(0.0, 2.0, -2.0));
-        Vertex c = new(new(-2.0, 0.0, -2.0));
+        Vertex a = new(new(2.0f, 0.0f, -2.0f));
+        Vertex b = new(new(0.0f, 2.0f, -2.0f));
+        Vertex c = new(new(-2.0f, 0.0f, -2.0f));
 
         vbo = _rasterizer.CreateVertexBuffer([a, b, c]);
         ibo = _rasterizer.CreateIndexBuffer([0, 1, 2]);
     }
 
-    private static void WindowRenderer_Update(double delta)
+    private static void WindowRenderer_Update(float delta)
     {
         if (_windowRenderer.Keyboard.IsKeyPressed(Key.A))
         {
@@ -57,13 +57,13 @@ internal unsafe class Program
         _rasterizer.Model = Matrix4x4d.CreateRotationZ(Angle.FromDegrees(angle));
     }
 
-    private static void WindowRenderer_Render(double delta)
+    private static void WindowRenderer_Render(float delta)
     {
         ImGui.Begin("PA 1");
         {
             Vector2 size = ImGui.GetContentRegionAvail();
 
-            _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), size.X / size.Y, 0.1, 100.0);
+            _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), size.X / size.Y, 0.1f, 100.0f);
 
             _rasterizer.SetViewport(0, 0, (int)size.X, (int)size.Y);
 

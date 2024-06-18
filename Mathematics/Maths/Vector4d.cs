@@ -3,27 +3,27 @@
 namespace Maths;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct Vector4d(double x, double y, double z, double w) : IEquatable<Vector4d>
+public struct Vector4d(float x, float y, float z, float w) : IEquatable<Vector4d>
 {
-    public double X = x;
+    public float X = x;
 
-    public double Y = y;
+    public float Y = y;
 
-    public double Z = z;
+    public float Z = z;
 
-    public double W = w;
+    public float W = w;
 
-    public Vector4d(Vector2d vector, double z, double w) : this(vector.X, vector.Y, z, w)
+    public Vector4d(Vector2d vector, float z, float w) : this(vector.X, vector.Y, z, w)
     {
     }
 
-    public Vector4d(Vector3d vector, double w) : this(vector.X, vector.Y, vector.Z, w)
+    public Vector4d(Vector3d vector, float w) : this(vector.X, vector.Y, vector.Z, w)
     {
     }
 
-    public readonly double LengthSquared => X * X + Y * Y + Z * Z + W * W;
+    public readonly float LengthSquared => X * X + Y * Y + Z * Z + W * W;
 
-    public readonly double Length => Math.Sqrt(LengthSquared);
+    public readonly float Length => MathF.Sqrt(LengthSquared);
 
     public readonly bool Equals(Vector4d other)
     {
@@ -60,7 +60,7 @@ public struct Vector4d(double x, double y, double z, double w) : IEquatable<Vect
         return new(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
     }
 
-    public static Vector4d operator *(Vector4d vector, double scalar)
+    public static Vector4d operator *(Vector4d vector, float scalar)
     {
         return new(vector.X * scalar, vector.Y * scalar, vector.Z * scalar, vector.W * scalar);
     }
@@ -70,7 +70,7 @@ public struct Vector4d(double x, double y, double z, double w) : IEquatable<Vect
         return new(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
     }
 
-    public static Vector4d operator /(Vector4d vector, double scalar)
+    public static Vector4d operator /(Vector4d vector, float scalar)
     {
         return new(vector.X / scalar, vector.Y / scalar, vector.Z / scalar, vector.W / scalar);
     }
@@ -90,7 +90,7 @@ public struct Vector4d(double x, double y, double z, double w) : IEquatable<Vect
         return !(left == right);
     }
 
-    public static double Dot(Vector4d a, Vector4d b)
+    public static float Dot(Vector4d a, Vector4d b)
     {
         return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z) + (a.W * b.W);
     }
@@ -100,8 +100,8 @@ public struct Vector4d(double x, double y, double z, double w) : IEquatable<Vect
         return a / a.Length;
     }
 
-    public static Vector4d Pow(Vector4d a, double b)
+    public static Vector4d Pow(Vector4d a, float b)
     {
-        return new(Math.Pow(a.X, b), Math.Pow(a.Y, b), Math.Pow(a.Z, b), Math.Pow(a.W, b));
+        return new(MathF.Pow(a.X, b), MathF.Pow(a.Y, b), MathF.Pow(a.Z, b), MathF.Pow(a.W, b));
     }
 }

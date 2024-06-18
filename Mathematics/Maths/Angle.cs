@@ -1,13 +1,13 @@
 ﻿namespace Maths;
 
-public struct Angle(double radians) : IEquatable<Angle>
+public struct Angle(float radians) : IEquatable<Angle>
 {
-    public double Radians = radians;
+    public float Radians = radians;
 
-    public double Degrees
+    public float Degrees
     {
-        readonly get => Radians * 180 / Math.PI;
-        set => Radians = value * Math.PI / 180;
+        readonly get => Radians * 180.0f / MathF.PI;
+        set => Radians = value * MathF.PI / 180.0f;
     }
 
     public readonly bool Equals(Angle other)
@@ -40,12 +40,12 @@ public struct Angle(double radians) : IEquatable<Angle>
         return new(left.Radians - right.Radians);
     }
 
-    public static Angle operator *(Angle angle, double scalar)
+    public static Angle operator *(Angle angle, float scalar)
     {
         return new(angle.Radians * scalar);
     }
 
-    public static Angle operator /(Angle angle, double scalar)
+    public static Angle operator /(Angle angle, float scalar)
     {
         return new(angle.Radians / scalar);
     }
@@ -60,12 +60,12 @@ public struct Angle(double radians) : IEquatable<Angle>
         return !(left == right);
     }
 
-    public static Angle FromRadians(double radians)
+    public static Angle FromRadians(float radians)
     {
         return new(radians);
     }
 
-    public static Angle FromDegrees(double degrees)
+    public static Angle FromDegrees(float degrees)
     {
         Angle angle = default;
         angle.Degrees = degrees;

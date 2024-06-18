@@ -89,13 +89,13 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         for (int i = 0; i < indices.Length; i += 3)
         {
             Vertex a = vertexes[indices[i]];
-            a.Color = new Vector4d(148 / 255.0, 121 / 255.0, 92 / 255.0, 1);
+            a.Color = new Vector4d(148 / 255.0f, 121 / 255.0f, 92 / 255.0f, 1);
 
             Vertex b = vertexes[indices[i + 1]];
-            b.Color = new Vector4d(148 / 255.0, 121 / 255.0, 92 / 255.0, 1);
+            b.Color = new Vector4d(148 / 255.0f, 121 / 255.0f, 92 / 255.0f, 1);
 
             Vertex c = vertexes[indices[i + 2]];
-            c.Color = new Vector4d(148 / 255.0, 121 / 255.0, 92 / 255.0, 1);
+            c.Color = new Vector4d(148 / 255.0f, 121 / 255.0f, 92 / 255.0f, 1);
 
             triangles[i / 3] = new Triangle(a, b, c);
         }
@@ -145,14 +145,14 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         {
             Vector2d offset = pattern[index];
 
-            double x = pixel.X + offset.X;
-            double y = pixel.Y + offset.Y;
+            float x = pixel.X + offset.X;
+            float y = pixel.Y + offset.Y;
 
             if (IsPointInTriangle([a, b, c], x, y, out Vector3d abg))
             {
                 Vertex vertex = Vertex.Interpolate(viewTriangle.A, viewTriangle.B, viewTriangle.C, abg);
 
-                double depth = vertex.Position.Z;
+                float depth = vertex.Position.Z;
 
                 if (depth >= frameBuffer.GetDepth(pixel, index))
                 {
@@ -165,7 +165,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         }
     }
 
-    private bool IsPointInTriangle(Vector2d[] vectors, double x, double y, out Vector3d abg)
+    private bool IsPointInTriangle(Vector2d[] vectors, float x, float y, out Vector3d abg)
     {
         Vector2d center = new(x, y);
 
@@ -177,11 +177,11 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         Vector2d bp = center - vectors[1];
         Vector2d cp = center - vectors[2];
 
-        double abp = Vector2d.Cross(ab, ap);
-        double bcp = Vector2d.Cross(bc, bp);
-        double cap = Vector2d.Cross(ca, cp);
+        float abp = Vector2d.Cross(ab, ap);
+        float bcp = Vector2d.Cross(bc, bp);
+        float cap = Vector2d.Cross(ca, cp);
 
-        double area = Math.Abs(Vector2d.Cross(ab, ca));
+        float area = Math.Abs(Vector2d.Cross(ab, ca));
 
         bool isHit = CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
 

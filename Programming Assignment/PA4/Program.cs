@@ -19,7 +19,7 @@ internal unsafe class Program
         _windowRenderer.Dispose();
     }
 
-    private static void WindowRenderer_Render(double delta)
+    private static void WindowRenderer_Render(float delta)
     {
         if (ImGui.IsMouseClicked(ImGuiMouseButton.Left))
         {
@@ -53,18 +53,18 @@ internal unsafe class Program
         Vector2d p2 = _points[2];
         Vector2d p3 = _points[3];
 
-        for (double t = 0; t <= 1.0; t += 0.0001)
+        for (float t = 0; t <= 1.0; t += 0.0001f)
         {
-            Vector2d point = (p0 * Math.Pow(1 - t, 3))
-                             + (p1 * 3 * Math.Pow(1 - t, 2) * t)
-                             + (p2 * 3 * (1 - t) * Math.Pow(t, 2))
-                             + (p3 * Math.Pow(t, 3));
+            Vector2d point = (p0 * MathF.Pow(1 - t, 3))
+                             + (p1 * 3 * MathF.Pow(1 - t, 2) * t)
+                             + (p2 * 3 * (1 - t) * MathF.Pow(t, 2))
+                             + (p3 * MathF.Pow(t, 3));
 
             drawListPtr.AddCircleFilled(point.ToSystem(), 1.0f, 0xFF0000FF);
         }
     }
 
-    private static Vector2d RecursiveBezier(Vector2d[] controlPoints, double t)
+    private static Vector2d RecursiveBezier(Vector2d[] controlPoints, float t)
     {
         if (controlPoints.Length == 1)
         {
@@ -87,7 +87,7 @@ internal unsafe class Program
             return;
         }
 
-        for (double t = 0; t <= 1.0; t += 0.0001)
+        for (float t = 0; t <= 1.0; t += 0.0001f)
         {
             Vector2d point = RecursiveBezier([.. _points], t);
 

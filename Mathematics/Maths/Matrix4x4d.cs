@@ -7,43 +7,43 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
 {
     public static Matrix4x4d Identity => new(new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1));
 
-    public double M11 = row1.X;
+    public float M11 = row1.X;
 
-    public double M12 = row1.Y;
+    public float M12 = row1.Y;
 
-    public double M13 = row1.Z;
+    public float M13 = row1.Z;
 
-    public double M14 = row1.W;
+    public float M14 = row1.W;
 
-    public double M21 = row2.X;
+    public float M21 = row2.X;
 
-    public double M22 = row2.Y;
+    public float M22 = row2.Y;
 
-    public double M23 = row2.Z;
+    public float M23 = row2.Z;
 
-    public double M24 = row2.W;
+    public float M24 = row2.W;
 
-    public double M31 = row3.X;
+    public float M31 = row3.X;
 
-    public double M32 = row3.Y;
+    public float M32 = row3.Y;
 
-    public double M33 = row3.Z;
+    public float M33 = row3.Z;
 
-    public double M34 = row3.W;
+    public float M34 = row3.W;
 
-    public double M41 = row4.X;
+    public float M41 = row4.X;
 
-    public double M42 = row4.Y;
+    public float M42 = row4.Y;
 
-    public double M43 = row4.Z;
+    public float M43 = row4.Z;
 
-    public double M44 = row4.W;
+    public float M44 = row4.W;
 
-    public unsafe double this[int row, int column]
+    public unsafe float this[int row, int column]
     {
         get
         {
-            fixed (double* ptr = &M11)
+            fixed (float* ptr = &M11)
             {
                 return *(ptr + (row * 4) + column);
             }
@@ -135,45 +135,45 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
 
     public static Vector3d operator *(Matrix4x4d matrix, Vector3d vector)
     {
-        double x = Vector4d.Dot(matrix.Row1, new(vector.X, vector.Y, vector.Z, 1));
-        double y = Vector4d.Dot(matrix.Row2, new(vector.X, vector.Y, vector.Z, 1));
-        double z = Vector4d.Dot(matrix.Row3, new(vector.X, vector.Y, vector.Z, 1));
-        double w = Vector4d.Dot(matrix.Row4, new(vector.X, vector.Y, vector.Z, 1));
+        float x = Vector4d.Dot(matrix.Row1, new(vector.X, vector.Y, vector.Z, 1));
+        float y = Vector4d.Dot(matrix.Row2, new(vector.X, vector.Y, vector.Z, 1));
+        float z = Vector4d.Dot(matrix.Row3, new(vector.X, vector.Y, vector.Z, 1));
+        float w = Vector4d.Dot(matrix.Row4, new(vector.X, vector.Y, vector.Z, 1));
 
         return new Vector3d(x, y, z) / w;
     }
 
     public static Vector4d operator *(Matrix4x4d matrix, Vector4d vector)
     {
-        double x = Vector4d.Dot(matrix.Row1, vector);
-        double y = Vector4d.Dot(matrix.Row2, vector);
-        double z = Vector4d.Dot(matrix.Row3, vector);
-        double w = Vector4d.Dot(matrix.Row4, vector);
+        float x = Vector4d.Dot(matrix.Row1, vector);
+        float y = Vector4d.Dot(matrix.Row2, vector);
+        float z = Vector4d.Dot(matrix.Row3, vector);
+        float w = Vector4d.Dot(matrix.Row4, vector);
 
         return new(x, y, z, w);
     }
 
     public static Matrix4x4d operator *(Matrix4x4d left, Matrix4x4d right)
     {
-        double m11 = Vector4d.Dot(left.Row1, right.Column1);
-        double m12 = Vector4d.Dot(left.Row1, right.Column2);
-        double m13 = Vector4d.Dot(left.Row1, right.Column3);
-        double m14 = Vector4d.Dot(left.Row1, right.Column4);
+        float m11 = Vector4d.Dot(left.Row1, right.Column1);
+        float m12 = Vector4d.Dot(left.Row1, right.Column2);
+        float m13 = Vector4d.Dot(left.Row1, right.Column3);
+        float m14 = Vector4d.Dot(left.Row1, right.Column4);
 
-        double m21 = Vector4d.Dot(left.Row2, right.Column1);
-        double m22 = Vector4d.Dot(left.Row2, right.Column2);
-        double m23 = Vector4d.Dot(left.Row2, right.Column3);
-        double m24 = Vector4d.Dot(left.Row2, right.Column4);
+        float m21 = Vector4d.Dot(left.Row2, right.Column1);
+        float m22 = Vector4d.Dot(left.Row2, right.Column2);
+        float m23 = Vector4d.Dot(left.Row2, right.Column3);
+        float m24 = Vector4d.Dot(left.Row2, right.Column4);
 
-        double m31 = Vector4d.Dot(left.Row3, right.Column1);
-        double m32 = Vector4d.Dot(left.Row3, right.Column2);
-        double m33 = Vector4d.Dot(left.Row3, right.Column3);
-        double m34 = Vector4d.Dot(left.Row3, right.Column4);
+        float m31 = Vector4d.Dot(left.Row3, right.Column1);
+        float m32 = Vector4d.Dot(left.Row3, right.Column2);
+        float m33 = Vector4d.Dot(left.Row3, right.Column3);
+        float m34 = Vector4d.Dot(left.Row3, right.Column4);
 
-        double m41 = Vector4d.Dot(left.Row4, right.Column1);
-        double m42 = Vector4d.Dot(left.Row4, right.Column2);
-        double m43 = Vector4d.Dot(left.Row4, right.Column3);
-        double m44 = Vector4d.Dot(left.Row4, right.Column4);
+        float m41 = Vector4d.Dot(left.Row4, right.Column1);
+        float m42 = Vector4d.Dot(left.Row4, right.Column2);
+        float m43 = Vector4d.Dot(left.Row4, right.Column3);
+        float m44 = Vector4d.Dot(left.Row4, right.Column4);
 
         return new(new(m11, m12, m13, m14),
                    new(m21, m22, m23, m24),
@@ -285,35 +285,35 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         //
         // Cost of operation
         // 53 adds, 104 muls, and 1 div.
-        double a = matrix.M11, b = matrix.M12, c = matrix.M13, d = matrix.M14;
-        double e = matrix.M21, f = matrix.M22, g = matrix.M23, h = matrix.M24;
-        double i = matrix.M31, j = matrix.M32, k = matrix.M33, l = matrix.M34;
-        double m = matrix.M41, n = matrix.M42, o = matrix.M43, p = matrix.M44;
+        float a = matrix.M11, b = matrix.M12, c = matrix.M13, d = matrix.M14;
+        float e = matrix.M21, f = matrix.M22, g = matrix.M23, h = matrix.M24;
+        float i = matrix.M31, j = matrix.M32, k = matrix.M33, l = matrix.M34;
+        float m = matrix.M41, n = matrix.M42, o = matrix.M43, p = matrix.M44;
 
-        double kp_lo = k * p - l * o;
-        double jp_ln = j * p - l * n;
-        double jo_kn = j * o - k * n;
-        double ip_lm = i * p - l * m;
-        double io_km = i * o - k * m;
-        double in_jm = i * n - j * m;
+        float kp_lo = k * p - l * o;
+        float jp_ln = j * p - l * n;
+        float jo_kn = j * o - k * n;
+        float ip_lm = i * p - l * m;
+        float io_km = i * o - k * m;
+        float in_jm = i * n - j * m;
 
-        double a11 = +(f * kp_lo - g * jp_ln + h * jo_kn);
-        double a12 = -(e * kp_lo - g * ip_lm + h * io_km);
-        double a13 = +(e * jp_ln - f * ip_lm + h * in_jm);
-        double a14 = -(e * jo_kn - f * io_km + g * in_jm);
+        float a11 = +(f * kp_lo - g * jp_ln + h * jo_kn);
+        float a12 = -(e * kp_lo - g * ip_lm + h * io_km);
+        float a13 = +(e * jp_ln - f * ip_lm + h * in_jm);
+        float a14 = -(e * jo_kn - f * io_km + g * in_jm);
 
-        double det = a * a11 + b * a12 + c * a13 + d * a14;
+        float det = a * a11 + b * a12 + c * a13 + d * a14;
 
-        if (Math.Abs(det) < double.Epsilon)
+        if (Math.Abs(det) < float.Epsilon)
         {
-            result = new Matrix4x4d(new(double.NaN, double.NaN, double.NaN, double.NaN),
-                                    new(double.NaN, double.NaN, double.NaN, double.NaN),
-                                    new(double.NaN, double.NaN, double.NaN, double.NaN),
-                                    new(double.NaN, double.NaN, double.NaN, double.NaN));
+            result = new Matrix4x4d(new(float.NaN, float.NaN, float.NaN, float.NaN),
+                                    new(float.NaN, float.NaN, float.NaN, float.NaN),
+                                    new(float.NaN, float.NaN, float.NaN, float.NaN),
+                                    new(float.NaN, float.NaN, float.NaN, float.NaN));
             return false;
         }
 
-        double invDet = 1.0f / det;
+        float invDet = 1.0f / det;
 
         result.M11 = a11 * invDet;
         result.M21 = a12 * invDet;
@@ -325,24 +325,24 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         result.M32 = -(a * jp_ln - b * ip_lm + d * in_jm) * invDet;
         result.M42 = +(a * jo_kn - b * io_km + c * in_jm) * invDet;
 
-        double gp_ho = g * p - h * o;
-        double fp_hn = f * p - h * n;
-        double fo_gn = f * o - g * n;
-        double ep_hm = e * p - h * m;
-        double eo_gm = e * o - g * m;
-        double en_fm = e * n - f * m;
+        float gp_ho = g * p - h * o;
+        float fp_hn = f * p - h * n;
+        float fo_gn = f * o - g * n;
+        float ep_hm = e * p - h * m;
+        float eo_gm = e * o - g * m;
+        float en_fm = e * n - f * m;
 
         result.M13 = +(b * gp_ho - c * fp_hn + d * fo_gn) * invDet;
         result.M23 = -(a * gp_ho - c * ep_hm + d * eo_gm) * invDet;
         result.M33 = +(a * fp_hn - b * ep_hm + d * en_fm) * invDet;
         result.M43 = -(a * fo_gn - b * eo_gm + c * en_fm) * invDet;
 
-        double gl_hk = g * l - h * k;
-        double fl_hj = f * l - h * j;
-        double fk_gj = f * k - g * j;
-        double el_hi = e * l - h * i;
-        double ek_gi = e * k - g * i;
-        double ej_fi = e * j - f * i;
+        float gl_hk = g * l - h * k;
+        float fl_hj = f * l - h * j;
+        float fk_gj = f * k - g * j;
+        float el_hi = e * l - h * i;
+        float ek_gi = e * k - g * i;
+        float ej_fi = e * j - f * i;
 
         result.M14 = -(b * gl_hk - c * fl_hj + d * fk_gj) * invDet;
         result.M24 = +(a * gl_hk - c * el_hi + d * ek_gi) * invDet;
@@ -359,8 +359,8 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
 
     public static Matrix4x4d CreateRotationX(Angle angle)
     {
-        double cos = Math.Cos(angle.Radians);
-        double sin = Math.Sin(angle.Radians);
+        float cos = MathF.Cos(angle.Radians);
+        float sin = MathF.Sin(angle.Radians);
 
         return new(new(1, 0, 0, 0),
                    new(0, cos, -sin, 0),
@@ -370,8 +370,8 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
 
     public static Matrix4x4d CreateRotationY(Angle angle)
     {
-        double cos = Math.Cos(angle.Radians);
-        double sin = Math.Sin(angle.Radians);
+        float cos = MathF.Cos(angle.Radians);
+        float sin = MathF.Sin(angle.Radians);
 
         return new(new(cos, 0, sin, 0),
                    new(0, 1, 0, 0),
@@ -381,8 +381,8 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
 
     public static Matrix4x4d CreateRotationZ(Angle angle)
     {
-        double cos = Math.Cos(angle.Radians);
-        double sin = Math.Sin(angle.Radians);
+        float cos = MathF.Cos(angle.Radians);
+        float sin = MathF.Sin(angle.Radians);
 
         return new(new(cos, -sin, 0, 0),
                    new(sin, cos, 0, 0),
@@ -439,20 +439,20 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         return rView * tView;
     }
 
-    public static Matrix4x4d CreateOrthographic(double width, double height, double zNearPlane, double zFarPlane)
+    public static Matrix4x4d CreateOrthographic(float width, float height, float zNearPlane, float zFarPlane)
     {
-        return CreateOrthographicOffCenter(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, zNearPlane, zFarPlane);
+        return CreateOrthographicOffCenter(-width / 2.0f, width / 2.0f, -height / 2.0f, height / 2.0f, zNearPlane, zFarPlane);
     }
 
-    public static Matrix4x4d CreateOrthographicOffCenter(double left, double right, double bottom, double top, double zNearPlane, double zFarPlane)
+    public static Matrix4x4d CreateOrthographicOffCenter(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane)
     {
-        double xTranslation = (right + left) / 2.0;
-        double yTranslation = (top + bottom) / 2.0;
-        double zTranslation = (zNearPlane + zFarPlane) / 2.0;
+        float xTranslation = (right + left) / 2.0f;
+        float yTranslation = (top + bottom) / 2.0f;
+        float zTranslation = (zNearPlane + zFarPlane) / 2.0f;
 
-        double xScale = 2.0 / (right - left);
-        double yScale = 2.0 / (top - bottom);
-        double zScale = 2.0 / (zNearPlane - zFarPlane);
+        float xScale = 2.0f / (right - left);
+        float yScale = 2.0f / (top - bottom);
+        float zScale = 2.0f / (zNearPlane - zFarPlane);
 
         Matrix4x4d t = CreateTranslation(new Vector3d(-xTranslation, -yTranslation, -zTranslation));
         Matrix4x4d s = CreateScale(new Vector3d(xScale, yScale, zScale));
@@ -460,26 +460,26 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         return s * t;
     }
 
-    public static Matrix4x4d CreatePerspective(double width, double height, double nearPlaneDistance, double farPlaneDistance)
+    public static Matrix4x4d CreatePerspective(float width, float height, float nearPlaneDistance, float farPlaneDistance)
     {
-        return CreatePerspectiveOffCenter(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, nearPlaneDistance, farPlaneDistance);
+        return CreatePerspectiveOffCenter(-width / 2.0f, width / 2.0f, -height / 2.0f, height / 2.0f, nearPlaneDistance, farPlaneDistance);
     }
 
-    public static Matrix4x4d CreatePerspectiveFieldOfView(Angle fieldOfView, double aspectRatio, double nearPlaneDistance, double farPlaneDistance)
+    public static Matrix4x4d CreatePerspectiveFieldOfView(Angle fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(fieldOfView.Radians, 0.0);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(fieldOfView.Radians, Math.PI);
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(aspectRatio, 0.0);
 
-        double top = nearPlaneDistance * Math.Tan(fieldOfView.Radians / 2.0);
-        double right = top * aspectRatio;
-        double bottom = -top;
-        double left = -right;
+        float top = nearPlaneDistance * MathF.Tan(fieldOfView.Radians / 2.0f);
+        float right = top * aspectRatio;
+        float bottom = -top;
+        float left = -right;
 
         return CreatePerspectiveOffCenter(left, right, bottom, top, nearPlaneDistance, farPlaneDistance);
     }
 
-    public static Matrix4x4d CreatePerspectiveOffCenter(double left, double right, double bottom, double top, double nearPlaneDistance, double farPlaneDistance)
+    public static Matrix4x4d CreatePerspectiveOffCenter(float left, float right, float bottom, float top, float nearPlaneDistance, float farPlaneDistance)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(nearPlaneDistance, 0.0);
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(farPlaneDistance, 0.0);
@@ -498,10 +498,10 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         return ortho * perspToOrtho * scale;
     }
 
-    public static Matrix4x4d CreateViewport(double x, double y, double width, double height, double minDepth, double maxDepth)
+    public static Matrix4x4d CreateViewport(float x, float y, float width, float height, float minDepth, float maxDepth)
     {
-        return new(new(width / 2.0, 0, 0, x + (width / 2.0)),
-                   new(0, height / 2.0, 0, y + (height / 2.0)),
+        return new(new(width / 2.0f, 0, 0, x + (width / 2.0f)),
+                   new(0, height / 2.0f, 0, y + (height / 2.0f)),
                    new(0, 0, maxDepth - minDepth, minDepth),
                    new(0, 0, 0, 1));
     }

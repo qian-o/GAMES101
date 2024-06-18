@@ -20,8 +20,8 @@ public unsafe class WindowRenderer : IDisposable
     private bool firstFrame = true;
 
     public event Action? Load;
-    public event Action<double>? Update;
-    public event Action<double>? Render;
+    public event Action<float>? Update;
+    public event Action<float>? Render;
 
     public WindowRenderer(string title)
     {
@@ -69,7 +69,7 @@ public unsafe class WindowRenderer : IDisposable
 
         _window.Update += delta =>
         {
-            Update?.Invoke(delta);
+            Update?.Invoke((float)delta);
         };
 
         _window.Render += delta =>
@@ -88,7 +88,7 @@ public unsafe class WindowRenderer : IDisposable
 
                 ImGui.DockSpaceOverViewport();
 
-                Render?.Invoke(delta);
+                Render?.Invoke((float)delta);
 
                 if (ImGui.Begin("Info"))
                 {

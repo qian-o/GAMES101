@@ -113,7 +113,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
 
     private bool IsPointInTriangle(Triangle triangle, int x, int y)
     {
-        Vector2d center = new(x + 0.5, y + 0.5);
+        Vector2d center = new(x + 0.5f, y + 0.5f);
 
         Vector2d a = (transform * triangle.A.Position).XY();
         Vector2d b = (transform * triangle.B.Position).XY();
@@ -127,9 +127,9 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
         Vector2d bp = center - b;
         Vector2d cp = center - c;
 
-        double abp = Vector2d.Cross(ab, ap);
-        double bcp = Vector2d.Cross(bc, bp);
-        double cap = Vector2d.Cross(ca, cp);
+        float abp = Vector2d.Cross(ab, ap);
+        float bcp = Vector2d.Cross(bc, bp);
+        float cap = Vector2d.Cross(ca, cp);
 
         return CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
     }

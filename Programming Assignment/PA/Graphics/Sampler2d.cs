@@ -23,7 +23,7 @@ public class Sampler2d : IDisposable
 
     public int Height => _stbiImage.Height;
 
-    public Vector4d Sample(double u, double v)
+    public Vector4d Sample(float u, float v)
     {
         int x = (int)(u * _stbiImage.Width);
         int y = (int)(v * _stbiImage.Height);
@@ -36,9 +36,9 @@ public class Sampler2d : IDisposable
         return new Vector4d(_stbiImage.Data[index + 0], _stbiImage.Data[index + 1], _stbiImage.Data[index + 2], _stbiImage.Data[index + 3]);
     }
 
-    public Vector4d SampleNormalized(double u, double v)
+    public Vector4d SampleNormalized(float u, float v)
     {
-        return Sample(u, v) / 255.0;
+        return Sample(u, v) / 255.0f;
     }
 
     public void Dispose()

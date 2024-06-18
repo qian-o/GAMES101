@@ -161,14 +161,14 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         {
             Vector2d offset = pattern[index];
 
-            double x = pixel.X + offset.X;
-            double y = pixel.Y + offset.Y;
+            float x = pixel.X + offset.X;
+            float y = pixel.Y + offset.Y;
 
             if (IsPointInTriangle([a, b, c], x, y, out Vector3d abg))
             {
                 Vertex vertex = Vertex.Interpolate(triangle.A, triangle.B, triangle.C, abg);
 
-                double depth = vertex.Position.Z;
+                float depth = vertex.Position.Z;
 
                 if (depth > frameBuffer.GetDepth(pixel, index))
                 {
@@ -179,7 +179,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         }
     }
 
-    private bool IsPointInTriangle(Vector2d[] vectors, double x, double y, out Vector3d abg)
+    private bool IsPointInTriangle(Vector2d[] vectors, float x, float y, out Vector3d abg)
     {
         Vector2d center = new(x, y);
 
@@ -191,11 +191,11 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
         Vector2d bp = center - vectors[1];
         Vector2d cp = center - vectors[2];
 
-        double abp = Vector2d.Cross(ab, ap);
-        double bcp = Vector2d.Cross(bc, bp);
-        double cap = Vector2d.Cross(ca, cp);
+        float abp = Vector2d.Cross(ab, ap);
+        float bcp = Vector2d.Cross(bc, bp);
+        float cap = Vector2d.Cross(ca, cp);
 
-        double area = Math.Abs(Vector2d.Cross(ab, ca));
+        float area = Math.Abs(Vector2d.Cross(ab, ca));
 
         bool isHit = CCW ? abp >= 0 && bcp >= 0 && cap >= 0 : abp <= 0 && bcp <= 0 && cap <= 0;
 
