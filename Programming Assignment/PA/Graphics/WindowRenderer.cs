@@ -103,16 +103,18 @@ public unsafe class WindowRenderer : IDisposable
             ImGuiController.Render();
         };
 
+        _window.Closing += () =>
+        {
+            imGuiController?.Dispose();
+            inputContext?.Dispose();
+            gl?.Dispose();
+        };
+
         _window.Run();
     }
 
     public void Dispose()
     {
-        imGuiController?.Dispose();
-        inputContext?.Dispose();
-        gl?.Dispose();
-
-        _window.Close();
         _window.Dispose();
 
         GC.SuppressFinalize(this);
