@@ -48,6 +48,13 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
                 return *(ptr + (row * 4) + column);
             }
         }
+        set
+        {
+            fixed (float* ptr = &M11)
+            {
+                *(ptr + (row * 4) + column) = value;
+            }
+        }
     }
 
     public readonly bool IsIdentity => this == Identity;

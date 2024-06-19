@@ -101,7 +101,7 @@ public unsafe class FrameBuffer : IDisposable
         {
             Parallel.ForEach(Pixels, (pixel) =>
             {
-                Fragment fragment = new();
+                Fragment fragment = default;
 
                 for (int i = 0; i < Samples; i++)
                 {

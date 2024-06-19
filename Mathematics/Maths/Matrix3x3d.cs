@@ -34,6 +34,13 @@ public struct Matrix3x3d(Vector3d row1, Vector3d row2, Vector3d row3) : IEquatab
                 return *(ptr + (row * 4) + column);
             }
         }
+        set
+        {
+            fixed (float* ptr = &M11)
+            {
+                *(ptr + (row * 4) + column) = value;
+            }
+        }
     }
 
     public readonly bool IsIdentity => this == Identity;

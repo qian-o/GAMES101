@@ -5,9 +5,39 @@ namespace Maths;
 [StructLayout(LayoutKind.Sequential)]
 public struct Vector2d(float x, float y) : IEquatable<Vector2d>
 {
+    public static Vector2d Zero => new(0.0f);
+
+    public static Vector2d One => new(1.0f);
+
+    public static Vector2d UnitX => new(1.0f, 0.0f);
+
+    public static Vector2d UnitY => new(0.0f, 1.0f);
+
     public float X = x;
 
     public float Y = y;
+
+    public Vector2d(float value) : this(value, value)
+    {
+    }
+
+    public unsafe float this[int index]
+    {
+        get
+        {
+            fixed (float* p = &X)
+            {
+                return *(p + index);
+            }
+        }
+        set
+        {
+            fixed (float* p = &X)
+            {
+                *(p + index) = value;
+            }
+        }
+    }
 
     public readonly float LengthSquared => X * X + Y * Y;
 
@@ -51,6 +81,11 @@ public struct Vector2d(float x, float y) : IEquatable<Vector2d>
     public static Vector2d operator *(Vector2d vector, float scalar)
     {
         return new(vector.X * scalar, vector.Y * scalar);
+    }
+
+    public static Vector2d operator *(float scalar, Vector2d vector)
+    {
+        return vector * scalar;
     }
 
     public static Vector2d operator *(Vector2d left, Vector2d right)

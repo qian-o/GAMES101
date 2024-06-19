@@ -101,7 +101,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer)
             {
                 if (IsPointInTriangle(triangle, pixel.X, pixel.Y))
                 {
-                    frameBuffer[pixel, 0] = new Fragment(new Vector4d(1.0f, 1.0f, 1.0f, 1.0f));
+                    frameBuffer[pixel, 0] = new Fragment(Vector4d.One);
 
                     break;
                 }

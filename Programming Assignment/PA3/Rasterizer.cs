@@ -154,7 +154,7 @@ public unsafe class Rasterizer(WindowRenderer windowRenderer, SampleCount sample
 
                 if (depth >= frameBuffer[pixel, sample].Depth)
                 {
-                    Vector4d color = Frag?.Invoke(vertex) ?? new Vector4d(1.0f, 1.0f, 1.0f, 1.0f);
+                    Vector4d color = Frag?.Invoke(vertex) ?? Vector4d.One;
 
                     frameBuffer[pixel, sample] = new(color, depth);
                 }

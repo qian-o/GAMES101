@@ -5,6 +5,18 @@ namespace Maths;
 [StructLayout(LayoutKind.Sequential)]
 public struct Vector4d(float x, float y, float z, float w) : IEquatable<Vector4d>
 {
+    public static Vector4d Zero => new(0.0f);
+
+    public static Vector4d One => new(1.0f);
+
+    public static Vector4d UnitX => new(1.0f, 0.0f, 0.0f, 0.0f);
+
+    public static Vector4d UnitY => new(0.0f, 1.0f, 0.0f, 0.0f);
+
+    public static Vector4d UnitZ => new(0.0f, 0.0f, 1.0f, 0.0f);
+
+    public static Vector4d UnitW => new(0.0f, 0.0f, 0.0f, 1.0f);
+
     public float X = x;
 
     public float Y = y;
@@ -13,12 +25,34 @@ public struct Vector4d(float x, float y, float z, float w) : IEquatable<Vector4d
 
     public float W = w;
 
+    public Vector4d(float value) : this(value, value, value, value)
+    {
+    }
+
     public Vector4d(Vector2d vector, float z, float w) : this(vector.X, vector.Y, z, w)
     {
     }
 
     public Vector4d(Vector3d vector, float w) : this(vector.X, vector.Y, vector.Z, w)
     {
+    }
+
+    public unsafe float this[int index]
+    {
+        get
+        {
+            fixed (float* p = &X)
+            {
+                return *(p + index);
+            }
+        }
+        set
+        {
+            fixed (float* p = &X)
+            {
+                *(p + index) = value;
+            }
+        }
     }
 
     public readonly float LengthSquared => X * X + Y * Y + Z * Z + W * W;
@@ -63,6 +97,11 @@ public struct Vector4d(float x, float y, float z, float w) : IEquatable<Vector4d
     public static Vector4d operator *(Vector4d vector, float scalar)
     {
         return new(vector.X * scalar, vector.Y * scalar, vector.Z * scalar, vector.W * scalar);
+    }
+
+    public static Vector4d operator *(float scalar, Vector4d vector)
+    {
+        return vector * scalar;
     }
 
     public static Vector4d operator *(Vector4d left, Vector4d right)
