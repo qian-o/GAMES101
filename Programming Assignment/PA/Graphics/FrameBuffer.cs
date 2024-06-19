@@ -41,6 +41,12 @@ public unsafe class FrameBuffer : IDisposable
 
     public uint Texture { get; }
 
+    public int BufferSize => Width * Height;
+
+    public Vector4d* FinalColorBuffer => _finalColorBuffer.Data;
+
+    public float* FinalDepthBuffer => _finalDepthBuffer.Data;
+
     public int this[Pixel pixel] => pixel.Y * Width + pixel.X;
 
     public Fragment this[Pixel pixel, int sample]
@@ -90,6 +96,13 @@ public unsafe class FrameBuffer : IDisposable
         });
     }
 
+    public void UpdateTexture()
+    {
+        _gl.BindTexture(GLEnum.Texture2D, Texture);
+        _gl.TexSubImage2D(GLEnum.Texture2D, 0, 0, 0, (uint)Width, (uint)Height, GLEnum.Rgba, GLEnum.Float, _finalColorBuffer.Data);
+        _gl.BindTexture(GLEnum.Texture2D, 0);
+    }
+
     public void Present()
     {
         if (Samples == 1)
@@ -115,9 +128,7 @@ public unsafe class FrameBuffer : IDisposable
             });
         }
 
-        _gl.BindTexture(GLEnum.Texture2D, Texture);
-        _gl.TexSubImage2D(GLEnum.Texture2D, 0, 0, 0, (uint)Width, (uint)Height, GLEnum.Rgba, GLEnum.Float, _finalColorBuffer.Data);
-        _gl.BindTexture(GLEnum.Texture2D, 0);
+        UpdateTexture();
     }
 
     public void Dispose()

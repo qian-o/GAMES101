@@ -94,9 +94,6 @@ internal class Program
     private static void WindowRenderer_Update(float delta)
     {
         _rasterizer.Model = Matrix4x4d.CreateRotationY(Angle.FromDegrees(140.0f));
-        _rasterizer.Projection = Matrix4x4d.CreatePerspectiveFieldOfView(Angle.FromDegrees(45), (float)_windowRenderer.Width / _windowRenderer.Height, 0.1f, 100.0f);
-
-        _rasterizer.SetViewport(0, 0, _windowRenderer.Width, _windowRenderer.Height);
     }
 
     private static void WindowRenderer_Render(float delta)
