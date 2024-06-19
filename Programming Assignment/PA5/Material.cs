@@ -1,9 +1,7 @@
-﻿using System.Runtime.InteropServices;
-using Maths;
+﻿using Maths;
 
 namespace PA5;
 
-[StructLayout(LayoutKind.Sequential)]
 internal struct Material
 {
     public MaterialType MaterialType;

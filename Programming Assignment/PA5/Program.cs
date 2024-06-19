@@ -26,17 +26,24 @@ internal class Program
     {
         _scene = new(_windowRenderer.GL, _windowRenderer.Width, _windowRenderer.Height);
 
-        Geometry sph1 = Geometry.CreateSphere(new Vector3d(-1.0f, 0.0f, -12.0f), 2.0f, new Material
+        Material mat1 = new()
         {
             MaterialType = MaterialType.DiffuseAndGlossy,
             DiffuseColor = new Vector3d(0.8f, 0.8f, 0.8f)
-        });
+        };
 
-        Geometry sph2 = Geometry.CreateSphere(new Vector3d(0.5f, -0.5f, -8.0f), 1.5f, new Material
+        Material mat2 = new()
         {
             MaterialType = MaterialType.ReflectAndRefract,
             Ior = 1.5f
-        });
+        };
+
+        _scene.Materials.Add(mat1);
+        _scene.Materials.Add(mat2);
+
+        Geometry sph1 = Geometry.CreateSphere(new Vector3d(-1.0f, 0.0f, -12.0f), 2.0f, 0);
+
+        Geometry sph2 = Geometry.CreateSphere(new Vector3d(0.5f, -0.5f, -8.0f), 1.5f, 1);
 
         _scene.Objects.Add(sph1);
         _scene.Objects.Add(sph2);
@@ -52,16 +59,19 @@ internal class Program
 
     private static void WindowRenderer_Render(float obj)
     {
-        ImGui.Begin("PA 3");
+        ImGui.Begin("PA 5");
         {
             Vector2 size = ImGui.GetContentRegionAvail();
 
-            _scene.Width = (int)size.X;
-            _scene.Height = (int)size.Y;
+            if (size.X > 0.0f && size.Y > 0.0f)
+            {
+                _scene.Width = (int)size.X;
+                _scene.Height = (int)size.Y;
 
-            _renderer.Render();
+                _renderer.Render();
 
-            ImGui.Image((nint)_scene.FrameBuffer.Texture, size, new Vector2(0.0f, 1.0f), new Vector2(1.0f, 0.0f));
+                ImGui.Image((nint)_scene.FrameBuffer.Texture, size);
+            }
         }
         ImGui.End();
     }

@@ -1,6 +1,5 @@
 ﻿using ILGPU;
 using ILGPU.Runtime;
-using ILGPU.Util;
 using Maths;
 using PA.Graphics;
 
@@ -13,10 +12,11 @@ internal unsafe class Renderer : IDisposable
 
     private Context? context;
     private Accelerator? accelerator;
-    private Action<Index2D, Int2, ArrayView1D<Geometry, Stride1D.Dense>, ArrayView1D<Light, Stride1D.Dense>, ArrayView1D<Vector4d, Stride1D.Dense>>? renderKernel;
+    private Action<Index2D, SceneProperties, ArrayView1D<Material, Stride1D.Dense>, ArrayView1D<Geometry, Stride1D.Dense>, ArrayView1D<Light, Stride1D.Dense>, ArrayView1D<Vector4d, Stride1D.Dense>>? renderKernel;
 
     private int currentWidth;
     private int currentHeight;
+    private MemoryBuffer1D<Material, Stride1D.Dense>? materialsBuffer;
     private MemoryBuffer1D<Geometry, Stride1D.Dense>? objectsBuffer;
     private MemoryBuffer1D<Light, Stride1D.Dense>? lightsBuffer;
     private MemoryBuffer1D<Vector4d, Stride1D.Dense>? frameBuffer;
@@ -45,7 +45,8 @@ internal unsafe class Renderer : IDisposable
         }
 
         renderKernel!(new Index2D(currentWidth, currentHeight),
-                      new Int2(currentWidth, currentHeight),
+                      _scene.GetProperties(),
+                      materialsBuffer!,
                       objectsBuffer!,
                       lightsBuffer!,
                       frameBuffer!);
@@ -61,12 +62,18 @@ internal unsafe class Renderer : IDisposable
 
     public void Dispose()
     {
+        frameBuffer?.Dispose();
+        lightsBuffer?.Dispose();
+        objectsBuffer?.Dispose();
+        accelerator?.Dispose();
+        context?.Dispose();
+
         GC.SuppressFinalize(this);
     }
 
     private void InitializeILGPU()
     {
-        context = Context.CreateDefault();
+        context = Context.Create(builder => builder.Default().EnableAlgorithms());
 
         List<Device> devices = [.. context];
 
@@ -87,7 +94,7 @@ internal unsafe class Renderer : IDisposable
 
         accelerator = useDevice.CreateAccelerator(context);
 
-        renderKernel = accelerator.LoadAutoGroupedStreamKernel<Index2D, Int2, ArrayView1D<Geometry, Stride1D.Dense>, ArrayView1D<Light, Stride1D.Dense>, ArrayView1D<Vector4d, Stride1D.Dense>>(RenderKernel);
+        renderKernel = accelerator.LoadAutoGroupedStreamKernel<Index2D, SceneProperties, ArrayView1D<Material, Stride1D.Dense>, ArrayView1D<Geometry, Stride1D.Dense>, ArrayView1D<Light, Stride1D.Dense>, ArrayView1D<Vector4d, Stride1D.Dense>>(RenderKernel);
     }
 
     private bool UpdateBuffers()
@@ -97,10 +104,23 @@ internal unsafe class Renderer : IDisposable
             return false;
         }
 
-        objectsBuffer?.Dispose();
-        lightsBuffer?.Dispose();
-        objectsBuffer = accelerator.Allocate1D<Geometry>(_scene.Objects.Count);
-        lightsBuffer = accelerator.Allocate1D<Light>(_scene.Lights.Count);
+        if (materialsBuffer == null || materialsBuffer.Length != _scene.Materials.Count)
+        {
+            materialsBuffer?.Dispose();
+            materialsBuffer = accelerator.Allocate1D<Material>(_scene.Materials.Count);
+        }
+
+        if (objectsBuffer == null || objectsBuffer.Length != _scene.Objects.Count)
+        {
+            objectsBuffer?.Dispose();
+            objectsBuffer = accelerator.Allocate1D<Geometry>(_scene.Objects.Count);
+        }
+
+        if (lightsBuffer == null || lightsBuffer.Length != _scene.Lights.Count)
+        {
+            lightsBuffer?.Dispose();
+            lightsBuffer = accelerator.Allocate1D<Light>(_scene.Lights.Count);
+        }
 
         if (currentWidth != Width || currentHeight != Height)
         {
@@ -112,6 +132,7 @@ internal unsafe class Renderer : IDisposable
             frameBuffer = accelerator.Allocate1D<Vector4d>(currentWidth * currentHeight);
         }
 
+        materialsBuffer.CopyFromCPU([.. _scene.Materials]);
         objectsBuffer.CopyFromCPU([.. _scene.Objects]);
         lightsBuffer.CopyFromCPU([.. _scene.Lights]);
         frameBuffer!.MemSetToZero();
@@ -120,11 +141,85 @@ internal unsafe class Renderer : IDisposable
     }
 
     private static void RenderKernel(Index2D index,
-                                     Int2 size,
+                                     SceneProperties scene,
+                                     ArrayView1D<Material, Stride1D.Dense> materials,
                                      ArrayView1D<Geometry, Stride1D.Dense> objects,
                                      ArrayView1D<Light, Stride1D.Dense> lights,
                                      ArrayView1D<Vector4d, Stride1D.Dense> frame)
     {
-        frame[index.Y * size.X + index.X] = new Vector4d(1, 0, 0, 1);
+        float scale = MathF.Tan(scene.Camera.Fov.Radians);
+        float imageAspectRatio = scene.Width / (float)scene.Height;
+
+        float x = MathsHelper.RangeMap(index.X + 0.5f, 0.0f, scene.Width - 1.0f, -1.0f, 1.0f);
+        float y = MathsHelper.RangeMap(index.Y + 0.5f, 0.0f, scene.Height - 1.0f, 1.0f, -1.0f);
+
+        x *= imageAspectRatio * scale;
+        y *= scale;
+
+        Vector3d dir = new(x, y, -1);
+        dir = Vector3d.Normalize(dir);
+
+        frame[index.Y * scene.Width + index.X] = new Vector4d(CastRay(scene, scene.Camera.Position, dir, materials, objects, lights, 0), 1.0f);
+    }
+
+    private static Vector3d CastRay(SceneProperties scene,
+                                    Vector3d orig,
+                                    Vector3d dir,
+                                    ArrayView1D<Material, Stride1D.Dense> materials,
+                                    ArrayView1D<Geometry, Stride1D.Dense> objects,
+                                    ArrayView1D<Light, Stride1D.Dense> lights,
+                                    int depth)
+    {
+        if (depth > scene.MaxDepth)
+        {
+            return Vector3d.Zero;
+        }
+
+        Vector3d hitColor = scene.BackgroundColor;
+        if (Trace(scene, orig, dir, objects) is HitPayload payload)
+        {
+            Geometry obj = objects[payload.ObjectIndex];
+            Material mat = materials[obj.MaterialIndex];
+
+            Vector3d hitPoint = orig + dir * payload.TNear;
+            Vector3d normal = default;
+            Vector2d st = default;
+
+            Geometry.GetSurfaceProperties(obj, hitPoint, dir, payload.UV, ref normal, ref st);
+
+            return new Vector3d(payload.TNear);
+        }
+
+        return hitColor;
+    }
+
+    private static HitPayload? Trace(SceneProperties scene,
+                                     Vector3d orig,
+                                     Vector3d dir,
+                                     ArrayView1D<Geometry, Stride1D.Dense> objects)
+    {
+        float tNear = float.MaxValue;
+
+        HitPayload? payload = null;
+
+        for (int i = 0; i < scene.ObjectsLength; i++)
+        {
+            float tNearK = float.MaxValue;
+            Vector2d uvK = Vector2d.Zero;
+
+            if (Geometry.Intersect(objects[i], orig, dir, ref tNearK, ref uvK) && tNearK < tNear)
+            {
+                payload = new HitPayload
+                {
+                    TNear = tNearK,
+                    UV = uvK,
+                    ObjectIndex = i
+                };
+
+                tNear = tNearK;
+            }
+        }
+
+        return payload;
     }
 }

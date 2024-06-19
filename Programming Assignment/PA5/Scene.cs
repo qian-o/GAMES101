@@ -17,7 +17,7 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
 
     public int Height { get; set; } = height;
 
-    public float Fov { get; set; } = 45.0f;
+    public Camera Camera { get; set; } = new Camera(Vector3d.Zero, Angle.FromDegrees(45.0f));
 
     public Vector3d BackgroundColor { get; set; } = new Vector3d(0.2f, 0.7f, 0.8f);
 
@@ -25,11 +25,29 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
 
     public float Epsilon { get; set; } = 0.0001f;
 
+    public List<Material> Materials { get; } = [];
+
     public List<Geometry> Objects { get; } = [];
 
     public List<Light> Lights { get; } = [];
 
     public FrameBuffer FrameBuffer => TryGetFrameBuffer();
+
+    public SceneProperties GetProperties()
+    {
+        return new SceneProperties
+        {
+            Width = Width,
+            Height = Height,
+            Camera = Camera,
+            BackgroundColor = BackgroundColor,
+            MaxDepth = MaxDepth,
+            Epsilon = Epsilon,
+            MaterialsLength = Materials.Count,
+            ObjectsLength = Objects.Count,
+            LightsLength = Lights.Count
+        };
+    }
 
     private FrameBuffer TryGetFrameBuffer()
     {
@@ -44,4 +62,25 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
 
         return frameBuffer!;
     }
+}
+
+internal struct SceneProperties
+{
+    public int Width;
+
+    public int Height;
+
+    public Camera Camera;
+
+    public Vector3d BackgroundColor;
+
+    public int MaxDepth;
+
+    public float Epsilon;
+
+    public int MaterialsLength;
+
+    public int ObjectsLength;
+
+    public int LightsLength;
 }

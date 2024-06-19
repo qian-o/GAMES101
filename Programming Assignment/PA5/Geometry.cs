@@ -21,79 +21,80 @@ internal unsafe struct Geometry
     /// </summary>
     public float Radius;
 
-    public Material Material;
+    /// <summary>
+    /// Scene material index.
+    /// </summary>
+    public int MaterialIndex;
 
-    public static Geometry CreateSphere(Vector3d center, float radius, Material material)
+    public static Geometry CreateSphere(Vector3d center, float radius, int materialIndex)
     {
         return new Geometry
         {
             Type = GeometryType.Sphere,
             Center = center,
             Radius = radius,
-            Material = material
+            MaterialIndex = materialIndex
         };
     }
 
-    public static Geometry CreateTriangle(Triangle triangle, Material material)
+    public static Geometry CreateTriangle(Triangle triangle, int materialIndex)
     {
         return new Geometry
         {
             Type = GeometryType.Triangle,
             Triangle = triangle,
-            Material = material
+            MaterialIndex = materialIndex
         };
     }
 
-    public readonly bool Intersect(Vector3d orig, Vector3d dir, ref float tnear, ref uint _4, ref Vector2d _5)
+    public static bool Intersect(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear, ref Vector2d uv)
     {
-        return Type switch
+        return geometry.Type switch
         {
-            GeometryType.Sphere => IntersectBySphere(orig, dir, ref tnear),
+            GeometryType.Sphere => IntersectBySphere(geometry, orig, dir, ref tnear),
             _ => false
         };
     }
 
-    public readonly void GetSurfaceProperties(Vector3d position, Vector3d _2, uint _3, Vector2d _4, ref Vector3d normal, ref Vector2d _6)
+    public static void GetSurfaceProperties(Geometry geometry, Vector3d position, Vector3d dir, Vector2d uv, ref Vector3d normal, ref Vector2d st)
     {
-        switch (Type)
+        switch (geometry.Type)
         {
             case GeometryType.Sphere:
-                GetSurfacePropertiesBySphere(position, ref normal);
+                GetSurfacePropertiesBySphere(geometry, position, ref normal);
                 break;
-            default:
-                throw new InvalidOperationException();
         }
     }
 
-    public readonly Vector3d EvalDiffuseColor(Vector2d _1)
+    public static Vector3d EvalDiffuseColor(Geometry geometry, Material material, Vector2d _1)
     {
-        return Type switch
+        return geometry.Type switch
         {
-            GeometryType.Sphere => EvalDiffuseColorBySphere(),
+            GeometryType.Sphere => EvalDiffuseColorBySphere(material),
             _ => throw new InvalidOperationException()
         };
     }
 
     #region Sphere
-    private readonly bool IntersectBySphere(Vector3d orig, Vector3d dir, ref float tnear)
+    private static bool IntersectBySphere(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear)
     {
         // analytic solution
-        Vector3d L = orig - Center;
+        Vector3d L = orig - geometry.Center;
         float a = Vector3d.Dot(dir, dir);
-        float b = 2 * Vector3d.Dot(dir, L);
-        float c = Vector3d.Dot(L, L) - (Radius * 2.0f);
+        float b = 2.0f * Vector3d.Dot(dir, L);
+        float c = Vector3d.Dot(L, L) - (geometry.Radius * 2.0f);
 
-        if (!MathsHelper.SolveQuadratic(a, b, c, out float t0, out float t1))
+        if (!SolveQuadratic(a, b, c, out float t0, out float t1))
         {
             return false;
         }
 
-        if (t0 < 0)
+        if (t0 < 0.0f)
         {
             t0 = t1;
         }
 
-        if (t0 < 0)
+        if (t0 < 0.0f)
         {
             return false;
         }
@@ -103,16 +104,45 @@ internal unsafe struct Geometry
         return true;
     }
 
-    private readonly void GetSurfacePropertiesBySphere(Vector3d position, ref Vector3d normal)
+    private static void GetSurfacePropertiesBySphere(Geometry geometry, Vector3d position, ref Vector3d normal)
     {
-        normal = Vector3d.Normalize(position - Center);
+        normal = Vector3d.Normalize(position - geometry.Center);
     }
 
-    private readonly Vector3d EvalDiffuseColorBySphere()
+    private static Vector3d EvalDiffuseColorBySphere(Material material)
     {
-        return Material.DiffuseColor;
+        return material.DiffuseColor;
     }
     #endregion
+
+    private static bool SolveQuadratic(float a, float b, float c, out float x0, out float x1)
+    {
+        float discr = (b * b) - (4.0f * a * c);
+
+        if (discr < 0.0f)
+        {
+            x0 = x1 = 0.0f;
+
+            return false;
+        }
+        else if (discr == 0.0f)
+        {
+            x0 = x1 = -0.5f * b / a;
+        }
+        else
+        {
+            float q = (b > 0.0f) ? -0.5f * (b + MathF.Sqrt(discr)) : -0.5f * (b - MathF.Sqrt(discr));
+            x0 = q / a;
+            x1 = c / q;
+        }
+
+        if (x0 > x1)
+        {
+            (x1, x0) = (x0, x1);
+        }
+
+        return true;
+    }
 }
 
 internal enum GeometryType
