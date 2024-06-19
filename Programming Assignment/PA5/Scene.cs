@@ -42,10 +42,7 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
             Camera = Camera,
             BackgroundColor = BackgroundColor,
             MaxDepth = MaxDepth,
-            Epsilon = Epsilon,
-            MaterialsLength = Materials.Count,
-            ObjectsLength = Objects.Count,
-            LightsLength = Lights.Count
+            Epsilon = Epsilon
         };
     }
 
@@ -77,10 +74,4 @@ internal struct SceneProperties
     public int MaxDepth;
 
     public float Epsilon;
-
-    public int MaterialsLength;
-
-    public int ObjectsLength;
-
-    public int LightsLength;
 }

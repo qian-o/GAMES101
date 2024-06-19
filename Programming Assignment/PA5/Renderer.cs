@@ -176,7 +176,7 @@ internal unsafe class Renderer : IDisposable
         }
 
         Vector3d hitColor = scene.BackgroundColor;
-        if (Trace(scene, orig, dir, objects) is HitPayload payload)
+        if (Trace(orig, dir, objects) is HitPayload payload)
         {
             Geometry obj = objects[payload.ObjectIndex];
             Material mat = materials[obj.MaterialIndex];
@@ -193,8 +193,7 @@ internal unsafe class Renderer : IDisposable
         return hitColor;
     }
 
-    private static HitPayload? Trace(SceneProperties scene,
-                                     Vector3d orig,
+    private static HitPayload? Trace(Vector3d orig,
                                      Vector3d dir,
                                      ArrayView1D<Geometry, Stride1D.Dense> objects)
     {
@@ -202,7 +201,7 @@ internal unsafe class Renderer : IDisposable
 
         HitPayload? payload = null;
 
-        for (int i = 0; i < scene.ObjectsLength; i++)
+        for (int i = 0; i < objects.Length; i++)
         {
             float tNearK = float.MaxValue;
             Vector2d uvK = Vector2d.Zero;
