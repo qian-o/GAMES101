@@ -44,7 +44,7 @@ public static class MathsHelper
         }
 
         float sint = etai / etat * MathF.Sqrt(MathF.Max(0.0f, 1.0f - cosi * cosi));
-        
+
         if (sint >= 1.0f)
         {
             return 1.0f;

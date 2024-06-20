@@ -38,15 +38,36 @@ internal class Program
             Ior = 1.5f
         };
 
+        Material mat3 = new()
+        {
+            MaterialType = MaterialType.DiffuseAndGlossy
+        };
+
         _scene.Materials.Add(mat1);
         _scene.Materials.Add(mat2);
+        _scene.Materials.Add(mat3);
 
         Geometry sph1 = Geometry.CreateSphere(new Vector3d(-1.0f, 0.0f, -12.0f), 2.0f, 0);
 
         Geometry sph2 = Geometry.CreateSphere(new Vector3d(0.5f, -0.5f, -8.0f), 1.5f, 1);
 
+        Vertex[] verts =
+        [
+            new(new(-5.0f, -3.0f, -06.0f), texCoord: new(0.0f, 0.0f)),
+            new(new( 5.0f, -3.0f, -06.0f), texCoord: new(1.0f, 0.0f)),
+            new(new( 5.0f, -3.0f, -16.0f), texCoord: new(1.0f, 1.0f)),
+            new(new(-5.0f, -3.0f, -16.0f), texCoord: new(0.0f, 1.0f))
+        ];
+        int[] indices = [0, 1, 3, 1, 2, 3];
+
+        Geometry tri1 = Geometry.CreateTriangle(new Triangle(verts[indices[0]], verts[indices[1]], verts[indices[2]]), 2);
+        Geometry tri2 = Geometry.CreateTriangle(new Triangle(verts[indices[3]], verts[indices[4]], verts[indices[5]]), 2);
+
         _scene.Objects.Add(sph1);
         _scene.Objects.Add(sph2);
+
+        _scene.Objects.Add(tri1);
+        _scene.Objects.Add(tri2);
 
         Light light1 = new(new Vector3d(-20.0f, 70.0f, 20.0f), new Vector3d(0.5f));
         Light light2 = new(new Vector3d(30.0f, 50.0f, -12.0f), new Vector3d(0.5f));
