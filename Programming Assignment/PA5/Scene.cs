@@ -12,18 +12,25 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
     private int currentWidth = -1;
     private int currentHeight = -1;
     private FrameBuffer? frameBuffer = null;
+    private SceneProperties properties = new(width, height);
 
-    public int Width { get; set; } = width;
+    public ref int Width => ref properties.Width;
 
-    public int Height { get; set; } = height;
+    public ref int Height => ref properties.Height;
 
-    public Camera Camera { get; set; } = new Camera(Vector3d.Zero, Angle.FromDegrees(45.0f));
+    public ref Angle Fov => ref properties.Fov;
 
-    public Vector3d BackgroundColor { get; set; } = new Vector3d(0.2f, 0.7f, 0.8f);
+    public ref float Near => ref properties.Near;
 
-    public int MaxDepth { get; set; } = 5;
+    public ref float Far => ref properties.Far;
 
-    public float Epsilon { get; set; } = 0.0001f;
+    public ref Camera Camera => ref properties.Camera;
+
+    public ref Vector3d BackgroundColor => ref properties.BackgroundColor;
+
+    public ref int MaxDepth => ref properties.MaxDepth;
+
+    public ref float Epsilon => ref properties.Epsilon;
 
     public List<Material> Materials { get; } = [];
 
@@ -33,18 +40,7 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
 
     public FrameBuffer FrameBuffer => TryGetFrameBuffer();
 
-    public SceneProperties GetProperties()
-    {
-        return new SceneProperties
-        {
-            Width = Width,
-            Height = Height,
-            Camera = Camera,
-            BackgroundColor = BackgroundColor,
-            MaxDepth = MaxDepth,
-            Epsilon = Epsilon
-        };
-    }
+    public SceneProperties SceneProperties => properties;
 
     private FrameBuffer TryGetFrameBuffer()
     {
@@ -61,17 +57,28 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
     }
 }
 
-internal struct SceneProperties
+internal struct SceneProperties(int width,
+                                int height)
 {
-    public int Width;
+    public int Width = width;
 
-    public int Height;
+    public int Height = height;
 
-    public Camera Camera;
+    public Angle Fov = Angle.FromDegrees(45.0f);
 
-    public Vector3d BackgroundColor;
+    public float Near = 0.1f;
 
-    public int MaxDepth;
+    public float Far = 100.0f;
 
-    public float Epsilon;
+    public Camera Camera = new();
+
+    public Vector3d BackgroundColor = new(0.2f, 0.7f, 0.8f);
+
+    public int MaxDepth = 5;
+
+    public float Epsilon = 0.0001f;
+
+    public readonly Matrix4x4d View => Matrix4x4d.CreateLookAt(Camera.Position, Camera.Target, Camera.Up);
+
+    public readonly Matrix4x4d Projection => Matrix4x4d.CreatePerspectiveFieldOfView(Fov, Width / (float)Height, Near, Far);
 }

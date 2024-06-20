@@ -47,11 +47,20 @@ internal unsafe struct Geometry
         };
     }
 
+    public static Geometry Transform(Geometry geometry, Matrix4x4d transform)
+    {
+        return geometry.Type switch
+        {
+            GeometryType.Sphere => TransformSphere(geometry, transform),
+            _ => throw new InvalidOperationException()
+        };
+    }
+
     public static bool Intersect(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear, ref Vector2d uv)
     {
         return geometry.Type switch
         {
-            GeometryType.Sphere => IntersectBySphere(geometry, orig, dir, ref tnear),
+            GeometryType.Sphere => IntersectSphere(geometry, orig, dir, ref tnear),
             _ => false
         };
     }
@@ -61,7 +70,7 @@ internal unsafe struct Geometry
         switch (geometry.Type)
         {
             case GeometryType.Sphere:
-                GetSurfacePropertiesBySphere(geometry, position, ref normal);
+                GetSurfacePropertiesSphere(geometry, position, ref normal);
                 break;
         }
     }
@@ -70,13 +79,32 @@ internal unsafe struct Geometry
     {
         return geometry.Type switch
         {
-            GeometryType.Sphere => EvalDiffuseColorBySphere(material),
+            GeometryType.Sphere => EvalDiffuseColorSphere(material),
             _ => throw new InvalidOperationException()
         };
     }
 
     #region Sphere
-    private static bool IntersectBySphere(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear)
+    private static Geometry TransformSphere(Geometry geometry, Matrix4x4d transform)
+    {
+        Vector3d center = geometry.Center;
+        Vector3d centerAddRadius = center + new Vector3d(geometry.Radius);
+
+        Vector3d newCenter = transform * center;
+        Vector3d newCenterAddRadius = transform * centerAddRadius;
+
+        float radius = (newCenterAddRadius - newCenter).Length;
+
+        return new Geometry
+        {
+            Type = GeometryType.Sphere,
+            Center = newCenter,
+            Radius = radius,
+            MaterialIndex = geometry.MaterialIndex
+        };
+    }
+
+    private static bool IntersectSphere(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear)
     {
         // analytic solution
         Vector3d L = orig - geometry.Center;
@@ -104,12 +132,12 @@ internal unsafe struct Geometry
         return true;
     }
 
-    private static void GetSurfacePropertiesBySphere(Geometry geometry, Vector3d position, ref Vector3d normal)
+    private static void GetSurfacePropertiesSphere(Geometry geometry, Vector3d position, ref Vector3d normal)
     {
         normal = Vector3d.Normalize(position - geometry.Center);
     }
 
-    private static Vector3d EvalDiffuseColorBySphere(Material material)
+    private static Vector3d EvalDiffuseColorSphere(Material material)
     {
         return material.DiffuseColor;
     }
