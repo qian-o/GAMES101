@@ -11,18 +11,18 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
 
     private int currentWidth = -1;
     private int currentHeight = -1;
+
+    #region Properties
     private FrameBuffer? frameBuffer = null;
     private SceneProperties properties = new(width, height);
+
+    public FrameBuffer FrameBuffer => TryGetFrameBuffer();
+
+    public SceneProperties SceneProperties => properties;
 
     public ref int Width => ref properties.Width;
 
     public ref int Height => ref properties.Height;
-
-    public ref Angle Fov => ref properties.Fov;
-
-    public ref float Near => ref properties.Near;
-
-    public ref float Far => ref properties.Far;
 
     public ref Camera Camera => ref properties.Camera;
 
@@ -37,10 +37,7 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
     public List<Geometry> Objects { get; } = [];
 
     public List<Light> Lights { get; } = [];
-
-    public FrameBuffer FrameBuffer => TryGetFrameBuffer();
-
-    public SceneProperties SceneProperties => properties;
+    #endregion
 
     private FrameBuffer TryGetFrameBuffer()
     {
@@ -57,28 +54,17 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
     }
 }
 
-internal struct SceneProperties(int width,
-                                int height)
+internal struct SceneProperties(int width, int height)
 {
     public int Width = width;
 
     public int Height = height;
 
-    public Angle Fov = Angle.FromDegrees(45.0f);
-
-    public float Near = 0.1f;
-
-    public float Far = 100.0f;
-
-    public Camera Camera = new();
+    public Camera Camera = new(Vector3d.Zero, Angle.FromDegrees(45.0f));
 
     public Vector3d BackgroundColor = new(0.2f, 0.7f, 0.8f);
 
     public int MaxDepth = 5;
 
     public float Epsilon = 0.0001f;
-
-    public readonly Matrix4x4d View => Matrix4x4d.CreateLookAt(Camera.Position, Camera.Target, Camera.Up);
-
-    public readonly Matrix4x4d Projection => Matrix4x4d.CreatePerspectiveFieldOfView(Fov, Width / (float)Height, Near, Far);
 }

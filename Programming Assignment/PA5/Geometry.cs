@@ -3,7 +3,7 @@ using PA.Graphics;
 
 namespace PA5;
 
-internal unsafe struct Geometry
+internal struct Geometry
 {
     public GeometryType Type;
 

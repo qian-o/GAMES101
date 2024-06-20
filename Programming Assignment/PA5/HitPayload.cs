@@ -2,7 +2,7 @@
 
 namespace PA5;
 
-internal unsafe struct HitPayload
+internal struct HitPayload
 {
     public float TNear;
 

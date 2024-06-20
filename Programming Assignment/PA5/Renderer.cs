@@ -147,7 +147,7 @@ internal unsafe class Renderer : IDisposable
                                      ArrayView1D<Light, Stride1D.Dense> lights,
                                      ArrayView1D<Vector4d, Stride1D.Dense> frame)
     {
-        float scale = MathF.Tan(scene.Fov.Radians);
+        float scale = MathF.Tan(scene.Camera.Fov.Radians);
         float imageAspectRatio = scene.Width / (float)scene.Height;
 
         float x = MathsHelper.RangeMap(index.X + 0.5f, 0.0f, scene.Width - 1.0f, -1.0f, 1.0f);
@@ -187,7 +187,7 @@ internal unsafe class Renderer : IDisposable
 
             Geometry.GetSurfaceProperties(obj, hitPoint, dir, payload.UV, ref normal, ref st);
 
-            return new Vector3d(1.0f, 1.0f, 1.0f);
+            return new Vector3d(payload.TNear);
         }
 
         return hitColor;
