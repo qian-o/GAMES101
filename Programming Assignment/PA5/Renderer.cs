@@ -221,34 +221,7 @@ internal unsafe class Renderer : IDisposable
                         return CastRay1(scene, reflectRay, materials, objects, lights) * kr;
                     }
                 default:
-                    {
-                        Vector3d lightAmt = Vector3d.Zero;
-                        Vector3d specularColor = Vector3d.Zero;
-
-                        Vector3d shadowOrigin = Vector3d.Dot(ray.Direction, surface.Normal) < 0.0f
-                            ? position + (surface.Normal * scene.Epsilon)
-                            : position - (surface.Normal * scene.Epsilon);
-
-                        for (int i = 0; i < lights.Length; i++)
-                        {
-                            Light light = lights[i];
-
-                            Vector3d lightDir = light.Position - position;
-                            float lightDistance2 = lightDir.LengthSquared;
-                            lightDir = Vector3d.Normalize(lightDir);
-                            float LdotN = Math.Max(Vector3d.Dot(lightDir, surface.Normal), 0.0f);
-
-                            HitPayload shadowHit = Trace(new Ray(shadowOrigin, lightDir), objects);
-                            bool inShadow = shadowHit.ObjectIndex >= 0 && shadowHit.Intersection.TNear * shadowHit.Intersection.TNear < lightDistance2;
-
-                            lightAmt += inShadow ? Vector3d.Zero : light.Intensity * LdotN;
-                            Vector3d reflectionDirection = Vector3d.Reflect(-lightDir, surface.Normal);
-
-                            specularColor += MathF.Pow(Math.Max(-Vector3d.Dot(reflectionDirection, ray.Direction), 0.0f), material.SpecularExponent) * light.Intensity;
-                        }
-
-                        return lightAmt * Geometry.EvalDiffuseColor(obj, material, surface.ST) * material.Kd + specularColor * material.Ks;
-                    }
+                    return DiffuseAndGlossy(scene, ray, payload, materials, objects, lights);
             }
         }
 
@@ -310,34 +283,7 @@ internal unsafe class Renderer : IDisposable
                         return CastRay2(scene, reflectRay, materials, objects, lights) * kr;
                     }
                 default:
-                    {
-                        Vector3d lightAmt = Vector3d.Zero;
-                        Vector3d specularColor = Vector3d.Zero;
-
-                        Vector3d shadowOrigin = Vector3d.Dot(ray.Direction, surface.Normal) < 0.0f
-                            ? position + (surface.Normal * scene.Epsilon)
-                            : position - (surface.Normal * scene.Epsilon);
-
-                        for (int i = 0; i < lights.Length; i++)
-                        {
-                            Light light = lights[i];
-
-                            Vector3d lightDir = light.Position - position;
-                            float lightDistance2 = lightDir.LengthSquared;
-                            lightDir = Vector3d.Normalize(lightDir);
-                            float LdotN = Math.Max(Vector3d.Dot(lightDir, surface.Normal), 0.0f);
-
-                            HitPayload shadowHit = Trace(new Ray(shadowOrigin, lightDir), objects);
-                            bool inShadow = shadowHit.ObjectIndex >= 0 && shadowHit.Intersection.TNear * shadowHit.Intersection.TNear < lightDistance2;
-
-                            lightAmt += inShadow ? Vector3d.Zero : light.Intensity * LdotN;
-                            Vector3d reflectionDirection = Vector3d.Reflect(-lightDir, surface.Normal);
-
-                            specularColor += MathF.Pow(Math.Max(-Vector3d.Dot(reflectionDirection, ray.Direction), 0.0f), material.SpecularExponent) * light.Intensity;
-                        }
-
-                        return lightAmt * Geometry.EvalDiffuseColor(obj, material, surface.ST) * material.Kd + specularColor * material.Ks;
-                    }
+                    return DiffuseAndGlossy(scene, ray, payload, materials, objects, lights);
             }
         }
 
@@ -355,50 +301,11 @@ internal unsafe class Renderer : IDisposable
             Geometry obj = objects[payload.ObjectIndex];
             Material material = materials[obj.MaterialIndex];
 
-            Vector3d position = ray.At(payload.Intersection.TNear);
-
-            SurfaceProperties surface = Geometry.GetSurfaceProperties(obj, position, payload.Intersection.UV);
-
-            switch (material.MaterialType)
+            return material.MaterialType switch
             {
-                case MaterialType.ReflectAndRefract:
-                    {
-                        return Vector3d.Zero;
-                    }
-                case MaterialType.Reflect:
-                    {
-                        return Vector3d.Zero;
-                    }
-                default:
-                    {
-                        Vector3d lightAmt = Vector3d.Zero;
-                        Vector3d specularColor = Vector3d.Zero;
-
-                        Vector3d shadowOrigin = Vector3d.Dot(ray.Direction, surface.Normal) < 0.0f
-                            ? position + (surface.Normal * scene.Epsilon)
-                            : position - (surface.Normal * scene.Epsilon);
-
-                        for (int i = 0; i < lights.Length; i++)
-                        {
-                            Light light = lights[i];
-
-                            Vector3d lightDir = light.Position - position;
-                            float lightDistance2 = lightDir.LengthSquared;
-                            lightDir = Vector3d.Normalize(lightDir);
-                            float LdotN = Math.Max(Vector3d.Dot(lightDir, surface.Normal), 0.0f);
-
-                            HitPayload shadowHit = Trace(new Ray(shadowOrigin, lightDir), objects);
-                            bool inShadow = shadowHit.ObjectIndex >= 0 && shadowHit.Intersection.TNear * shadowHit.Intersection.TNear < lightDistance2;
-
-                            lightAmt += inShadow ? Vector3d.Zero : light.Intensity * LdotN;
-                            Vector3d reflectionDirection = Vector3d.Reflect(-lightDir, surface.Normal);
-
-                            specularColor += MathF.Pow(Math.Max(-Vector3d.Dot(reflectionDirection, ray.Direction), 0.0f), material.SpecularExponent) * light.Intensity;
-                        }
-
-                        return lightAmt * Geometry.EvalDiffuseColor(obj, material, surface.ST) * material.Kd + specularColor * material.Ks;
-                    }
-            }
+                MaterialType.DiffuseAndGlossy => DiffuseAndGlossy(scene, ray, payload, materials, objects, lights),
+                _ => Vector3d.Zero
+            };
         }
 
         return scene.BackgroundColor;
@@ -421,5 +328,47 @@ internal unsafe class Renderer : IDisposable
         }
 
         return payload;
+    }
+
+    private static Vector3d DiffuseAndGlossy(SceneProperties scene,
+                                             Ray ray,
+                                             HitPayload payload,
+                                             ArrayView1D<Material, Stride1D.Dense> materials,
+                                             ArrayView1D<Geometry, Stride1D.Dense> objects,
+                                             ArrayView1D<Light, Stride1D.Dense> lights)
+    {
+        Geometry obj = objects[payload.ObjectIndex];
+        Material material = materials[obj.MaterialIndex];
+
+        Vector3d position = ray.At(payload.Intersection.TNear);
+
+        SurfaceProperties surface = Geometry.GetSurfaceProperties(obj, position, payload.Intersection.UV);
+
+        Vector3d lightAmt = Vector3d.Zero;
+        Vector3d specularColor = Vector3d.Zero;
+
+        Vector3d shadowOrigin = Vector3d.Dot(ray.Direction, surface.Normal) < 0.0f
+            ? position + (surface.Normal * scene.Epsilon)
+            : position - (surface.Normal * scene.Epsilon);
+
+        for (int i = 0; i < lights.Length; i++)
+        {
+            Light light = lights[i];
+
+            Vector3d lightDir = light.Position - position;
+            float lightDistance2 = lightDir.LengthSquared;
+            lightDir = Vector3d.Normalize(lightDir);
+            float LdotN = Math.Max(Vector3d.Dot(lightDir, surface.Normal), 0.0f);
+
+            HitPayload shadowHit = Trace(new Ray(shadowOrigin, lightDir), objects);
+            bool inShadow = shadowHit.ObjectIndex >= 0 && shadowHit.Intersection.TNear * shadowHit.Intersection.TNear < lightDistance2;
+
+            lightAmt += inShadow ? Vector3d.Zero : light.Intensity * LdotN;
+            Vector3d reflectionDirection = Vector3d.Reflect(-lightDir, surface.Normal);
+
+            specularColor += MathF.Pow(Math.Max(-Vector3d.Dot(reflectionDirection, ray.Direction), 0.0f), material.SpecularExponent) * light.Intensity;
+        }
+
+        return lightAmt * Geometry.EvalDiffuseColor(obj, material, surface.ST) * material.Kd + specularColor * material.Ks;
     }
 }
