@@ -1,4 +1,5 @@
 ﻿using Maths;
+using PA.Graphics;
 
 namespace PA5;
 
@@ -47,15 +48,6 @@ internal unsafe struct Geometry
         };
     }
 
-    public static Geometry Transform(Geometry geometry, Matrix4x4d transform)
-    {
-        return geometry.Type switch
-        {
-            GeometryType.Sphere => TransformSphere(geometry, transform),
-            _ => throw new InvalidOperationException()
-        };
-    }
-
     public static bool Intersect(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear, ref Vector2d uv)
     {
         return geometry.Type switch
@@ -85,31 +77,12 @@ internal unsafe struct Geometry
     }
 
     #region Sphere
-    private static Geometry TransformSphere(Geometry geometry, Matrix4x4d transform)
-    {
-        Vector3d center = geometry.Center;
-        Vector3d centerAddRadius = center + new Vector3d(geometry.Radius);
-
-        Vector3d newCenter = transform * center;
-        Vector3d newCenterAddRadius = transform * centerAddRadius;
-
-        float radius = (newCenterAddRadius - newCenter).Length;
-
-        return new Geometry
-        {
-            Type = GeometryType.Sphere,
-            Center = newCenter,
-            Radius = radius,
-            MaterialIndex = geometry.MaterialIndex
-        };
-    }
-
     private static bool IntersectSphere(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear)
     {
         // analytic solution
         Vector3d L = orig - geometry.Center;
         float a = Vector3d.Dot(dir, dir);
-        float b = 2.0f * Vector3d.Dot(dir, L);
+        float b = Vector3d.Dot(dir, L) * 2.0f;
         float c = Vector3d.Dot(L, L) - (geometry.Radius * 2.0f);
 
         if (!SolveQuadratic(a, b, c, out float t0, out float t1))
