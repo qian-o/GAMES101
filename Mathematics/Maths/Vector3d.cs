@@ -145,4 +145,34 @@ public struct Vector3d(float x, float y, float z) : IEquatable<Vector3d>
     {
         return new(MathF.Pow(a.X, b), MathF.Pow(a.Y, b), MathF.Pow(a.Z, b));
     }
+
+    public static Vector3d Reflect(Vector3d i, Vector3d n)
+    {
+        return i - 2.0f * Dot(i, n) * n;
+    }
+
+    public static Vector3d Refract(Vector3d i, Vector3d n, float ior)
+    {
+        float cosi = MathsHelper.Clamp(Dot(i, n), -1.0f, 1.0f);
+        float etai = 1.0f;
+        float etat = ior;
+
+        Vector3d n1 = n;
+
+        if (cosi < 0)
+        {
+            cosi = -cosi;
+        }
+        else
+        {
+            (etai, etat) = (etat, etai);
+
+            n1 = -n;
+        }
+
+        float eta = etai / etat;
+        float k = 1.0f - eta * eta * (1.0f - cosi * cosi);
+
+        return k < 0.0f ? Zero : (eta * i) + (((eta * cosi) - MathF.Sqrt(k)) * n1);
+    }
 }

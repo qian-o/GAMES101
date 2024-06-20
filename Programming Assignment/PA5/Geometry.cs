@@ -48,11 +48,11 @@ internal struct Geometry
         };
     }
 
-    public static Intersection Intersect(Geometry geometry, Vector3d orig, Vector3d dir)
+    public static Intersection Intersect(Geometry geometry, Ray ray)
     {
         return geometry.Type switch
         {
-            GeometryType.Sphere => IntersectSphere(geometry, orig, dir),
+            GeometryType.Sphere => IntersectSphere(geometry, ray),
             _ => Intersection.False
         };
     }
@@ -76,11 +76,11 @@ internal struct Geometry
     }
 
     #region Sphere
-    private static Intersection IntersectSphere(Geometry geometry, Vector3d orig, Vector3d dir)
+    private static Intersection IntersectSphere(Geometry geometry, Ray ray)
     {
-        Vector3d L = orig - geometry.Center;
-        float a = Vector3d.Dot(dir, dir);
-        float b = Vector3d.Dot(dir, L) * 2.0f;
+        Vector3d L = ray.Origin - geometry.Center;
+        float a = Vector3d.Dot(ray.Direction, ray.Direction);
+        float b = Vector3d.Dot(ray.Direction, L) * 2.0f;
         float c = Vector3d.Dot(L, L) - (geometry.Radius * 2.0f);
 
         if (!SolveQuadratic(a, b, c, out float t0, out float t1))

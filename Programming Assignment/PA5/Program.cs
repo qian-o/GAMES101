@@ -29,7 +29,7 @@ internal class Program
         Material mat1 = new()
         {
             MaterialType = MaterialType.DiffuseAndGlossy,
-            DiffuseColor = new Vector3d(0.8f, 0.8f, 0.8f)
+            DiffuseColor = new Vector3d(0.6f, 0.7f, 0.8f)
         };
 
         Material mat2 = new()
