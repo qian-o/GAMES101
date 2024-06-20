@@ -59,6 +59,13 @@ internal class Program
 
     private static void WindowRenderer_Render(float obj)
     {
+        ImGui.Begin(WindowRenderer.InfoPanel);
+        {
+            ImGui.Text($"Device: {_renderer.Device.Name}");
+            ImGui.Text($"Accelerator: {_renderer.Device.AcceleratorType}");
+        }
+        ImGui.End();
+
         ImGui.Begin("PA 5");
         {
             Vector2 size = ImGui.GetContentRegionAvail();

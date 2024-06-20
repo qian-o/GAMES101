@@ -37,6 +37,10 @@ internal unsafe class Renderer : IDisposable
     public FrameBuffer FrameBuffer => _scene.FrameBuffer;
     #endregion
 
+    #region Renderer Properties
+    public Device Device => accelerator!.Device;
+    #endregion
+
     public void Render()
     {
         if (!UpdateBuffers())

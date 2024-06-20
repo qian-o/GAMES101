@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using ImGuiNET;
+﻿using ImGuiNET;
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
@@ -9,6 +8,8 @@ namespace PA.Graphics;
 
 public unsafe class WindowRenderer : IDisposable
 {
+    public const string InfoPanel = "Info";
+
     private readonly IWindow _window;
 
     private GL? gl;
@@ -90,11 +91,8 @@ public unsafe class WindowRenderer : IDisposable
 
                 Render?.Invoke((float)delta);
 
-                if (ImGui.Begin("Info"))
+                if (ImGui.Begin(InfoPanel))
                 {
-                    ImGui.Text($"Renderer : {Marshal.PtrToStringAnsi((nint)GL.GetString(GLEnum.Renderer))}");
-                    ImGui.Text($"Version : OpenGL {Marshal.PtrToStringAnsi((nint)GL.GetString(GLEnum.Version))}");
-                    ImGui.Text($"Vendor : {Marshal.PtrToStringAnsi((nint)GL.GetString(GLEnum.Vendor))}");
                     ImGui.Text($"FPS : {ImGui.GetIO().Framerate}");
 
                     ImGui.End();
