@@ -163,7 +163,7 @@ internal struct Geometry
         float scale = 5.0f;
         float pattern = (MathF.Floor(st.X * scale) + MathF.Floor(st.Y * scale)) % 2.0f;
 
-        return (pattern < 1.0f) ? new Vector3d(0.815f, 0.235f, 0.031f) : new Vector3d(0.937f, 0.937f, 0.231f);
+        return (pattern < 1.0f) ? new Vector3d(0.815f, 0.235f, 0.031f) : material.DiffuseColor;
     }
     #endregion
 
