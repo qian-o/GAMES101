@@ -1,12 +1,10 @@
-﻿using Maths;
+﻿namespace PA5;
 
-namespace PA5;
-
-internal struct HitPayload
+internal struct HitPayload(int objectIndex, Intersection intersection)
 {
-    public float TNear;
+    public int ObjectIndex = objectIndex;
 
-    public Vector2d UV;
+    public Intersection Intersection = intersection;
 
-    public int ObjectIndex;
+    public static HitPayload False => new(-1, Intersection.False);
 }

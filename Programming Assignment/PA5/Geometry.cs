@@ -13,14 +13,14 @@ internal struct Geometry
     public Vector3d Center;
 
     /// <summary>
-    /// Used for triangle.
-    /// </summary>
-    public Triangle Triangle;
-
-    /// <summary>
     /// Used for sphere.
     /// </summary>
     public float Radius;
+
+    /// <summary>
+    /// Used for triangle.
+    /// </summary>
+    public Triangle Triangle;
 
     /// <summary>
     /// Scene material index.
@@ -48,23 +48,22 @@ internal struct Geometry
         };
     }
 
-    public static bool Intersect(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear, ref Vector2d uv)
+    public static Intersection Intersect(Geometry geometry, Vector3d orig, Vector3d dir)
     {
         return geometry.Type switch
         {
-            GeometryType.Sphere => IntersectSphere(geometry, orig, dir, ref tnear),
-            _ => false
+            GeometryType.Sphere => IntersectSphere(geometry, orig, dir),
+            _ => Intersection.False
         };
     }
 
-    public static void GetSurfaceProperties(Geometry geometry, Vector3d position, Vector3d dir, Vector2d uv, ref Vector3d normal, ref Vector2d st)
+    public static SurfaceProperties GetSurfaceProperties(Geometry geometry, Vector3d position, Vector3d dir, Vector2d uv)
     {
-        switch (geometry.Type)
+        return geometry.Type switch
         {
-            case GeometryType.Sphere:
-                GetSurfacePropertiesSphere(geometry, position, ref normal);
-                break;
-        }
+            GeometryType.Sphere => GetSurfacePropertiesSphere(geometry, position, uv),
+            _ => new SurfaceProperties(position, uv)
+        };
     }
 
     public static Vector3d EvalDiffuseColor(Geometry geometry, Material material, Vector2d _1)
@@ -77,9 +76,8 @@ internal struct Geometry
     }
 
     #region Sphere
-    private static bool IntersectSphere(Geometry geometry, Vector3d orig, Vector3d dir, ref float tnear)
+    private static Intersection IntersectSphere(Geometry geometry, Vector3d orig, Vector3d dir)
     {
-        // analytic solution
         Vector3d L = orig - geometry.Center;
         float a = Vector3d.Dot(dir, dir);
         float b = Vector3d.Dot(dir, L) * 2.0f;
@@ -87,7 +85,7 @@ internal struct Geometry
 
         if (!SolveQuadratic(a, b, c, out float t0, out float t1))
         {
-            return false;
+            return Intersection.False;
         }
 
         if (t0 < 0.0f)
@@ -97,17 +95,15 @@ internal struct Geometry
 
         if (t0 < 0.0f)
         {
-            return false;
+            return Intersection.False;
         }
 
-        tnear = t0;
-
-        return true;
+        return new Intersection(t0);
     }
 
-    private static void GetSurfacePropertiesSphere(Geometry geometry, Vector3d position, ref Vector3d normal)
+    private static SurfaceProperties GetSurfacePropertiesSphere(Geometry geometry, Vector3d position, Vector2d uv)
     {
-        normal = Vector3d.Normalize(position - geometry.Center);
+        return new SurfaceProperties(position, uv, Vector3d.Normalize(position - geometry.Center));
     }
 
     private static Vector3d EvalDiffuseColorSphere(Material material)

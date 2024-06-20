@@ -176,46 +176,36 @@ internal unsafe class Renderer : IDisposable
         }
 
         Vector3d hitColor = scene.BackgroundColor;
-        if (Trace(orig, dir, objects) is HitPayload payload)
+        if (Trace(orig, dir, objects) is HitPayload payload && payload.ObjectIndex >= 0)
         {
             Geometry obj = objects[payload.ObjectIndex];
             Material mat = materials[obj.MaterialIndex];
 
-            Vector3d hitPoint = orig + dir * payload.TNear;
-            Vector3d normal = default;
-            Vector2d st = default;
+            Vector3d hitPoint = orig + dir * payload.Intersection.TNear;
 
-            Geometry.GetSurfaceProperties(obj, hitPoint, dir, payload.UV, ref normal, ref st);
+            SurfaceProperties surfaceProperties = Geometry.GetSurfaceProperties(obj, hitPoint, dir, payload.Intersection.UV);
 
-            return new Vector3d(payload.TNear);
+            return surfaceProperties.Normal;
         }
 
         return hitColor;
     }
 
-    private static HitPayload? Trace(Vector3d orig,
-                                     Vector3d dir,
-                                     ArrayView1D<Geometry, Stride1D.Dense> objects)
+    private static HitPayload Trace(Vector3d orig,
+                                    Vector3d dir,
+                                    ArrayView1D<Geometry, Stride1D.Dense> objects)
     {
         float tNear = float.MaxValue;
 
-        HitPayload? payload = null;
+        HitPayload payload = HitPayload.False;
 
         for (int i = 0; i < objects.Length; i++)
         {
-            float tNearK = float.MaxValue;
-            Vector2d uvK = Vector2d.Zero;
-
-            if (Geometry.Intersect(objects[i], orig, dir, ref tNearK, ref uvK) && tNearK < tNear)
+            if (Geometry.Intersect(objects[i], orig, dir) is Intersection intersection && intersection.TNear < tNear)
             {
-                payload = new HitPayload
-                {
-                    TNear = tNearK,
-                    UV = uvK,
-                    ObjectIndex = i
-                };
+                payload = new HitPayload(i, intersection);
 
-                tNear = tNearK;
+                tNear = intersection.TNear;
             }
         }
 
