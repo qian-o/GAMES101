@@ -174,34 +174,18 @@ internal unsafe class Renderer : IDisposable
                                     ArrayView1D<Geometry, Stride1D.Dense> objects,
                                     ArrayView1D<Light, Stride1D.Dense> lights)
     {
-        HitPayload[] reflectPayloads = new HitPayload[MaxDepth];
-        int reflectDepth = 0;
-
-        for (int i = 0; i < MaxDepth; i++)
+        if (Trace(ray, objects) is HitPayload payload && payload.ObjectIndex >= 0)
         {
-            HitPayload hitPayload = Trace(ray, objects);
+            Geometry obj = objects[payload.ObjectIndex];
 
-            if (hitPayload.ObjectIndex == -1)
-            {
-                break;
-            }
+            Vector3d hitPoint = ray.At(payload.Intersection.TNear);
 
-            ray = GetReflectRay(scene, ray, hitPayload, objects);
+            SurfaceProperties surfaceProperties = Geometry.GetSurfaceProperties(obj, hitPoint, ray.Direction, payload.Intersection.UV);
 
-            reflectDepth++;
+            return surfaceProperties.Normal;
         }
 
-        if (reflectDepth == 0)
-        {
-            return scene.BackgroundColor;
-        }
-
-        for (int i = reflectDepth; i <= 0; i--)
-        {
-
-        }
-
-        return Vector3d.One;
+        return scene.BackgroundColor;
     }
 
     private static HitPayload Trace(Ray ray, ArrayView1D<Geometry, Stride1D.Dense> objects)
@@ -221,42 +205,5 @@ internal unsafe class Renderer : IDisposable
         }
 
         return payload;
-    }
-
-    private static Ray GetReflectRay(SceneProperties scene,
-                                     Ray ray,
-                                     HitPayload hitPayload,
-                                     ArrayView1D<Geometry, Stride1D.Dense> objects)
-    {
-        Geometry geometry = objects[hitPayload.ObjectIndex];
-
-        Vector3d position = ray.At(hitPayload.Intersection.TNear);
-
-        SurfaceProperties surface = Geometry.GetSurfaceProperties(geometry, position, ray.Direction, hitPayload.Intersection.UV);
-
-        Vector3d reflectDir = Vector3d.Reflect(ray.Direction, surface.Normal);
-        Vector3d reflectOrigin = Vector3d.Dot(reflectDir, surface.Normal) < 0 ? position - surface.Normal * scene.Epsilon : position + surface.Normal * scene.Epsilon;
-
-        return new Ray(reflectOrigin, reflectDir);
-    }
-
-    private static Ray GetRefractRay(SceneProperties scene,
-                                     Ray ray,
-                                     HitPayload hitPayload,
-                                     ArrayView1D<Material, Stride1D.Dense> materials,
-                                     ArrayView1D<Geometry, Stride1D.Dense> objects)
-    {
-        Geometry geometry = objects[hitPayload.ObjectIndex];
-
-        Vector3d position = ray.At(hitPayload.Intersection.TNear);
-
-        SurfaceProperties surface = Geometry.GetSurfaceProperties(geometry, position, ray.Direction, hitPayload.Intersection.UV);
-
-        Material material = materials[geometry.MaterialIndex];
-
-        Vector3d refractDir = Vector3d.Refract(ray.Direction, surface.Normal, material.Ior);
-        Vector3d refractOrigin = Vector3d.Dot(refractDir, surface.Normal) < 0 ? position - surface.Normal * scene.Epsilon : position + surface.Normal * scene.Epsilon;
-
-        return new Ray(refractOrigin, refractDir);
     }
 }
