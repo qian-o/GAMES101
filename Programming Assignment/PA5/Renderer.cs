@@ -40,29 +40,24 @@ internal unsafe class Renderer(Scene scene)
                 Vector3d dir = new(x, y, -1);
                 dir = Vector3d.Normalize(dir);
 
-                FrameBuffer[pixel, sample] = new Fragment(new Vector4d(CastRay(scene.SceneProperties, new Ray(scene.Camera.Position, dir), materials, objects, lights, 0), 1.0f), 1.0f);
+                FrameBuffer[pixel, sample] = new Fragment(new Vector4d(CastRay(new Ray(scene.Camera.Position, dir), materials, objects, lights, 0), 1.0f), 1.0f);
             }
         });
 
         FrameBuffer.Present();
     }
 
-    private static Vector3d CastRay(SceneProperties scene,
-                                    Ray ray,
-                                    Material[] materials,
-                                    Geometry[] objects,
-                                    Light[] lights,
-                                    int depth)
+    private Vector3d CastRay(Ray ray, Material[] materials, Geometry[] objects, Light[] lights, int depth)
     {
         if (depth > scene.MaxDepth)
         {
             return scene.BackgroundColor;
         }
 
-        if (Trace(ray, objects) is HitPayload payload && payload.ObjectIndex >= 0)
+        if (Trace(ray, objects, materials) is HitPayload payload && payload.IsHit)
         {
-            Geometry obj = objects[payload.ObjectIndex];
-            Material material = materials[obj.MaterialIndex];
+            Geometry obj = payload.Intersection.Geometry;
+            Material material = payload.Intersection.Material;
 
             Vector3d position = ray.At(payload.Intersection.TNear);
 
@@ -86,8 +81,8 @@ internal unsafe class Renderer(Scene scene)
                         Ray reflectRay = new(reflectOrigin, reflectDir);
                         Ray refractRay = new(refractOrigin, refractDir);
 
-                        Vector3d reflectColor = CastRay(scene, reflectRay, materials, objects, lights, depth + 1);
-                        Vector3d refractColor = CastRay(scene, refractRay, materials, objects, lights, depth + 1);
+                        Vector3d reflectColor = CastRay(reflectRay, materials, objects, lights, depth + 1);
+                        Vector3d refractColor = CastRay(refractRay, materials, objects, lights, depth + 1);
 
                         float kr = MathsHelper.Fresnel(ray.Direction, surface.Normal, material.Ior);
 
@@ -105,7 +100,7 @@ internal unsafe class Renderer(Scene scene)
 
                         float kr = MathsHelper.Fresnel(ray.Direction, surface.Normal, material.Ior);
 
-                        return CastRay(scene, reflectRay, materials, objects, lights, depth + 1) * kr;
+                        return CastRay(reflectRay, materials, objects, lights, depth + 1) * kr;
                     }
                 default:
                     {
@@ -125,8 +120,9 @@ internal unsafe class Renderer(Scene scene)
                             lightDir = Vector3d.Normalize(lightDir);
                             float LdotN = Math.Max(Vector3d.Dot(lightDir, surface.Normal), 0.0f);
 
-                            HitPayload shadowHit = Trace(new Ray(shadowOrigin, lightDir), objects);
-                            bool inShadow = shadowHit.ObjectIndex >= 0 && shadowHit.Intersection.TNear * shadowHit.Intersection.TNear < lightDistance2;
+                            bool inShadow = Trace(new Ray(shadowOrigin, lightDir), objects, materials) is HitPayload hitPayload
+                                            && hitPayload.IsHit
+                                            && hitPayload.Intersection.TNear * hitPayload.Intersection.TNear < lightDistance2;
 
                             lightAmt += inShadow ? Vector3d.Zero : light.Intensity * LdotN;
                             Vector3d reflectionDirection = Vector3d.Reflect(-lightDir, surface.Normal);
@@ -142,7 +138,7 @@ internal unsafe class Renderer(Scene scene)
         return scene.BackgroundColor;
     }
 
-    private static HitPayload Trace(Ray ray, Geometry[] objects)
+    private static HitPayload Trace(Ray ray, Geometry[] objects, Material[] materials)
     {
         float tNear = float.MaxValue;
 
@@ -150,9 +146,12 @@ internal unsafe class Renderer(Scene scene)
 
         for (int i = 0; i < objects.Length; i++)
         {
-            if (Geometry.Intersect(objects[i], ray) is Intersection intersection && intersection.TNear < tNear)
+            Geometry geometry = objects[i];
+            Material material = materials[geometry.MaterialIndex];
+
+            if (Geometry.Intersect(geometry, material, ray) is Intersection intersection && intersection.TNear < tNear)
             {
-                payload = new HitPayload(i, intersection);
+                payload = new HitPayload(intersection);
 
                 tNear = intersection.TNear;
             }

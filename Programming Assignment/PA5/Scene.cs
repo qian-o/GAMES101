@@ -4,67 +4,49 @@ using Silk.NET.OpenGL;
 
 namespace PA5;
 
-internal class Scene(GL gl, int width, int height, SampleCount sampleCount = SampleCount.SampleCount1)
+internal class Scene(GL gl, int width, int height)
 {
     private readonly GL _gl = gl;
-    private readonly SampleCount _sampleCount = sampleCount;
 
     private int currentWidth = -1;
     private int currentHeight = -1;
-
-    #region Properties
+    private SampleCount currentSampleCount = SampleCount.SampleCount1;
     private FrameBuffer? frameBuffer = null;
-    private SceneProperties properties = new(width, height);
 
-    public FrameBuffer FrameBuffer => TryGetFrameBuffer();
+    public int Width { get; set; } = width;
 
-    public SceneProperties SceneProperties => properties;
+    public int Height { get; set; } = height;
 
-    public ref int Width => ref properties.Width;
+    public Camera Camera { get; set; } = new(Vector3d.Zero, Angle.FromDegrees(45.0f));
 
-    public ref int Height => ref properties.Height;
+    public Vector3d BackgroundColor { get; set; } = new(0.2f, 0.7f, 0.8f);
 
-    public ref Camera Camera => ref properties.Camera;
+    public float Epsilon { get; set; } = 0.00001f;
 
-    public ref Vector3d BackgroundColor => ref properties.BackgroundColor;
+    public int MaxDepth { get; set; } = 5;
 
-    public ref float Epsilon => ref properties.Epsilon;
-
-    public ref int MaxDepth => ref properties.MaxDepth;
+    public SampleCount SampleCount { get; set; } = SampleCount.SampleCount1;
 
     public List<Material> Materials { get; } = [];
 
     public List<Geometry> Objects { get; } = [];
 
     public List<Light> Lights { get; } = [];
-    #endregion
+
+    public FrameBuffer FrameBuffer => TryGetFrameBuffer();
 
     private FrameBuffer TryGetFrameBuffer()
     {
-        if (currentWidth != Width || currentHeight != Height)
+        if (currentWidth != Width || currentHeight != Height || currentSampleCount != SampleCount)
         {
             currentWidth = Width;
             currentHeight = Height;
+            currentSampleCount = SampleCount;
 
             frameBuffer?.Dispose();
-            frameBuffer = new FrameBuffer(_gl, Width, Height, _sampleCount);
+            frameBuffer = new FrameBuffer(_gl, Width, Height, SampleCount);
         }
 
         return frameBuffer!;
     }
-}
-
-internal struct SceneProperties(int width, int height)
-{
-    public int Width = width;
-
-    public int Height = height;
-
-    public Camera Camera = new(Vector3d.Zero, Angle.FromDegrees(45.0f));
-
-    public Vector3d BackgroundColor = new(0.2f, 0.7f, 0.8f);
-
-    public float Epsilon = 0.00001f;
-
-    public int MaxDepth = 5;
 }

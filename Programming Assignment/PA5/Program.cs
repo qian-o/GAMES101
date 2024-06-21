@@ -83,7 +83,15 @@ internal class Program
         ImGui.Begin("Scene Properties");
         {
             ImGui.Text("Max Depth");
-            ImGui.SliderInt("##MaxDepth", ref _scene.MaxDepth, 1, 10);
+            int maxDepth = _scene.MaxDepth;
+            ImGui.SliderInt("##MaxDepth", ref maxDepth, 1, 10);
+            _scene.MaxDepth = maxDepth;
+
+            ImGui.Text("Sample Count");
+            string[] items = Enum.GetNames<SampleCount>();
+            int index = Array.IndexOf(items, _scene.SampleCount.ToString());
+            ImGui.Combo("##SampleCount", ref index, items, items.Length);
+            _scene.SampleCount = Enum.Parse<SampleCount>(items[index]);
         }
         ImGui.End();
 
