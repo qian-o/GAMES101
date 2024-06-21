@@ -30,6 +30,8 @@ internal class Scene(GL gl, int width, int height, SampleCount sampleCount = Sam
 
     public ref float Epsilon => ref properties.Epsilon;
 
+    public ref int MaxDepth => ref properties.MaxDepth;
+
     public List<Material> Materials { get; } = [];
 
     public List<Geometry> Objects { get; } = [];
@@ -63,4 +65,6 @@ internal struct SceneProperties(int width, int height)
     public Vector3d BackgroundColor = new(0.2f, 0.7f, 0.8f);
 
     public float Epsilon = 0.00001f;
+
+    public int MaxDepth = 5;
 }

@@ -80,10 +80,10 @@ internal class Program
 
     private static void WindowRenderer_Render(float obj)
     {
-        ImGui.Begin(WindowRenderer.InfoPanel);
+        ImGui.Begin("Scene Properties");
         {
-            ImGui.Text($"Device: {_renderer.Device.Name}");
-            ImGui.Text($"Accelerator: {_renderer.Device.AcceleratorType}");
+            ImGui.Text("Max Depth");
+            ImGui.SliderInt("##MaxDepth", ref _scene.MaxDepth, 1, 10);
         }
         ImGui.End();
 
