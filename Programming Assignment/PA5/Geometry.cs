@@ -48,12 +48,12 @@ internal struct Geometry
         };
     }
 
-    public static Intersection Intersect(Geometry geometry, Ray ray)
+    public static Intersection Intersect(Geometry geometry, Material material, Ray ray)
     {
         return geometry.Type switch
         {
-            GeometryType.Sphere => IntersectSphere(geometry, ray),
-            GeometryType.Triangle => IntersectTriangle(geometry, ray),
+            GeometryType.Sphere => IntersectSphere(geometry, material, ray),
+            GeometryType.Triangle => IntersectTriangle(geometry, material, ray),
             _ => Intersection.False
         };
     }
@@ -79,7 +79,7 @@ internal struct Geometry
     }
 
     #region Sphere
-    private static Intersection IntersectSphere(Geometry geometry, Ray ray)
+    private static Intersection IntersectSphere(Geometry geometry, Material material, Ray ray)
     {
         Vector3d L = ray.Origin - geometry.Center;
         float a = ray.Direction.LengthSquared;
@@ -101,7 +101,7 @@ internal struct Geometry
             return Intersection.False;
         }
 
-        return new Intersection(t0);
+        return new Intersection(geometry, material, t0, Vector2d.Zero);
     }
 
     private static SurfaceProperties GetSurfacePropertiesSphere(Geometry geometry, Vector3d position, Vector2d uv)
@@ -116,7 +116,7 @@ internal struct Geometry
     #endregion
 
     #region Triangle
-    private static Intersection IntersectTriangle(Geometry geometry, Ray ray)
+    private static Intersection IntersectTriangle(Geometry geometry, Material material, Ray ray)
     {
         Vector3d v0 = geometry.Triangle.A.Position;
         Vector3d v1 = geometry.Triangle.B.Position;
@@ -135,7 +135,7 @@ internal struct Geometry
 
         if (tnear >= 0 && b1 >= 0 && b2 >= 0 && (b1 + b2) <= 1)
         {
-            return new Intersection(tnear, new Vector2d(b1, b2));
+            return new Intersection(geometry, material, tnear, new Vector2d(b1, b2));
         }
 
         return Intersection.False;

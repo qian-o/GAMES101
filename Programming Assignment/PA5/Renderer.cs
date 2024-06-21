@@ -7,6 +7,9 @@ namespace PA5;
 
 internal unsafe class Renderer : IDisposable
 {
+    public const int MaxRays = 2;
+    public const int MaxDepth = 5;
+
     private readonly Scene _scene;
     private readonly bool _useCpu;
 
@@ -163,212 +166,81 @@ internal unsafe class Renderer : IDisposable
         Vector3d dir = new(x, y, -1);
         dir = Vector3d.Normalize(dir);
 
-        frame[index.Y * scene.Width + index.X] = new Vector4d(CastRay(scene, new Ray(scene.Camera.Position, dir), materials, objects, lights), 1.0f);
+        frame[index.Y * scene.Width + index.X] = new Vector4d(LoopCastRay(scene, new Ray(scene.Camera.Position, dir), materials, objects, lights), 1.0f);
     }
 
-    private static Vector3d CastRay(SceneProperties scene,
-                                    Ray ray,
-                                    ArrayView1D<Material, Stride1D.Dense> materials,
-                                    ArrayView1D<Geometry, Stride1D.Dense> objects,
-                                    ArrayView1D<Light, Stride1D.Dense> lights)
+    private static Vector3d LoopCastRay(SceneProperties scene,
+                                        Ray ray,
+                                        ArrayView1D<Material, Stride1D.Dense> materials,
+                                        ArrayView1D<Geometry, Stride1D.Dense> objects,
+                                        ArrayView1D<Light, Stride1D.Dense> lights)
     {
-        if (Trace(ray, objects) is HitPayload payload && payload.ObjectIndex >= 0)
+        ArrayView<CastRayStack> leaf1Stacks = LocalMemory.Allocate1D<CastRayStack>(MaxDepth);
+        ArrayView<CastRayStack> leaf2Stacks = LocalMemory.Allocate1D<CastRayStack>(MaxDepth);
+
+        CastRayStack rootStack = CastRayStack.Create(scene, ray, objects, materials);
+
+        leaf1Stacks[0] = rootStack;
+        leaf2Stacks[0] = rootStack;
+
+        if (rootStack.isHit)
         {
-            Geometry obj = objects[payload.ObjectIndex];
-            Material material = materials[obj.MaterialIndex];
+            CastRayStack currentStack = rootStack;
+            int currentLeafStack = 0;
 
-            Vector3d position = ray.At(payload.Intersection.TNear);
-
-            SurfaceProperties surface = Geometry.GetSurfaceProperties(obj, position, payload.Intersection.UV);
-
-            switch (material.MaterialType)
+            for (int i = 0; i < MaxDepth; i++)
             {
-                case MaterialType.ReflectAndRefract:
+                MaterialType materialType = currentStack.Intersection.Material.MaterialType;
+
+                if (materialType == MaterialType.ReflectAndRefract || materialType == MaterialType.Reflect)
+                {
+                    CastRayStack leaf = CastRayStack.Create(scene, currentStack.ReflectRay(), objects, materials);
+
+                    if (leaf.isHit)
                     {
-                        Vector3d reflectDir = Vector3d.Normalize(Vector3d.Reflect(ray.Direction, surface.Normal));
-                        Vector3d refractDir = Vector3d.Normalize(Vector3d.Refract(ray.Direction, surface.Normal, material.Ior));
+                        leaf1Stacks[++currentLeafStack] = leaf;
 
-                        Vector3d reflectOrigin = Vector3d.Dot(reflectDir, surface.Normal) < 0.0f
-                            ? position - (surface.Normal * scene.Epsilon)
-                            : position + (surface.Normal * scene.Epsilon);
+                        leaf1Stacks[currentLeafStack - 1].Leaf1 = currentLeafStack;
 
-                        Vector3d refractOrigin = Vector3d.Dot(refractDir, surface.Normal) < 0.0f
-                            ? position - (surface.Normal * scene.Epsilon)
-                            : position + (surface.Normal * scene.Epsilon);
+                        currentStack = leaf;
 
-                        Ray reflectRay = new(reflectOrigin, reflectDir);
-                        Ray refractRay = new(refractOrigin, refractDir);
-
-                        Vector3d reflectColor = CastRay1(scene, reflectRay, materials, objects, lights);
-                        Vector3d refractColor = CastRay1(scene, refractRay, materials, objects, lights);
-
-                        float kr = MathsHelper.Fresnel(ray.Direction, surface.Normal, material.Ior);
-
-                        return (reflectColor * kr) + (refractColor * (1 - kr));
+                        continue;
                     }
-                case MaterialType.Reflect:
+                }
+
+                break;
+            }
+
+            currentStack = rootStack;
+            currentLeafStack = 0;
+
+            for (int i = 0; i < MaxDepth; i++)
+            {
+                MaterialType materialType = currentStack.Intersection.Material.MaterialType;
+
+                if (materialType == MaterialType.ReflectAndRefract)
+                {
+                    CastRayStack leaf = CastRayStack.Create(scene, currentStack.RefractRay(), objects, materials);
+
+                    if (leaf.isHit)
                     {
-                        Vector3d reflectDir = Vector3d.Normalize(Vector3d.Reflect(ray.Direction, surface.Normal));
+                        leaf2Stacks[++currentLeafStack] = leaf;
 
-                        Vector3d reflectOrigin = Vector3d.Dot(reflectDir, surface.Normal) < 0.0f
-                            ? position - (surface.Normal * scene.Epsilon)
-                            : position + (surface.Normal * scene.Epsilon);
+                        leaf2Stacks[currentLeafStack - 1].Leaf2 = currentLeafStack;
 
-                        Ray reflectRay = new(reflectOrigin, reflectDir);
+                        currentStack = leaf;
 
-                        float kr = MathsHelper.Fresnel(ray.Direction, surface.Normal, material.Ior);
-
-                        return CastRay1(scene, reflectRay, materials, objects, lights) * kr;
+                        continue;
                     }
-                default:
-                    return DiffuseAndGlossy(scene, ray, payload, materials, objects, lights);
+                }
+
+                break;
             }
         }
 
-        return scene.BackgroundColor;
-    }
+        rootStack.Leaf1 = leaf1Stacks[0].Leaf1;
+        rootStack.Leaf2 = leaf2Stacks[0].Leaf2;
 
-    private static Vector3d CastRay1(SceneProperties scene,
-                                     Ray ray,
-                                     ArrayView1D<Material, Stride1D.Dense> materials,
-                                     ArrayView1D<Geometry, Stride1D.Dense> objects,
-                                     ArrayView1D<Light, Stride1D.Dense> lights)
-    {
-        if (Trace(ray, objects) is HitPayload payload && payload.ObjectIndex >= 0)
-        {
-            Geometry obj = objects[payload.ObjectIndex];
-            Material material = materials[obj.MaterialIndex];
-
-            Vector3d position = ray.At(payload.Intersection.TNear);
-
-            SurfaceProperties surface = Geometry.GetSurfaceProperties(obj, position, payload.Intersection.UV);
-
-            switch (material.MaterialType)
-            {
-                case MaterialType.ReflectAndRefract:
-                    {
-                        Vector3d reflectDir = Vector3d.Normalize(Vector3d.Reflect(ray.Direction, surface.Normal));
-                        Vector3d refractDir = Vector3d.Normalize(Vector3d.Refract(ray.Direction, surface.Normal, material.Ior));
-
-                        Vector3d reflectOrigin = Vector3d.Dot(reflectDir, surface.Normal) < 0.0f
-                            ? position - (surface.Normal * scene.Epsilon)
-                            : position + (surface.Normal * scene.Epsilon);
-
-                        Vector3d refractOrigin = Vector3d.Dot(refractDir, surface.Normal) < 0.0f
-                            ? position - (surface.Normal * scene.Epsilon)
-                            : position + (surface.Normal * scene.Epsilon);
-
-                        Ray reflectRay = new(reflectOrigin, reflectDir);
-                        Ray refractRay = new(refractOrigin, refractDir);
-
-                        Vector3d reflectColor = CastRay2(scene, reflectRay, materials, objects, lights);
-                        Vector3d refractColor = CastRay2(scene, refractRay, materials, objects, lights);
-
-                        float kr = MathsHelper.Fresnel(ray.Direction, surface.Normal, material.Ior);
-
-                        return (reflectColor * kr) + (refractColor * (1 - kr));
-                    }
-                case MaterialType.Reflect:
-                    {
-                        Vector3d reflectDir = Vector3d.Normalize(Vector3d.Reflect(ray.Direction, surface.Normal));
-
-                        Vector3d reflectOrigin = Vector3d.Dot(reflectDir, surface.Normal) < 0.0f
-                            ? position - (surface.Normal * scene.Epsilon)
-                            : position + (surface.Normal * scene.Epsilon);
-
-                        Ray reflectRay = new(reflectOrigin, reflectDir);
-
-                        float kr = MathsHelper.Fresnel(ray.Direction, surface.Normal, material.Ior);
-
-                        return CastRay2(scene, reflectRay, materials, objects, lights) * kr;
-                    }
-                default:
-                    return DiffuseAndGlossy(scene, ray, payload, materials, objects, lights);
-            }
-        }
-
-        return scene.BackgroundColor;
-    }
-
-    private static Vector3d CastRay2(SceneProperties scene,
-                                     Ray ray,
-                                     ArrayView1D<Material, Stride1D.Dense> materials,
-                                     ArrayView1D<Geometry, Stride1D.Dense> objects,
-                                     ArrayView1D<Light, Stride1D.Dense> lights)
-    {
-        if (Trace(ray, objects) is HitPayload payload && payload.ObjectIndex >= 0)
-        {
-            Geometry obj = objects[payload.ObjectIndex];
-            Material material = materials[obj.MaterialIndex];
-
-            return material.MaterialType switch
-            {
-                MaterialType.DiffuseAndGlossy => DiffuseAndGlossy(scene, ray, payload, materials, objects, lights),
-                _ => Vector3d.Zero
-            };
-        }
-
-        return scene.BackgroundColor;
-    }
-
-    private static HitPayload Trace(Ray ray, ArrayView1D<Geometry, Stride1D.Dense> objects)
-    {
-        float tNear = float.MaxValue;
-
-        HitPayload payload = HitPayload.False;
-
-        for (int i = 0; i < objects.Length; i++)
-        {
-            if (Geometry.Intersect(objects[i], ray) is Intersection intersection && intersection.TNear < tNear)
-            {
-                payload = new HitPayload(i, intersection);
-
-                tNear = intersection.TNear;
-            }
-        }
-
-        return payload;
-    }
-
-    private static Vector3d DiffuseAndGlossy(SceneProperties scene,
-                                             Ray ray,
-                                             HitPayload payload,
-                                             ArrayView1D<Material, Stride1D.Dense> materials,
-                                             ArrayView1D<Geometry, Stride1D.Dense> objects,
-                                             ArrayView1D<Light, Stride1D.Dense> lights)
-    {
-        Geometry obj = objects[payload.ObjectIndex];
-        Material material = materials[obj.MaterialIndex];
-
-        Vector3d position = ray.At(payload.Intersection.TNear);
-
-        SurfaceProperties surface = Geometry.GetSurfaceProperties(obj, position, payload.Intersection.UV);
-
-        Vector3d lightAmt = Vector3d.Zero;
-        Vector3d specularColor = Vector3d.Zero;
-
-        Vector3d shadowOrigin = Vector3d.Dot(ray.Direction, surface.Normal) < 0.0f
-            ? position + (surface.Normal * scene.Epsilon)
-            : position - (surface.Normal * scene.Epsilon);
-
-        for (int i = 0; i < lights.Length; i++)
-        {
-            Light light = lights[i];
-
-            Vector3d lightDir = light.Position - position;
-            float lightDistance2 = lightDir.LengthSquared;
-            lightDir = Vector3d.Normalize(lightDir);
-            float LdotN = Math.Max(Vector3d.Dot(lightDir, surface.Normal), 0.0f);
-
-            HitPayload shadowHit = Trace(new Ray(shadowOrigin, lightDir), objects);
-            bool inShadow = shadowHit.ObjectIndex >= 0 && shadowHit.Intersection.TNear * shadowHit.Intersection.TNear < lightDistance2;
-
-            lightAmt += inShadow ? Vector3d.Zero : light.Intensity * LdotN;
-            Vector3d reflectionDirection = Vector3d.Reflect(-lightDir, surface.Normal);
-
-            specularColor += MathF.Pow(Math.Max(-Vector3d.Dot(reflectionDirection, ray.Direction), 0.0f), material.SpecularExponent) * light.Intensity;
-        }
-
-        return lightAmt * Geometry.EvalDiffuseColor(obj, material, surface.ST) * material.Kd + specularColor * material.Ks;
+        return rootStack.Color(leaf1Stacks, leaf2Stacks, objects, materials, lights);
     }
 }

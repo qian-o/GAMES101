@@ -1,10 +1,10 @@
 ﻿namespace PA5;
 
-internal struct HitPayload(int objectIndex, Intersection intersection)
+internal struct HitPayload(Intersection intersection)
 {
-    public int ObjectIndex = objectIndex;
+    public bool IsHit = true;
 
     public Intersection Intersection = intersection;
 
-    public static HitPayload False => new(-1, Intersection.False);
+    public static HitPayload False => new() { IsHit = false, Intersection = Intersection.False };
 }
