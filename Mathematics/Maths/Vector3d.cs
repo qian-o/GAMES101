@@ -15,6 +15,10 @@ public struct Vector3d(float x, float y, float z) : IEquatable<Vector3d>
 
     public static Vector3d UnitZ => new(0.0f, 0.0f, 1.0f);
 
+    public static Vector3d MinValue => new(float.MinValue);
+
+    public static Vector3d MaxValue => new(float.MaxValue);
+
     public float X = x;
 
     public float Y = y;
@@ -84,6 +88,11 @@ public struct Vector3d(float x, float y, float z) : IEquatable<Vector3d>
     public static Vector3d operator -(Vector3d vector)
     {
         return new(-vector.X, -vector.Y, -vector.Z);
+    }
+
+    public static Vector3d operator -(Vector3d vector, float scalar)
+    {
+        return new(vector.X - scalar, vector.Y - scalar, vector.Z - scalar);
     }
 
     public static Vector3d operator -(Vector3d left, Vector3d right)
@@ -174,5 +183,15 @@ public struct Vector3d(float x, float y, float z) : IEquatable<Vector3d>
         float k = 1.0f - eta * eta * (1.0f - cosi * cosi);
 
         return k < 0.0f ? Zero : (eta * i) + (((eta * cosi) - MathF.Sqrt(k)) * n1);
+    }
+
+    public static Vector3d Min(Vector3d a, Vector3d b)
+    {
+        return new(MathF.Min(a.X, b.X), MathF.Min(a.Y, b.Y), MathF.Min(a.Z, b.Z));
+    }
+
+    public static Vector3d Max(Vector3d a, Vector3d b)
+    {
+        return new(MathF.Max(a.X, b.X), MathF.Max(a.Y, b.Y), MathF.Max(a.Z, b.Z));
     }
 }

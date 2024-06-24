@@ -1,5 +1,8 @@
-﻿namespace Maths;
+﻿using System.Runtime.InteropServices;
 
+namespace Maths;
+
+[StructLayout(LayoutKind.Sequential)]
 public struct Angle(float radians) : IEquatable<Angle>
 {
     public float Radians = radians;

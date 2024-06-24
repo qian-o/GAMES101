@@ -1,6 +1,8 @@
-﻿namespace PA6;
+﻿using Maths;
 
-internal abstract class Geometry
+namespace PA6;
+
+internal abstract class Geometry : IDisposable
 {
     protected Geometry()
     {
@@ -11,4 +13,17 @@ internal abstract class Geometry
     public Handle<Geometry> Handle { get; }
 
     public Material Material { get; }
+
+    public abstract Intersection GetIntersection(Ray ray);
+
+    public abstract Vector3d EvalDiffuseColor(Intersection intersection);
+
+    public abstract Bounds3d GetBounds();
+
+    public virtual void Dispose()
+    {
+        Handle.Dispose();
+
+        GC.SuppressFinalize(this);
+    }
 }

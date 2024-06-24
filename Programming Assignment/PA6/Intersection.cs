@@ -8,9 +8,13 @@ internal struct Intersection
 
     public float Distance;
 
+    public Handle<Geometry> Geometry;
+
     public Vector3d Position;
+
+    public Vector3d BarycentricCoords;
 
     public Vector3d Normal;
 
-    public Handle<Geometry> Geometry;
+    public Vector2d UV;
 }
