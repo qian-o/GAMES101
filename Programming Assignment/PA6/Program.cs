@@ -10,6 +10,7 @@ internal class Program
 {
     private static WindowRenderer _windowRenderer = null!;
     private static Scene _scene = null!;
+    private static Renderer _renderer = null!;
 
     static void Main(string[] _)
     {
@@ -33,6 +34,8 @@ internal class Program
         _scene.Lights.Add(new Light(new Vector3d(30.0f, 50.0f, -12.0f), new Vector3d(0.5f)));
 
         _scene.BuildBVH();
+
+        _renderer = new(_scene);
     }
 
     private static void WindowRenderer_Render(float obj)
@@ -45,6 +48,8 @@ internal class Program
             {
                 _scene.Width = (int)size.X;
                 _scene.Height = (int)size.Y;
+
+                _renderer.Render();
 
                 ImGui.Image((nint)_scene.FrameBuffer.Texture, size);
             }

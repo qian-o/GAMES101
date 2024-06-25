@@ -7,12 +7,13 @@ internal abstract class Geometry : IDisposable
     protected Geometry()
     {
         Handle = new(this);
-        Material = new();
     }
+
+    private Material material = new();
 
     public Handle<Geometry> Handle { get; }
 
-    public Material Material { get; }
+    public ref Material Material => ref material;
 
     public abstract Intersection GetIntersection(Ray ray);
 

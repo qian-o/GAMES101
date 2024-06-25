@@ -8,7 +8,7 @@ internal unsafe class Alloter<T> : IDisposable where T : unmanaged
 
     public T* Allocate()
     {
-        T* ptr = (T*)Marshal.AllocHGlobal(sizeof(T));
+        T* ptr = (T*)NativeMemory.Alloc((uint)sizeof(T));
 
         _allocated.Add((nint)ptr);
 
@@ -19,7 +19,7 @@ internal unsafe class Alloter<T> : IDisposable where T : unmanaged
     {
         foreach (nint ptr in _allocated)
         {
-            Marshal.FreeHGlobal(ptr);
+            NativeMemory.Free((void*)ptr);
         }
     }
 }

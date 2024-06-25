@@ -41,6 +41,16 @@ internal class Scene(GL gl, int width, int height) : IDisposable
         accel = new([.. Geometries], splitMethod);
     }
 
+    public Intersection GetIntersection(Ray ray)
+    {
+        if (accel is null)
+        {
+            throw new InvalidOperationException("BVH acceleration structure is not built.");
+        }
+
+        return accel.Intersect(ray);
+    }
+
     public void Dispose()
     {
         accel?.Dispose();
