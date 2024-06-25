@@ -18,16 +18,26 @@ internal unsafe class BVHAccel : IDisposable
     {
         _splitMethod = splitMethod;
         _alloter = new();
-        _root = RecursiveBuild(geometries);
+        _root = geometries.Length > 0 ? RecursiveBuild(geometries) : null;
     }
 
     public Intersection Intersect(Ray ray)
     {
+        if (_root == null)
+        {
+            return default;
+        }
+
         return GetIntersection(ray, _root);
     }
 
     public Bounds3d GetBounds()
     {
+        if (_root == null)
+        {
+            return default;
+        }
+
         return _root->Bounds;
     }
 

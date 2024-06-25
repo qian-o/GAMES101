@@ -8,7 +8,7 @@ internal class Scene(GL gl, int width, int height) : IDisposable
 {
     private readonly GL _gl = gl;
 
-    private BVHAccel? accel;
+    private BVHAccel? bvh;
     private int currentWidth = -1;
     private int currentHeight = -1;
     private SampleCount currentSampleCount = SampleCount.SampleCount1;
@@ -36,24 +36,24 @@ internal class Scene(GL gl, int width, int height) : IDisposable
 
     public void BuildBVH(SplitMethod splitMethod = SplitMethod.NAIVE)
     {
-        accel?.Dispose();
+        bvh?.Dispose();
 
-        accel = new([.. Geometries], splitMethod);
+        bvh = new([.. Geometries], splitMethod);
     }
 
     public Intersection GetIntersection(Ray ray)
     {
-        if (accel is null)
+        if (bvh is null)
         {
             throw new InvalidOperationException("BVH acceleration structure is not built.");
         }
 
-        return accel.Intersect(ray);
+        return bvh.Intersect(ray);
     }
 
     public void Dispose()
     {
-        accel?.Dispose();
+        bvh?.Dispose();
     }
 
     private FrameBuffer TryGetFrameBuffer()

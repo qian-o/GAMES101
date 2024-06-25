@@ -2,9 +2,9 @@
 
 namespace PA6;
 
-internal class Mesh(Triangle[] triangles) : Geometry
+internal class Model(Mesh[] meshes) : Geometry
 {
-    private readonly BVHAccel _bvh = new(triangles);
+    private readonly BVHAccel _bvh = new(meshes);
 
     public override Intersection GetIntersection(Ray ray)
     {
@@ -19,12 +19,5 @@ internal class Mesh(Triangle[] triangles) : Geometry
     public override Bounds3d GetBounds()
     {
         return _bvh.GetBounds();
-    }
-
-    public override void Dispose()
-    {
-        _bvh.Dispose();
-
-        base.Dispose();
     }
 }

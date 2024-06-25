@@ -3,18 +3,28 @@
 namespace Maths;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct Bounds3d(Vector3d p1, Vector3d p2)
+public struct Bounds3d
 {
-    public Vector3d Min = Vector3d.Min(p1, p2);
+    public Vector3d Min;
 
-    public Vector3d Max = Vector3d.Max(p1, p2);
+    public Vector3d Max;
 
-    public Bounds3d(Vector3d p) : this(p, p)
+    public Bounds3d(Vector3d p1, Vector3d p2)
     {
+        Min = Vector3d.Min(p1, p2);
+        Max = Vector3d.Max(p1, p2);
     }
 
-    public Bounds3d() : this(Vector3d.MaxValue, Vector3d.MinValue)
+    public Bounds3d(Vector3d p)
     {
+        Min = p;
+        Max = p;
+    }
+
+    public Bounds3d()
+    {
+        Min = Vector3d.MaxValue;
+        Max = Vector3d.MinValue;
     }
 
     public unsafe Vector3d this[int index]

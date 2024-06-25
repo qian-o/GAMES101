@@ -28,4 +28,15 @@ internal struct Material
     public Material()
     {
     }
+
+    public void CopyFrom(Material material)
+    {
+        Type = material.Type;
+        Color = material.Color;
+        Emission = material.Emission;
+        Ior = material.Ior;
+        Kd = material.Kd;
+        Ks = material.Ks;
+        SpecularExponent = material.SpecularExponent;
+    }
 }
