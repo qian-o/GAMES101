@@ -16,5 +16,5 @@ internal struct Intersection
 
     public Vector3d Normal;
 
-    public Vector2d UV;
+    public Vector2d TexCoord;
 }

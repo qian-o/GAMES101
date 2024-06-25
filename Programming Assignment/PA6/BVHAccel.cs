@@ -14,7 +14,7 @@ internal unsafe class BVHAccel : IDisposable
     private readonly Alloter<BVHBuildNode> _alloter;
     private readonly BVHBuildNode* _root;
 
-    public BVHAccel(SplitMethod splitMethod, Geometry[] geometries)
+    public BVHAccel(Geometry[] geometries, SplitMethod splitMethod = SplitMethod.NAIVE)
     {
         _splitMethod = splitMethod;
         _alloter = new();
@@ -24,6 +24,11 @@ internal unsafe class BVHAccel : IDisposable
     public Intersection Intersect(Ray ray)
     {
         return GetIntersection(ray, _root);
+    }
+
+    public Bounds3d GetBounds()
+    {
+        return _root->Bounds;
     }
 
     public void Dispose()
