@@ -20,4 +20,11 @@ internal class Mesh(Triangle[] triangles) : Geometry
     {
         return _bvh.GetBounds();
     }
+
+    public override void Dispose()
+    {
+        _bvh.Dispose();
+
+        base.Dispose();
+    }
 }
