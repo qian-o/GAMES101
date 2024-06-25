@@ -30,11 +30,25 @@ internal static unsafe class AssimpParsing
             throw new Exception("Failed to load model");
         }
 
+        int numTriangles = 0;
+        List<Material> materials = [];
         List<Mesh> meshes = [];
 
+        ProcessMaterials();
         ProcessNode(scene->MRootNode);
 
+        Console.WriteLine($"Loaded model: {file}");
+        Console.WriteLine($"Number of triangles: {numTriangles}");
+
         return new Model([.. meshes]);
+
+        void ProcessMaterials()
+        {
+            for (uint i = 0; i < scene->MNumMaterials; i++)
+            {
+                materials.Add(new(scene->MMaterials[i]));
+            }
+        }
 
         void ProcessNode(Node* node)
         {
@@ -89,8 +103,15 @@ internal static unsafe class AssimpParsing
 
             for (int i = 0; i < indices.Length; i += 3)
             {
-                triangles.Add(new(vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]));
+                Triangle triangle = new(vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]])
+                {
+                    Material = materials[(int)mesh->MMaterialIndex]
+                };
+
+                triangles.Add(triangle);
             }
+
+            numTriangles += triangles.Count;
 
             return new Mesh([.. triangles]);
         }

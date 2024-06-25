@@ -35,11 +35,11 @@ internal class Program
 
         _scene = new(_windowRenderer.GL, _windowRenderer.Width, _windowRenderer.Height);
 
-        _scene.Geometries.Add(AssimpParsing.Parsing(Path.Combine("Models", "bunny", "bunny.obj"), model: bunnyModel));
+        _scene.Geometries.Add(AssimpParsing.Parsing(Path.Combine("Models", "bunny", "bunny.obj"), bunnyModel));
         _scene.Geometries.Add(AssimpParsing.Parsing(Path.Combine("Models", "Battle of the Trash god", "Battle of the Trash god.fbx"), battleModel));
 
         _scene.Lights.Add(new Light(new Vector3d(-40.0f, 140.0f, 40.0f), new Vector3d(2.0f)));
-        _scene.Lights.Add(new Light(new Vector3d(30.0f, 50.0f, -12.0f), new Vector3d(0.5f)));
+        _scene.Lights.Add(new Light(new Vector3d(60.0f, 100.0f, -40.0f), new Vector3d(2.0f)));
 
         _scene.BuildBVH();
 

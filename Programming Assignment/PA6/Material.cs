@@ -1,4 +1,6 @@
 ﻿using Maths;
+using Silk.NET.Assimp;
+using AssimpMaterial = Silk.NET.Assimp.Material;
 
 namespace PA6;
 
@@ -9,7 +11,7 @@ internal enum MaterialType
     Reflection
 }
 
-internal struct Material
+internal unsafe struct Material
 {
     public MaterialType Type = MaterialType.DiffuseAndGlossy;
 
@@ -29,14 +31,21 @@ internal struct Material
     {
     }
 
-    public void CopyFrom(Material material)
+    public Material(AssimpMaterial* material)
     {
-        Type = material.Type;
-        Color = material.Color;
-        Emission = material.Emission;
-        Ior = material.Ior;
-        Kd = material.Kd;
-        Ks = material.Ks;
-        SpecularExponent = material.SpecularExponent;
+        for (uint i = 0; i < material->MNumProperties; i++)
+        {
+            MaterialProperty* property = material->MProperties[i];
+
+            if (property->MKey.AsString == Assimp.MaterialColorDiffuseBase)
+            {
+                Color = GetVector4d(property->MData).XYZ();
+            }
+        }
+    }
+
+    private readonly Vector4d GetVector4d(byte* data)
+    {
+        return new(((float*)data)[0], ((float*)data)[1], ((float*)data)[2], ((float*)data)[3]);
     }
 }

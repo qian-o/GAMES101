@@ -49,7 +49,7 @@ internal class Triangle(Vertex a, Vertex b, Vertex c) : Geometry
 
     public override Vector3d EvalDiffuseColor(Intersection intersection)
     {
-        return new Vector3d(0.5f);
+        return Material.Color;
     }
 
     public override Bounds3d GetBounds()
