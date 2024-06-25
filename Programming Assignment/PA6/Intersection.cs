@@ -12,9 +12,9 @@ internal struct Intersection
 
     public Vector3d Position;
 
-    public Vector3d BarycentricCoords;
-
     public Vector3d Normal;
+
+    public Vector3d BarycentricCoords;
 
     public Vector2d TexCoord;
 }

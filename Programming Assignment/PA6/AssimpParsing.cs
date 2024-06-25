@@ -13,17 +13,17 @@ internal static unsafe class AssimpParsing
     {
         model ??= Matrix4x4d.Identity;
 
-        const PostProcessSteps steps = PostProcessSteps.CalculateTangentSpace
-                                       | PostProcessSteps.Triangulate
-                                       | PostProcessSteps.GenerateNormals
-                                       | PostProcessSteps.GenerateSmoothNormals
-                                       | PostProcessSteps.GenerateUVCoords
-                                       | PostProcessSteps.OptimizeMeshes
-                                       | PostProcessSteps.OptimizeGraph
-                                       | PostProcessSteps.PreTransformVertices;
+        const PostProcessSteps optimizeSteps = PostProcessSteps.CalculateTangentSpace
+                                               | PostProcessSteps.Triangulate
+                                               | PostProcessSteps.GenerateNormals
+                                               | PostProcessSteps.GenerateSmoothNormals
+                                               | PostProcessSteps.GenerateUVCoords
+                                               | PostProcessSteps.OptimizeMeshes
+                                               | PostProcessSteps.OptimizeGraph
+                                               | PostProcessSteps.PreTransformVertices;
 
         using Assimp importer = Assimp.GetApi();
-        AssimpScene* scene = importer.ImportFile(file, (uint)steps);
+        AssimpScene* scene = importer.ImportFile(file, (uint)optimizeSteps);
 
         if (scene == null)
         {

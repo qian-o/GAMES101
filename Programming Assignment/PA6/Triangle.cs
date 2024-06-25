@@ -36,11 +36,11 @@ internal class Triangle(Vertex a, Vertex b, Vertex c) : Geometry
             intersection.Distance = tnear;
             intersection.Geometry = Handle;
             intersection.Position = ray.PointAt(tnear);
-            intersection.BarycentricCoords = new Vector3d(b1, b2, 1.0f - b1 - b2);
+            intersection.Normal = Vector3d.Normalize(Vector3d.Cross(e1, e2));
+            intersection.BarycentricCoords = new Vector3d(1.0f - b1 - b2, b1, b2);
 
             Vertex interpolation = Vertex.Interpolate(A, B, C, intersection.BarycentricCoords);
 
-            intersection.Normal = interpolation.Normal;
             intersection.TexCoord = interpolation.TexCoord;
         }
 

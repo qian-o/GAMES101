@@ -25,16 +25,20 @@ internal class Program
 
     private static void WindowRenderer_Load()
     {
-        Matrix4x4d bunnyModel = Matrix4x4d.CreateTranslation(new Vector3d(1.0f, -7.0f, -10.0f))
+        Matrix4x4d bunnyModel = Matrix4x4d.CreateTranslation(new Vector3d(1.0f, 6.0f, -20.0f))
+                                * Matrix4x4d.CreateRotationX(Angle.FromDegrees(10.0f))
                                 * Matrix4x4d.CreateScale(new Vector3d(60.0f));
+
+        Matrix4x4d battleModel = Matrix4x4d.CreateTranslation(new Vector3d(-4.0f, -10.0f, -80.0f))
+                                 * Matrix4x4d.CreateRotationY(Angle.FromDegrees(90.0f))
+                                 * Matrix4x4d.CreateScale(new Vector3d(0.01f));
 
         _scene = new(_windowRenderer.GL, _windowRenderer.Width, _windowRenderer.Height);
 
-        _scene.Geometries.Add(new Sphere(new Vector3d(-1.0f, 0.0f, -12.0f), 2.0f));
-        _scene.Geometries.Add(new Sphere(new Vector3d(0.5f, -0.5f, -8.0f), 1.5f));
-        _scene.Geometries.Add(AssimpParsing.Parsing(Path.Combine("Models", "bunny", "bunny.obj"), bunnyModel));
+        _scene.Geometries.Add(AssimpParsing.Parsing(Path.Combine("Models", "bunny", "bunny.obj"), model: bunnyModel));
+        _scene.Geometries.Add(AssimpParsing.Parsing(Path.Combine("Models", "Battle of the Trash god", "Battle of the Trash god.fbx"), battleModel));
 
-        _scene.Lights.Add(new Light(new Vector3d(-20.0f, 70.0f, 20.0f), new Vector3d(0.5f)));
+        _scene.Lights.Add(new Light(new Vector3d(-40.0f, 140.0f, 40.0f), new Vector3d(2.0f)));
         _scene.Lights.Add(new Light(new Vector3d(30.0f, 50.0f, -12.0f), new Vector3d(0.5f)));
 
         _scene.BuildBVH();

@@ -19,7 +19,7 @@ public struct Vertex(Vector3d position, Vector4d color = default, Vector2d texCo
         result.Position = v1.Position * barycentricCoords.X + v2.Position * barycentricCoords.Y + v3.Position * barycentricCoords.Z;
         result.Color = v1.Color * barycentricCoords.X + v2.Color * barycentricCoords.Y + v3.Color * barycentricCoords.Z;
         result.TexCoord = v1.TexCoord * barycentricCoords.X + v2.TexCoord * barycentricCoords.Y + v3.TexCoord * barycentricCoords.Z;
-        result.Normal = v1.Normal * barycentricCoords.X + v2.Normal * barycentricCoords.Y + v3.Normal * barycentricCoords.Z;
+        result.Normal = Vector3d.Normalize(v1.Normal * barycentricCoords.X + v2.Normal * barycentricCoords.Y + v3.Normal * barycentricCoords.Z);
 
         return result;
     }
