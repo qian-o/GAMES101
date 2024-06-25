@@ -16,7 +16,7 @@ internal static class Bounds3dExtensions
         xMin = (bounds.Min.X - ray.Origin.X) * ray.InverseDirection.X;
         xMax = (bounds.Max.X - ray.Origin.X) * ray.InverseDirection.X;
 
-        if (!dirIsNeg[0])
+        if (dirIsNeg[0])
         {
             (xMax, xMin) = (xMin, xMax);
         }
@@ -24,7 +24,7 @@ internal static class Bounds3dExtensions
         yMin = (bounds.Min.Y - ray.Origin.Y) * ray.InverseDirection.Y;
         yMax = (bounds.Max.Y - ray.Origin.Y) * ray.InverseDirection.Y;
 
-        if (!dirIsNeg[1])
+        if (dirIsNeg[1])
         {
             (yMax, yMin) = (yMin, yMax);
         }
@@ -32,7 +32,7 @@ internal static class Bounds3dExtensions
         zMin = (bounds.Min.Z - ray.Origin.Z) * ray.InverseDirection.Z;
         zMax = (bounds.Max.Z - ray.Origin.Z) * ray.InverseDirection.Z;
 
-        if (!dirIsNeg[2])
+        if (dirIsNeg[2])
         {
             (zMax, zMin) = (zMin, zMax);
         }
