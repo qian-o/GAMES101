@@ -27,7 +27,7 @@ internal class Program
         {
             Vector2 p = new(2, 1);
 
-            Matrix3x2 rotate = Matrix3x2.CreateRotation((float)Angle.FromDegrees(45).Radians);
+            Matrix3x2 rotate = Matrix3x2.CreateRotation(Angle.FromDegrees(45).Radians);
             Matrix3x2 translate = Matrix3x2.CreateTranslation(new Vector2(1, 2));
 
             p = Vector2.Transform(p, rotate * translate);

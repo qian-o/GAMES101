@@ -47,7 +47,7 @@ public unsafe class FrameBuffer : IDisposable
 
     public float* FinalDepthBuffer => _finalDepthBuffer.Data;
 
-    public int this[Pixel pixel] => pixel.Y * Width + pixel.X;
+    public int this[Pixel pixel] => (pixel.Y * Width) + pixel.X;
 
     public Fragment this[Pixel pixel, int sample]
     {

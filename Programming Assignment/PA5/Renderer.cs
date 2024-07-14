@@ -130,7 +130,7 @@ internal unsafe class Renderer(Scene scene)
                             specularColor += MathF.Pow(Math.Max(-Vector3d.Dot(reflectionDirection, ray.Direction), 0.0f), material.SpecularExponent) * light.Intensity;
                         }
 
-                        return lightAmt * Geometry.EvalDiffuseColor(obj, material, surface.ST) * material.Kd + specularColor * material.Ks;
+                        return (lightAmt * Geometry.EvalDiffuseColor(obj, material, surface.ST) * material.Kd) + (specularColor * material.Ks);
                     }
             }
         }

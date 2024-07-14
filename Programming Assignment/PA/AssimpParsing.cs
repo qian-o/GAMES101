@@ -65,7 +65,7 @@ public unsafe class AssimpParsing
 
                 if (mesh->MTextureCoords[0] != null)
                 {
-                    Vector3 texCoord = (*&mesh->MTextureCoords[0][i]);
+                    Vector3 texCoord = *&mesh->MTextureCoords[0][i];
 
                     vertices[i].TexCoord = new Vector2d(texCoord.X, texCoord.Y);
                 }
@@ -79,7 +79,7 @@ public unsafe class AssimpParsing
 
                 for (uint j = 0; j < face.MNumIndices; j++)
                 {
-                    indices[i * 3 + j] = face.MIndices[j];
+                    indices[(i * 3) + j] = face.MIndices[j];
                 }
             }
 

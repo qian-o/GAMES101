@@ -31,7 +31,7 @@ public class Sampler2d : IDisposable
         x %= _stbiImage.Width;
         y %= _stbiImage.Height;
 
-        int index = (y * _stbiImage.Width + x) * 4;
+        int index = ((y * _stbiImage.Width) + x) * 4;
 
         return new Vector4d(_stbiImage.Data[index + 0], _stbiImage.Data[index + 1], _stbiImage.Data[index + 2], _stbiImage.Data[index + 3]);
     }

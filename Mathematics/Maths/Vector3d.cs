@@ -51,7 +51,7 @@ public struct Vector3d(float x, float y, float z) : IEquatable<Vector3d>
         }
     }
 
-    public readonly float LengthSquared => X * X + Y * Y + Z * Z;
+    public readonly float LengthSquared => (X * X) + (Y * Y) + (Z * Z);
 
     public readonly float Length => MathF.Sqrt(LengthSquared);
 
@@ -157,7 +157,7 @@ public struct Vector3d(float x, float y, float z) : IEquatable<Vector3d>
 
     public static Vector3d Reflect(Vector3d i, Vector3d n)
     {
-        return i - 2.0f * Dot(i, n) * n;
+        return i - (2.0f * Dot(i, n) * n);
     }
 
     public static Vector3d Refract(Vector3d i, Vector3d n, float ior)
@@ -180,7 +180,7 @@ public struct Vector3d(float x, float y, float z) : IEquatable<Vector3d>
         }
 
         float eta = etai / etat;
-        float k = 1.0f - eta * eta * (1.0f - cosi * cosi);
+        float k = 1.0f - (eta * eta * (1.0f - (cosi * cosi)));
 
         return k < 0.0f ? Zero : (eta * i) + (((eta * cosi) - MathF.Sqrt(k)) * n1);
     }

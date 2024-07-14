@@ -18,7 +18,7 @@ public class Matrix4X4Tests
         Vector3 point2 = new(1, 1, 1);
 
         Matrix4x4d matrix1 = Matrix4x4d.CreateRotationX(angle);
-        Matrix4x4 matrix2 = Matrix4x4.CreateRotationX((float)angle.Radians);
+        Matrix4x4 matrix2 = Matrix4x4.CreateRotationX(angle.Radians);
 
         point1 = matrix1 * point1;
         point2 = Vector3.Transform(point2, matrix2);
@@ -39,7 +39,7 @@ public class Matrix4X4Tests
         Vector3 point2 = new(1, 1, 1);
 
         Matrix4x4d matrix1 = Matrix4x4d.CreateRotationY(angle);
-        Matrix4x4 matrix2 = Matrix4x4.CreateRotationY((float)angle.Radians);
+        Matrix4x4 matrix2 = Matrix4x4.CreateRotationY(angle.Radians);
 
         point1 = matrix1 * point1;
         point2 = Vector3.Transform(point2, matrix2);
@@ -60,7 +60,7 @@ public class Matrix4X4Tests
         Vector3 point2 = new(1, 1, 1);
 
         Matrix4x4d matrix1 = Matrix4x4d.CreateRotationZ(angle);
-        Matrix4x4 matrix2 = Matrix4x4.CreateRotationZ((float)angle.Radians);
+        Matrix4x4 matrix2 = Matrix4x4.CreateRotationZ(angle.Radians);
 
         point1 = matrix1 * point1;
         point2 = Vector3.Transform(point2, matrix2);
@@ -133,9 +133,9 @@ public class Matrix4X4Tests
         Matrix4x4d s1 = Matrix4x4d.CreateScale(new Vector3d(x, y, z));
         Matrix4x4d t1 = Matrix4x4d.CreateTranslation(new Vector3d(x, y, z));
 
-        Matrix4x4 rx2 = Matrix4x4.CreateRotationX((float)angle.Radians);
-        Matrix4x4 ry2 = Matrix4x4.CreateRotationY((float)angle.Radians);
-        Matrix4x4 rz2 = Matrix4x4.CreateRotationZ((float)angle.Radians);
+        Matrix4x4 rx2 = Matrix4x4.CreateRotationX(angle.Radians);
+        Matrix4x4 ry2 = Matrix4x4.CreateRotationY(angle.Radians);
+        Matrix4x4 rz2 = Matrix4x4.CreateRotationZ(angle.Radians);
         Matrix4x4 s2 = Matrix4x4.CreateScale(new Vector3((float)x, (float)y, (float)z));
         Matrix4x4 t2 = Matrix4x4.CreateTranslation(new Vector3((float)x, (float)y, (float)z));
 

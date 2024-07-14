@@ -74,7 +74,7 @@ public struct Bounds3d
         {
             Vector3d d = Diagonal;
 
-            return 2 * (d.X * d.Y + d.X * d.Z + d.Y * d.Z);
+            return 2 * ((d.X * d.Y) + (d.X * d.Z) + (d.Y * d.Z));
         }
     }
 

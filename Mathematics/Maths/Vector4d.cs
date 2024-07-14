@@ -55,7 +55,7 @@ public struct Vector4d(float x, float y, float z, float w) : IEquatable<Vector4d
         }
     }
 
-    public readonly float LengthSquared => X * X + Y * Y + Z * Z + W * W;
+    public readonly float LengthSquared => (X * X) + (Y * Y) + (Z * Z) + (W * W);
 
     public readonly float Length => MathF.Sqrt(LengthSquared);
 

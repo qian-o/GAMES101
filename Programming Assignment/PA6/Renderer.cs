@@ -132,7 +132,7 @@ internal class Renderer(Scene scene)
                             specularColor += MathF.Pow(Math.Max(-Vector3d.Dot(reflectionDirection, ray.Direction), 0.0f), material.SpecularExponent) * light.Intensity;
                         }
 
-                        hitColor = lightAmt * geometry.EvalDiffuseColor(intersection) * material.Kd + specularColor * material.Ks;
+                        hitColor = (lightAmt * geometry.EvalDiffuseColor(intersection) * material.Kd) + (specularColor * material.Ks);
                     }
                     break;
             }

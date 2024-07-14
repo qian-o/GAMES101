@@ -297,19 +297,19 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         float i = matrix.M31, j = matrix.M32, k = matrix.M33, l = matrix.M34;
         float m = matrix.M41, n = matrix.M42, o = matrix.M43, p = matrix.M44;
 
-        float kp_lo = k * p - l * o;
-        float jp_ln = j * p - l * n;
-        float jo_kn = j * o - k * n;
-        float ip_lm = i * p - l * m;
-        float io_km = i * o - k * m;
-        float in_jm = i * n - j * m;
+        float kp_lo = (k * p) - (l * o);
+        float jp_ln = (j * p) - (l * n);
+        float jo_kn = (j * o) - (k * n);
+        float ip_lm = (i * p) - (l * m);
+        float io_km = (i * o) - (k * m);
+        float in_jm = (i * n) - (j * m);
 
-        float a11 = +(f * kp_lo - g * jp_ln + h * jo_kn);
-        float a12 = -(e * kp_lo - g * ip_lm + h * io_km);
-        float a13 = +(e * jp_ln - f * ip_lm + h * in_jm);
-        float a14 = -(e * jo_kn - f * io_km + g * in_jm);
+        float a11 = +((f * kp_lo) - (g * jp_ln) + (h * jo_kn));
+        float a12 = -((e * kp_lo) - (g * ip_lm) + (h * io_km));
+        float a13 = +((e * jp_ln) - (f * ip_lm) + (h * in_jm));
+        float a14 = -((e * jo_kn) - (f * io_km) + (g * in_jm));
 
-        float det = a * a11 + b * a12 + c * a13 + d * a14;
+        float det = (a * a11) + (b * a12) + (c * a13) + (d * a14);
 
         if (Math.Abs(det) < float.Epsilon)
         {
@@ -327,34 +327,34 @@ public struct Matrix4x4d(Vector4d row1, Vector4d row2, Vector4d row3, Vector4d r
         result.M31 = a13 * invDet;
         result.M41 = a14 * invDet;
 
-        result.M12 = -(b * kp_lo - c * jp_ln + d * jo_kn) * invDet;
-        result.M22 = +(a * kp_lo - c * ip_lm + d * io_km) * invDet;
-        result.M32 = -(a * jp_ln - b * ip_lm + d * in_jm) * invDet;
-        result.M42 = +(a * jo_kn - b * io_km + c * in_jm) * invDet;
+        result.M12 = -((b * kp_lo) - (c * jp_ln) + (d * jo_kn)) * invDet;
+        result.M22 = +((a * kp_lo) - (c * ip_lm) + (d * io_km)) * invDet;
+        result.M32 = -((a * jp_ln) - (b * ip_lm) + (d * in_jm)) * invDet;
+        result.M42 = +((a * jo_kn) - (b * io_km) + (c * in_jm)) * invDet;
 
-        float gp_ho = g * p - h * o;
-        float fp_hn = f * p - h * n;
-        float fo_gn = f * o - g * n;
-        float ep_hm = e * p - h * m;
-        float eo_gm = e * o - g * m;
-        float en_fm = e * n - f * m;
+        float gp_ho = (g * p) - (h * o);
+        float fp_hn = (f * p) - (h * n);
+        float fo_gn = (f * o) - (g * n);
+        float ep_hm = (e * p) - (h * m);
+        float eo_gm = (e * o) - (g * m);
+        float en_fm = (e * n) - (f * m);
 
-        result.M13 = +(b * gp_ho - c * fp_hn + d * fo_gn) * invDet;
-        result.M23 = -(a * gp_ho - c * ep_hm + d * eo_gm) * invDet;
-        result.M33 = +(a * fp_hn - b * ep_hm + d * en_fm) * invDet;
-        result.M43 = -(a * fo_gn - b * eo_gm + c * en_fm) * invDet;
+        result.M13 = +((b * gp_ho) - (c * fp_hn) + (d * fo_gn)) * invDet;
+        result.M23 = -((a * gp_ho) - (c * ep_hm) + (d * eo_gm)) * invDet;
+        result.M33 = +((a * fp_hn) - (b * ep_hm) + (d * en_fm)) * invDet;
+        result.M43 = -((a * fo_gn) - (b * eo_gm) + (c * en_fm)) * invDet;
 
-        float gl_hk = g * l - h * k;
-        float fl_hj = f * l - h * j;
-        float fk_gj = f * k - g * j;
-        float el_hi = e * l - h * i;
-        float ek_gi = e * k - g * i;
-        float ej_fi = e * j - f * i;
+        float gl_hk = (g * l) - (h * k);
+        float fl_hj = (f * l) - (h * j);
+        float fk_gj = (f * k) - (g * j);
+        float el_hi = (e * l) - (h * i);
+        float ek_gi = (e * k) - (g * i);
+        float ej_fi = (e * j) - (f * i);
 
-        result.M14 = -(b * gl_hk - c * fl_hj + d * fk_gj) * invDet;
-        result.M24 = +(a * gl_hk - c * el_hi + d * ek_gi) * invDet;
-        result.M34 = -(a * fl_hj - b * el_hi + d * ej_fi) * invDet;
-        result.M44 = +(a * fk_gj - b * ek_gi + c * ej_fi) * invDet;
+        result.M14 = -((b * gl_hk) - (c * fl_hj) + (d * fk_gj)) * invDet;
+        result.M24 = +((a * gl_hk) - (c * el_hi) + (d * ek_gi)) * invDet;
+        result.M34 = -((a * fl_hj) - (b * el_hi) + (d * ej_fi)) * invDet;
+        result.M44 = +((a * fk_gj) - (b * ek_gi) + (c * ej_fi)) * invDet;
 
         return true;
     }

@@ -24,7 +24,7 @@ public static class MathsHelper
 
     public static float RangeMap(float value, float min, float max, float newMin, float newMax)
     {
-        return ((value - min) / (max - min)) * (newMax - newMin) + newMin;
+        return ((value - min) / (max - min) * (newMax - newMin)) + newMin;
     }
 
     public static float Clamp(float value, float min, float max)
@@ -43,18 +43,18 @@ public static class MathsHelper
             (etat, etai) = (etai, etat);
         }
 
-        float sint = etai / etat * MathF.Sqrt(MathF.Max(0.0f, 1.0f - cosi * cosi));
+        float sint = etai / etat * MathF.Sqrt(MathF.Max(0.0f, 1.0f - (cosi * cosi)));
 
         if (sint >= 1.0f)
         {
             return 1.0f;
         }
 
-        float cost = MathF.Sqrt(MathF.Max(0.0f, 1.0f - sint * sint));
+        float cost = MathF.Sqrt(MathF.Max(0.0f, 1.0f - (sint * sint)));
         cosi = MathF.Abs(cosi);
         float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
         float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
 
-        return (Rs * Rs + Rp * Rp) / 2.0f;
+        return ((Rs * Rs) + (Rp * Rp)) / 2.0f;
     }
 }

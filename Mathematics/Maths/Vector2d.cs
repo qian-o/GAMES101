@@ -39,7 +39,7 @@ public struct Vector2d(float x, float y) : IEquatable<Vector2d>
         }
     }
 
-    public readonly float LengthSquared => X * X + Y * Y;
+    public readonly float LengthSquared => (X * X) + (Y * Y);
 
     public readonly float Length => MathF.Sqrt(LengthSquared);
 

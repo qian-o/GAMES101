@@ -250,9 +250,9 @@ internal class Program
         float u = vertex.TexCoord.X;
         float v = vertex.TexCoord.Y;
 
-        float x = normal.X * normal.Y / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
-        float y = MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
-        float z = normal.Z * normal.Y / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+        float x = normal.X * normal.Y / MathF.Sqrt((normal.X * normal.X) + (normal.Z * normal.Z));
+        float y = MathF.Sqrt((normal.X * normal.X) + (normal.Z * normal.Z));
+        float z = normal.Z * normal.Y / MathF.Sqrt((normal.X * normal.X) + (normal.Z * normal.Z));
 
         Vector3d t = new(x, y, z);
         Vector3d b = Vector3d.Cross(normal, t);
@@ -293,9 +293,9 @@ internal class Program
         float tu = vertex.TexCoord.X;
         float tv = vertex.TexCoord.Y;
 
-        float x = normal.X * normal.Y / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
-        float y = MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
-        float z = normal.Z * normal.Y / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+        float x = normal.X * normal.Y / MathF.Sqrt((normal.X * normal.X) + (normal.Z * normal.Z));
+        float y = MathF.Sqrt((normal.X * normal.X) + (normal.Z * normal.Z));
+        float z = normal.Z * normal.Y / MathF.Sqrt((normal.X * normal.X) + (normal.Z * normal.Z));
 
         Vector3d t = new(x, y, z);
         Vector3d b = Vector3d.Cross(normal, t);
