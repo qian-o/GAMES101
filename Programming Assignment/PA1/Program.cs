@@ -8,7 +8,7 @@ namespace PA1;
 
 internal unsafe class Program
 {
-    private static WindowRenderer _windowRenderer = null!;
+    private static Window _window = null!;
     private static Rasterizer _rasterizer = null!;
     private static int vbo = 0;
     private static int ibo = 0;
@@ -16,19 +16,19 @@ internal unsafe class Program
 
     private static void Main(string[] _)
     {
-        _windowRenderer = new("PA 1");
-        _windowRenderer.Load += WindowRenderer_Load;
-        _windowRenderer.Update += WindowRenderer_Update;
-        _windowRenderer.Render += WindowRenderer_Render;
+        _window = new("PA 1");
+        _window.Load += Window_Load;
+        _window.Update += Window_Update;
+        _window.Render += Window_Render;
 
-        _windowRenderer.Run();
+        _window.Run();
 
-        _windowRenderer.Dispose();
+        _window.Dispose();
     }
 
-    private static void WindowRenderer_Load()
+    private static void Window_Load()
     {
-        _rasterizer = new Rasterizer(_windowRenderer)
+        _rasterizer = new Rasterizer(_window)
         {
             Model = Matrix4x4d.Identity,
             View = Matrix4x4d.CreateLookAt(new(0.0f, 0.0f, 5.0f), new(0.0f, 0.0f, 0.0f), new(0.0f, 1.0f, 0.0f))
@@ -42,14 +42,14 @@ internal unsafe class Program
         ibo = _rasterizer.CreateIndexBuffer([0, 1, 2]);
     }
 
-    private static void WindowRenderer_Update(float delta)
+    private static void Window_Update(float delta)
     {
-        if (_windowRenderer.Keyboard.IsKeyPressed(Key.A))
+        if (_window.Keyboard.IsKeyPressed(Key.A))
         {
             angle += 10;
         }
 
-        if (_windowRenderer.Keyboard.IsKeyPressed(Key.D))
+        if (_window.Keyboard.IsKeyPressed(Key.D))
         {
             angle -= 10;
         }
@@ -57,7 +57,7 @@ internal unsafe class Program
         _rasterizer.Model = Matrix4x4d.CreateRotationZ(Angle.FromDegrees(angle));
     }
 
-    private static void WindowRenderer_Render(float delta)
+    private static void Window_Render(float delta)
     {
         ImGui.Begin("PA 1");
         {

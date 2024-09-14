@@ -6,7 +6,7 @@ using Silk.NET.Windowing;
 
 namespace PA.Graphics;
 
-public unsafe class WindowRenderer : IDisposable
+public unsafe class Window : IDisposable
 {
     public const string InfoPanel = "Info";
 
@@ -24,19 +24,13 @@ public unsafe class WindowRenderer : IDisposable
     public event Action<float>? Update;
     public event Action<float>? Render;
 
-    public WindowRenderer(string title)
+    public Window(string title)
     {
         WindowOptions windowOptions = WindowOptions.Default;
         windowOptions.Title = title;
-        windowOptions.API = new GraphicsAPI()
-        {
-            API = ContextAPI.OpenGL,
-            Profile = ContextProfile.Core,
-            Version = new APIVersion(4, 6)
-        };
         windowOptions.VSync = false;
 
-        _window = Window.Create(windowOptions);
+        _window = Silk.NET.Windowing.Window.Create(windowOptions);
     }
 
     public GL GL => ThrowIfNotInitialized(gl);

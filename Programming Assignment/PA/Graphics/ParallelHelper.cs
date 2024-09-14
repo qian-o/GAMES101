@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-namespace PA.Graphics;
+﻿namespace PA.Graphics;
 
 public class ParallelHelper
 {
@@ -20,13 +18,7 @@ public class ParallelHelper
         }
         else
         {
-            Parallel.ForEach(Partitioner.Create(0, array.Length), (range) =>
-            {
-                for (int i = range.Item1; i < range.Item2; i++)
-                {
-                    action(array[i]);
-                }
-            });
+            Parallel.ForEach(array, action);
         }
     }
 

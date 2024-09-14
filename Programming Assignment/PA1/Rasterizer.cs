@@ -5,9 +5,9 @@ using Vertex = PA.Graphics.Vertex;
 
 namespace PA1;
 
-public unsafe class Rasterizer(WindowRenderer windowRenderer)
+public unsafe class Rasterizer(Window window)
 {
-    private readonly GL _gl = windowRenderer.GL;
+    private readonly GL _gl = window.GL;
     private readonly Dictionary<int, Vertex[]> bufferVertexes = [];
     private readonly Dictionary<int, int[]> bufferIndices = [];
 

@@ -15,7 +15,7 @@ internal class Program
         public Vector3d Intensity;
     }
 
-    private static WindowRenderer _windowRenderer = null!;
+    private static Window _window = null!;
     private static Rasterizer _rasterizer = null!;
     private static AssimpParsing _assimpParsing = null!;
     private static Sampler2d _sampler = null!;
@@ -25,10 +25,10 @@ internal class Program
 
     private static void Main(string[] args)
     {
-        _windowRenderer = new("PA 3");
-        _windowRenderer.Load += WindowRenderer_Load;
-        _windowRenderer.Update += WindowRenderer_Update;
-        _windowRenderer.Render += WindowRenderer_Render;
+        _window = new("PA 3");
+        _window.Load += Window_Load;
+        _window.Update += Window_Update;
+        _window.Render += Window_Render;
 
         _assimpParsing = new AssimpParsing(Path.Combine("Models", "spot", "spot_triangulated_good.obj"));
 
@@ -64,14 +64,14 @@ internal class Program
             }
         }
 
-        _windowRenderer.Run();
+        _window.Run();
 
-        _windowRenderer.Dispose();
+        _window.Dispose();
     }
 
-    private static void WindowRenderer_Load()
+    private static void Window_Load()
     {
-        _rasterizer = new Rasterizer(_windowRenderer)
+        _rasterizer = new Rasterizer(_window)
         {
             Model = Matrix4x4d.Identity,
             View = Matrix4x4d.CreateLookAt(new(0.0f, 0.0f, 4.0f), new(0.0f, 0.0f, 0.0f), new(0.0f, 1.0f, 0.0f)),
@@ -91,12 +91,12 @@ internal class Program
         }
     }
 
-    private static void WindowRenderer_Update(float delta)
+    private static void Window_Update(float delta)
     {
         _rasterizer.Model = Matrix4x4d.CreateRotationY(Angle.FromDegrees(140.0f));
     }
 
-    private static void WindowRenderer_Render(float delta)
+    private static void Window_Render(float delta)
     {
         ImGui.Begin("PA 3");
         {

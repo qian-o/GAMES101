@@ -7,24 +7,24 @@ namespace PA5;
 
 internal class Program
 {
-    private static WindowRenderer _windowRenderer = null!;
+    private static Window _window = null!;
     private static Scene _scene = null!;
     private static Renderer _renderer = null!;
 
     static void Main(string[] _)
     {
-        _windowRenderer = new("PA 5");
-        _windowRenderer.Load += WindowRenderer_Load;
-        _windowRenderer.Render += WindowRenderer_Render;
+        _window = new("PA 5");
+        _window.Load += Window_Load;
+        _window.Render += Window_Render;
 
-        _windowRenderer.Run();
+        _window.Run();
 
-        _windowRenderer.Dispose();
+        _window.Dispose();
     }
 
-    private static void WindowRenderer_Load()
+    private static void Window_Load()
     {
-        _scene = new(_windowRenderer.GL, _windowRenderer.Width, _windowRenderer.Height);
+        _scene = new(_window.GL, _window.Width, _window.Height);
 
         Material mat1 = new()
         {
@@ -78,7 +78,7 @@ internal class Program
         _renderer = new(_scene);
     }
 
-    private static void WindowRenderer_Render(float obj)
+    private static void Window_Render(float obj)
     {
         ImGui.Begin("Scene Properties");
         {

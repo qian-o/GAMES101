@@ -4,22 +4,22 @@ using PA.Graphics;
 
 internal unsafe class Program
 {
-    private static WindowRenderer _windowRenderer = null!;
+    private static Window _window = null!;
     private static List<Vector2d> _points = null!;
 
     private static void Main(string[] _)
     {
-        _windowRenderer = new("PA 4");
-        _windowRenderer.Render += WindowRenderer_Render;
+        _window = new("PA 4");
+        _window.Render += Window_Render;
 
         _points = [];
 
-        _windowRenderer.Run();
+        _window.Run();
 
-        _windowRenderer.Dispose();
+        _window.Dispose();
     }
 
-    private static void WindowRenderer_Render(float delta)
+    private static void Window_Render(float delta)
     {
         if (ImGui.IsMouseClicked(ImGuiMouseButton.Left))
         {
