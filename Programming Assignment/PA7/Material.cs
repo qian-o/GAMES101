@@ -2,7 +2,7 @@
 
 namespace PA7;
 
-enum MaterialType
+internal enum MaterialType
 {
     Diffuse
 }

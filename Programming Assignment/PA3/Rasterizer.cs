@@ -17,7 +17,6 @@ public unsafe class Rasterizer(Window window, SampleCount sampleCount = SampleCo
     private int width;
     private int height;
     private Matrix4x4d viewport;
-    private FrameBuffer? frameBuffer;
 
     public bool FlipY { get; set; } = true;
 
@@ -29,7 +28,7 @@ public unsafe class Rasterizer(Window window, SampleCount sampleCount = SampleCo
 
     public Matrix4x4d Projection { get; set; }
 
-    public FrameBuffer? FrameBuffer => frameBuffer;
+    public FrameBuffer? FrameBuffer { get; private set; }
 
     public Func<Vertex, Vector4d>? Frag { get; set; }
 
@@ -60,24 +59,24 @@ public unsafe class Rasterizer(Window window, SampleCount sampleCount = SampleCo
 
             viewport = Matrix4x4d.CreateViewport(x, y, width, height, 1, -1);
 
-            frameBuffer?.Dispose();
-            frameBuffer = new FrameBuffer(_gl, width, height, _sampleCount);
+            FrameBuffer?.Dispose();
+            FrameBuffer = new FrameBuffer(_gl, width, height, _sampleCount);
         }
     }
 
     public void Clear()
     {
-        if (frameBuffer is null)
+        if (FrameBuffer is null)
         {
             return;
         }
 
-        frameBuffer.Clear();
+        FrameBuffer.Clear();
     }
 
     public void Render(int vertexBufferId, int indexBufferId)
     {
-        if (frameBuffer is null
+        if (FrameBuffer is null
             || !bufferVertexes.TryGetValue(vertexBufferId, out Vertex[]? vertexes)
             || !bufferIndices.TryGetValue(indexBufferId, out uint[]? indices))
         {
@@ -124,13 +123,13 @@ public unsafe class Rasterizer(Window window, SampleCount sampleCount = SampleCo
 
             Box2d box = Box2d.FromPoints(viewportTriangle.A.Position.XY(), viewportTriangle.B.Position.XY(), viewportTriangle.C.Position.XY());
 
-            ParallelHelper.ProcessingPixels(frameBuffer.Pixels, box, (pixel) =>
+            ParallelHelper.ProcessingPixels(FrameBuffer.Pixels, box, (pixel) =>
             {
                 RasterizeTriangle(pixel, viewTriangle, viewportTriangle);
             });
         }
 
-        frameBuffer.Present();
+        FrameBuffer.Present();
     }
 
     private void RasterizeTriangle(Pixel pixel, Triangle viewTriangle, Triangle viewportTriangle)
@@ -139,9 +138,9 @@ public unsafe class Rasterizer(Window window, SampleCount sampleCount = SampleCo
         Vector2d b = viewportTriangle.B.Position.XY();
         Vector2d c = viewportTriangle.C.Position.XY();
 
-        for (int sample = 0; sample < frameBuffer!.Samples; sample++)
+        for (int sample = 0; sample < FrameBuffer!.Samples; sample++)
         {
-            Vector2d offset = frameBuffer.Patterns[sample];
+            Vector2d offset = FrameBuffer.Patterns[sample];
 
             float x = pixel.X + offset.X;
             float y = pixel.Y + offset.Y;
@@ -152,11 +151,11 @@ public unsafe class Rasterizer(Window window, SampleCount sampleCount = SampleCo
 
                 float depth = vertex.Position.Z;
 
-                if (depth >= frameBuffer[pixel, sample].Depth)
+                if (depth >= FrameBuffer[pixel, sample].Depth)
                 {
                     Vector4d color = Frag?.Invoke(vertex) ?? Vector4d.One;
 
-                    frameBuffer[pixel, sample] = new(color, depth);
+                    FrameBuffer[pixel, sample] = new(color, depth);
                 }
             }
         }

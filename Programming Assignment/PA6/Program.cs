@@ -11,7 +11,7 @@ internal class Program
     private static Scene _scene = null!;
     private static Renderer _renderer = null!;
 
-    static void Main(string[] _)
+    private static void Main(string[] _)
     {
         _window = new("PA 6");
         _window.Load += Window_Load;

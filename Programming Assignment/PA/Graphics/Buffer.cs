@@ -4,27 +4,24 @@ namespace PA.Graphics;
 
 public readonly unsafe struct Buffer<T>(int size) : IDisposable where T : unmanaged
 {
-    private readonly int _size = size;
-    private readonly T* _data = (T*)Marshal.AllocHGlobal(size * sizeof(T));
+    public ref T this[int index] => ref Data[index];
 
-    public ref T this[int index] => ref _data[index];
+    public int Size { get; } = size;
 
-    public int Size => _size;
-
-    public T* Data => _data;
+    public T* Data { get; } = (T*)Marshal.AllocHGlobal(size * sizeof(T));
 
     public void Fill(T value)
     {
-        new Span<T>(_data, _size).Fill(value);
+        new Span<T>(Data, Size).Fill(value);
     }
 
     public void CopyTo(Buffer<T> buffer)
     {
-        new Span<T>(_data, _size).CopyTo(new Span<T>(buffer._data, buffer._size));
+        new Span<T>(Data, Size).CopyTo(new Span<T>(buffer.Data, buffer.Size));
     }
 
     public void Dispose()
     {
-        Marshal.FreeHGlobal((nint)_data);
+        Marshal.FreeHGlobal((nint)Data);
     }
 }

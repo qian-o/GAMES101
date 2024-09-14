@@ -9,7 +9,7 @@ internal class Program
     /// 给定一个点P=(2,1),将该点绕原点先逆时针旋转45◦，再平移(1,2),计算出变换后点的坐标（要求用齐次坐标进行计算）。
     /// </summary>
     /// <param name="args"></param>
-    static void Main(string[] _)
+    private static void Main(string[] _)
     {
         // Maths
         {

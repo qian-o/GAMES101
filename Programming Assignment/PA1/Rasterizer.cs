@@ -16,7 +16,6 @@ public unsafe class Rasterizer(Window window)
     private int width;
     private int height;
     private Matrix4x4d viewport;
-    private FrameBuffer? frameBuffer;
     private Matrix4x4d transform;
 
     public bool FlipY { get; set; } = true;
@@ -29,7 +28,7 @@ public unsafe class Rasterizer(Window window)
 
     public Matrix4x4d Projection { get; set; }
 
-    public FrameBuffer? FrameBuffer => frameBuffer;
+    public FrameBuffer? FrameBuffer { get; private set; }
 
     public int CreateVertexBuffer(Vertex[] vertexes)
     {
@@ -58,24 +57,24 @@ public unsafe class Rasterizer(Window window)
 
             viewport = Matrix4x4d.CreateViewport(x, y, width, height, 1, -1);
 
-            frameBuffer?.Dispose();
-            frameBuffer = new FrameBuffer(_gl, width, height);
+            FrameBuffer?.Dispose();
+            FrameBuffer = new FrameBuffer(_gl, width, height);
         }
     }
 
     public void Clear()
     {
-        if (frameBuffer is null)
+        if (FrameBuffer is null)
         {
             return;
         }
 
-        frameBuffer.Clear();
+        FrameBuffer.Clear();
     }
 
     public void Render(int vertexBufferId, int indexBufferId)
     {
-        if (frameBuffer is null
+        if (FrameBuffer is null
             || !bufferVertexes.TryGetValue(vertexBufferId, out Vertex[]? vertexes)
             || !bufferIndices.TryGetValue(indexBufferId, out int[]? indices))
         {
@@ -95,20 +94,20 @@ public unsafe class Rasterizer(Window window)
 
         transform = viewport * Projection * View * Model;
 
-        ParallelHelper.Foreach(frameBuffer.Pixels, (pixel) =>
+        ParallelHelper.Foreach(FrameBuffer.Pixels, (pixel) =>
         {
             foreach (Triangle triangle in triangles)
             {
                 if (IsPointInTriangle(triangle, pixel.X, pixel.Y))
                 {
-                    frameBuffer[pixel, 0] = new Fragment(Vector4d.One);
+                    FrameBuffer[pixel, 0] = new Fragment(Vector4d.One);
 
                     break;
                 }
             }
         });
 
-        frameBuffer.Present();
+        FrameBuffer.Present();
     }
 
     private bool IsPointInTriangle(Triangle triangle, int x, int y)
