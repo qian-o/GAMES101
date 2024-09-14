@@ -32,8 +32,16 @@ internal class Renderer(Scene scene)
                 x = MathsHelper.RangeMap(x, 0.0f, scene.Width - 1.0f, -1.0f, 1.0f);
                 y = MathsHelper.RangeMap(y, 0.0f, scene.Height - 1.0f, 1.0f, -1.0f);
 
-                x *= imageAspectRatio * scale;
-                y *= scale;
+                if (imageAspectRatio > 1.0)
+                {
+                    x *= imageAspectRatio * scale;
+                    y *= scale;
+                }
+                else
+                {
+                    x *= scale;
+                    y *= scale / imageAspectRatio;
+                }
 
                 Vector3d dir = new(x, y, -1);
                 dir = Vector3d.Normalize(dir);

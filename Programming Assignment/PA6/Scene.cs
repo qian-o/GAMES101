@@ -18,7 +18,7 @@ internal class Scene(GL gl, int width, int height) : IDisposable
 
     public int Height { get; set; } = height;
 
-    public Camera Camera { get; set; } = new(Vector3d.Zero, Angle.FromDegrees(45.0f));
+    public Camera Camera { get; set; } = new(new Vector3d(0.0f, 4.0f, 10.0f), Angle.FromDegrees(45.0f));
 
     public Vector3d BackgroundColor { get; set; } = new(0.2f, 0.7f, 0.8f);
 
