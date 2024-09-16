@@ -14,7 +14,7 @@ internal class Renderer(Scene scene)
 
     public void Render()
     {
-        const int spp = 2;
+        const int spp = 8;
 
         ParallelHelper.Foreach(FrameBuffer.Pixels, (pixel) =>
         {
@@ -25,7 +25,7 @@ internal class Renderer(Scene scene)
                 float x = pixel.X + offset.X;
                 float y = pixel.Y + offset.Y;
 
-                float scale = MathF.Tan(scene.Camera.Fov.Radians);
+                float scale = MathF.Tan(scene.Camera.Fov.Radians * 0.5f);
                 float imageAspectRatio = scene.Width / (float)scene.Height;
 
                 x = MathsHelper.RangeMap(x, 0.0f, scene.Width - 1.0f, -1.0f, 1.0f);
@@ -42,7 +42,7 @@ internal class Renderer(Scene scene)
                     y *= scale / imageAspectRatio;
                 }
 
-                Vector3d dir = new(-x, y, 1);
+                Vector3d dir = new(x, y, 1);
                 dir = Vector3d.Normalize(dir);
 
                 Vector3d color = new(0.0f);
@@ -64,7 +64,7 @@ internal class Renderer(Scene scene)
 
         if (!intersection.Happened)
         {
-            return scene.BackgroundColor;
+            return Vector3d.Zero;
         }
 
         Vector3d wo = -ray.Direction;
@@ -85,13 +85,13 @@ internal class Renderer(Scene scene)
         Vector3d loDir = new(0.0f);
         {
             float light_pdf = default;
-            Intersection hitLight = default;
+            Intersection hitLight = new();
             SampleLight(ref hitLight, ref light_pdf);
             Vector3d obj2Light = hitLight.Coords - hitObj.Coords;
             Vector3d obj2LightDir = Vector3d.Normalize(obj2Light);
 
             Intersection t = scene.GetIntersection(new Ray(hitObj.Coords, obj2LightDir));
-            if (t.Distance - obj2Light.Length > -Epsilon)
+            if (t.Distance - obj2Light.Length < Epsilon)
             {
                 Vector3d fr = hitObj.Material.Target.Eval(wo, hitObj.Normal);
                 float r2 = Vector3d.Dot(obj2Light, obj2Light);

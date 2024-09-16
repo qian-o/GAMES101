@@ -8,15 +8,17 @@ internal struct Intersection
 
     public Vector3d Coords;
 
-    public Vector3d TexCoords;
-
     public Vector3d Normal;
 
     public Vector3d Emit;
 
-    public double Distance;
+    public double Distance = double.MaxValue;
 
     public Handle<Shape> Shape;
 
     public Handle<Material> Material;
+
+    public Intersection()
+    {
+    }
 }

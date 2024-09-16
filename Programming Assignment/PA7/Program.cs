@@ -65,7 +65,8 @@ internal class Program
 
     private static void Window_Render(float obj)
     {
-        ImGui.Begin("PA 7");
+        ImGui.SetNextWindowSize(new Vector2(784, 784), ImGuiCond.Always);
+        ImGui.Begin("PA 7", ImGuiWindowFlags.NoResize);
         {
             Vector2 size = ImGui.GetContentRegionAvail();
 

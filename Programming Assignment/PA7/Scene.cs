@@ -18,13 +18,7 @@ internal class Scene(GL gl, int width, int height) : IDisposable
 
     public int Height { get; set; } = height;
 
-    public Camera Camera { get; set; } = new(new Vector3d(278.0f, 273.0f, -800.0f), Angle.FromDegrees(45.0f));
-
-    public Vector3d BackgroundColor { get; set; } = new(0.2f, 0.7f, 0.8f);
-
-    public float Epsilon { get; set; } = 0.00001f;
-
-    public int MaxDepth { get; set; } = 5;
+    public Camera Camera { get; set; } = new(new Vector3d(278.0f, 273.0f, -800.0f), Angle.FromDegrees(40.0f));
 
     public SampleCount SampleCount { get; set; } = SampleCount.SampleCount1;
 

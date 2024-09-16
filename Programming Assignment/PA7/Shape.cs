@@ -4,6 +4,8 @@ namespace PA7;
 
 internal abstract class Shape : IDisposable
 {
+    public const float EPSILON = 0.00001f;
+
     protected Shape()
     {
         Handle = new(this);

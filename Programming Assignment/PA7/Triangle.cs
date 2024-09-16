@@ -53,24 +53,45 @@ internal class Triangle : Shape
     {
         Intersection inter = new();
 
-        Vector3d s0 = ray.Origin - V0;
-        Vector3d s1 = Vector3d.Cross(ray.Direction, E2);
-        Vector3d s2 = Vector3d.Cross(s0, E1);
-
-        float invE1DotS1 = 1.0f / Vector3d.Dot(E1, s1);
-        float tnear = Vector3d.Dot(s2, E2) * invE1DotS1;
-        float b1 = Vector3d.Dot(s0, s1) * invE1DotS1;
-        float b2 = Vector3d.Dot(ray.Direction, s2) * invE1DotS1;
-
-        if (tnear >= 0 && b1 >= 0 && b2 >= 0 && (b1 + b2) <= 1)
+        if (Vector3d.Dot(ray.Direction, Normal) > 0.0f)
         {
-            inter.Happened = true;
-            inter.Coords = ray.PointAt(tnear);
-            inter.Normal = Normal;
-            inter.Distance = tnear;
-            inter.Shape = Handle;
-            inter.Material = Material.Handle;
+            return inter;
         }
+
+        double u, v, t;
+        Vector3d pvec = Vector3d.Cross(ray.Direction, E2);
+        double det = Vector3d.Dot(E1, pvec);
+        if (Math.Abs(det) < EPSILON)
+        {
+            return inter;
+        }
+
+        double invDet = 1.0 / det;
+        Vector3d tvec = ray.Origin - V0;
+        u = Vector3d.Dot(tvec, pvec) * invDet;
+        if (u < 0.0 || u > 1.0)
+        {
+            return inter;
+        }
+        Vector3d qvec = Vector3d.Cross(tvec, E1);
+        v = Vector3d.Dot(ray.Direction, qvec) * invDet;
+        if (v < 0.0 || u + v > 1.0)
+        {
+            return inter;
+        }
+        t = Vector3d.Dot(E2, qvec) * invDet;
+
+        if (t < 0)
+        {
+            return inter;
+        }
+
+        inter.Happened = true;
+        inter.Coords = ray.PointAt((float)t);
+        inter.Normal = Normal;
+        inter.Distance = t;
+        inter.Shape = Handle;
+        inter.Material = Material.Handle;
 
         return inter;
     }
