@@ -21,9 +21,12 @@ internal class Material(MaterialType type, Vector3d emission)
 
     public float SpecularExponent { get; set; }
 
-    public bool HasEmission => Emission.Length > 0.0f;
+    public bool HasEmission()
+    {
+        return Emission.Length > 0.0f;
+    }
 
-    public Vector3d Sample(Vector3d wi, Vector3d wo, Vector3d normal)
+    public Vector3d Sample(Vector3d normal)
     {
         switch (Type)
         {
@@ -44,72 +47,41 @@ internal class Material(MaterialType type, Vector3d emission)
         }
     }
 
-    public float Pdf(Vector3d wi, Vector3d wo, Vector3d normal)
+    public float Pdf(Vector3d wo, Vector3d normal)
     {
-        return 0.0f;
+        switch (Type)
+        {
+            case MaterialType.Diffuse:
+                {
+                    if (Vector3d.Dot(wo, normal) > 0.0f)
+                    {
+                        return 0.5f / MathF.PI;
+                    }
+
+                    return 0.0f;
+                }
+            default:
+                return 0.0f;
+        }
     }
 
-    public Vector3d Evaluate(Vector3d wi, Vector3d wo, Vector3d normal)
+    public Vector3d Evaluate(Vector3d wi, Vector3d normal)
     {
-        return new(0.0f);
-    }
-
-    private static Vector3d Reflect(Vector3d wi, Vector3d normal)
-    {
-        return wi - 2.0f * Vector3d.Dot(wi, normal) * normal;
-    }
-
-    private static Vector3d Refract(Vector3d wi, Vector3d normal, float ior)
-    {
-        float cosThetaI = Vector3d.Dot(wi, normal);
-        float etaI = 1.0f;
-        float etaT = ior;
-
-        if (cosThetaI < 0.0f)
+        switch (Type)
         {
-            cosThetaI = -cosThetaI;
+            case MaterialType.Diffuse:
+                {
+                    float cosalpha = Vector3d.Dot(wi, normal);
+                    if (cosalpha > 0.0f)
+                    {
+                        return new Vector3d(Kd / MathF.PI);
+                    }
+
+                    return new Vector3d(0.0f);
+                }
+            default:
+                return new(0.0f);
         }
-        else
-        {
-            (etaT, etaI) = (etaI, etaT);
-            normal = -normal;
-        }
-
-        float eta = etaI / etaT;
-        float k = 1.0f - eta * eta * (1.0f - cosThetaI * cosThetaI);
-
-        return k < 0.0f ? new(0.0f) : eta * wi + (eta * cosThetaI - MathF.Sqrt(k)) * normal;
-    }
-
-    private static float Fresnel(Vector3d wi, Vector3d normal, float ior)
-    {
-        float cosThetaI = Vector3d.Dot(wi, normal);
-        float etaI = 1.0f;
-        float etaT = ior;
-
-        if (cosThetaI < 0.0f)
-        {
-            cosThetaI = -cosThetaI;
-        }
-        else
-        {
-            (etaT, etaI) = (etaI, etaT);
-        }
-
-        float eta = etaI / etaT;
-        float sinThetaT = eta * MathF.Sqrt(MathF.Max(0.0f, 1.0f - cosThetaI * cosThetaI));
-
-        if (sinThetaT >= 1.0f)
-        {
-            return 1.0f;
-        }
-
-        float cosThetaT = MathF.Sqrt(MathF.Max(0.0f, 1.0f - sinThetaT * sinThetaT));
-
-        float rParallel = (etaT * cosThetaI - etaI * cosThetaT) / (etaT * cosThetaI + etaI * cosThetaT);
-        float rPerpendicular = (etaI * cosThetaI - etaT * cosThetaT) / (etaI * cosThetaI + etaT * cosThetaT);
-
-        return 0.5f * (rParallel * rParallel + rPerpendicular * rPerpendicular);
     }
 
     private static Vector3d ToWorld(Vector3d local, Vector3d normal)

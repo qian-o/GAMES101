@@ -15,4 +15,8 @@ internal struct Intersection
     public Vector3d Emit;
 
     public double Distance;
+
+    public Shape Shape;
+
+    public Material Material;
 }
