@@ -22,9 +22,9 @@ internal class Material : IDisposable
 
     public float Ior { get; set; }
 
-    public float Kd { get; set; }
+    public Vector3d Kd { get; set; }
 
-    public float Ks { get; set; }
+    public Vector3d Ks { get; set; }
 
     public float SpecularExponent { get; set; }
 
@@ -72,16 +72,16 @@ internal class Material : IDisposable
         }
     }
 
-    public Vector3d Evaluate(Vector3d wi, Vector3d normal)
+    public Vector3d Eval(Vector3d wo, Vector3d normal)
     {
         switch (Type)
         {
             case MaterialType.Diffuse:
                 {
-                    float cosalpha = Vector3d.Dot(wi, normal);
+                    float cosalpha = Vector3d.Dot(wo, normal);
                     if (cosalpha > 0.0f)
                     {
-                        return new Vector3d(Kd / MathF.PI);
+                        return Kd / MathF.PI;
                     }
 
                     return new Vector3d(0.0f);

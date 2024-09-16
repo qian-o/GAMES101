@@ -95,13 +95,13 @@ internal class Triangle : Shape
         return Area;
     }
 
-    public override void Sample(ref Intersection intersection, ref float pdf)
+    public override void Sample(ref Intersection pos, ref float pdf)
     {
         float x = MathF.Sqrt(Random.Shared.NextSingle());
         float y = Random.Shared.NextSingle();
 
-        intersection.Coords = (V0 * (1.0f - x)) + (V1 * (1.0f - y)) + (V2 * x * y);
-        intersection.Normal = Normal;
+        pos.Coords = (V0 * (1.0f - x)) + (V1 * (1.0f - y)) + (V2 * x * y);
+        pos.Normal = Normal;
         pdf = 1.0f / Area;
     }
 

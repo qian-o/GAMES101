@@ -92,4 +92,6 @@ public unsafe class AssimpParsing
     public Vertex[] Vertices(string name) => _meshes[name].Vertices;
 
     public uint[] Indices(string name) => _meshes[name].Indices;
+
+    public Vector3d[] Positions(string name) => Vertices(name).Select(x => x.Position).ToArray();
 }

@@ -51,9 +51,12 @@ internal unsafe class BVHAccel : IDisposable
         return _root->Area;
     }
 
-    public void Sample(ref Intersection intersection, ref float pdf)
+    public void Sample(ref Intersection pos, ref float pdf)
     {
         float p = MathF.Sqrt(Random.Shared.NextSingle()) * _root->Area;
+        GetSample(_root, p, ref pos, ref pdf);
+
+        pdf /= _root->Area;
     }
 
     public void Dispose()
@@ -168,11 +171,11 @@ internal unsafe class BVHAccel : IDisposable
         return intersection;
     }
 
-    private void GetSample(BVHBuildNode* node, float p, ref Intersection intersection, ref float pdf)
+    private void GetSample(BVHBuildNode* node, float p, ref Intersection pos, ref float pdf)
     {
         if (node->Left == null && node->Right == null)
         {
-            node->Shape.Target.Sample(ref intersection, ref pdf);
+            node->Shape.Target.Sample(ref pos, ref pdf);
             pdf *= node->Area;
 
             return;
@@ -180,13 +183,11 @@ internal unsafe class BVHAccel : IDisposable
 
         if (p < node->Left->Area)
         {
-            GetSample(node->Left, p, ref intersection, ref pdf);
-            pdf *= node->Area;
+            GetSample(node->Left, p, ref pos, ref pdf);
         }
         else
         {
-            GetSample(node->Right, p - node->Left->Area, ref intersection, ref pdf);
-            pdf *= node->Area;
+            GetSample(node->Right, p - node->Left->Area, ref pos, ref pdf);
         }
     }
 }

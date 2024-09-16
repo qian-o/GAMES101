@@ -23,7 +23,7 @@ internal abstract class Shape : IDisposable
 
     public abstract float GetArea();
 
-    public abstract void Sample(ref Intersection intersection, ref float pdf);
+    public abstract void Sample(ref Intersection pos, ref float pdf);
 
     public abstract bool HasEmit();
 

@@ -53,11 +53,11 @@ internal class Mesh : Shape
         return _bvh.GetArea();
     }
 
-    public override void Sample(ref Intersection intersection, ref float pdf)
+    public override void Sample(ref Intersection pos, ref float pdf)
     {
-        _bvh.Sample(ref intersection, ref pdf);
+        _bvh.Sample(ref pos, ref pdf);
 
-        intersection.Emit = _material.Emission;
+        pos.Emit = _material.Emission;
     }
 
     public override bool HasEmit()
