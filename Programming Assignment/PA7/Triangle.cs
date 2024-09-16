@@ -100,7 +100,7 @@ internal class Triangle : Shape
         float x = MathF.Sqrt(Random.Shared.NextSingle());
         float y = Random.Shared.NextSingle();
 
-        intersection.Coords = V0 * (1.0f - x) + V1 * (1.0f - y) + V2 * x * y;
+        intersection.Coords = (V0 * (1.0f - x)) + (V1 * (1.0f - y)) + (V2 * x * y);
         intersection.Normal = Normal;
         pdf = 1.0f / Area;
     }

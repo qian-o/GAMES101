@@ -34,8 +34,8 @@ internal class Material(MaterialType type, Vector3d emission)
                 {
                     float xi1 = Random.Shared.NextSingle();
                     float xi2 = Random.Shared.NextSingle();
-                    float z = MathF.Abs(1.0f - 2.0f * xi1);
-                    float r = MathF.Sqrt(1.0f - z * z);
+                    float z = MathF.Abs(1.0f - (2.0f * xi1));
+                    float r = MathF.Sqrt(1.0f - (z * z));
                     float phi = 2.0f * MathF.PI * xi2;
 
                     Vector3d local = new(r * MathF.Cos(phi), r * MathF.Sin(phi), z);
@@ -89,17 +89,17 @@ internal class Material(MaterialType type, Vector3d emission)
         Vector3d b, c;
         if (MathF.Abs(normal.X) > MathF.Abs(normal.Y))
         {
-            float invLen = 1.0f / MathF.Sqrt(normal.X * normal.X + normal.Z * normal.Z);
+            float invLen = 1.0f / MathF.Sqrt((normal.X * normal.X) + (normal.Z * normal.Z));
             c = new(normal.Z * invLen, 0.0f, -normal.X * invLen);
         }
         else
         {
-            float invLen = 1.0f / MathF.Sqrt(normal.Y * normal.Y + normal.Z * normal.Z);
+            float invLen = 1.0f / MathF.Sqrt((normal.Y * normal.Y) + (normal.Z * normal.Z));
             c = new(0.0f, normal.Z * invLen, -normal.Y * invLen);
         }
 
         b = Vector3d.Cross(c, normal);
 
-        return local.X * b + local.Y * c + local.Z * normal;
+        return (local.X * b) + (local.Y * c) + (local.Z * normal);
     }
 }
