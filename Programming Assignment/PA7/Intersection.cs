@@ -16,7 +16,7 @@ internal struct Intersection
 
     public double Distance;
 
-    public Shape Shape;
+    public Handle<Shape> Shape;
 
-    public Material Material;
+    public Handle<Material> Material;
 }

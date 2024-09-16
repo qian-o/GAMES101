@@ -7,11 +7,18 @@ internal enum MaterialType
     Diffuse
 }
 
-internal class Material(MaterialType type, Vector3d emission)
+internal class Material : IDisposable
 {
-    public MaterialType Type { get; set; } = type;
+    public Material()
+    {
+        Handle = new(this);
+    }
 
-    public Vector3d Emission { get; set; } = emission;
+    public Handle<Material> Handle { get; }
+
+    public MaterialType Type { get; set; }
+
+    public Vector3d Emission { get; set; }
 
     public float Ior { get; set; }
 
@@ -101,5 +108,12 @@ internal class Material(MaterialType type, Vector3d emission)
         b = Vector3d.Cross(c, normal);
 
         return (local.X * b) + (local.Y * c) + (local.Z * normal);
+    }
+
+    public void Dispose()
+    {
+        Handle.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 }

@@ -68,8 +68,8 @@ internal class Triangle : Shape
             inter.Coords = ray.PointAt(tnear);
             inter.Normal = Normal;
             inter.Distance = tnear;
-            inter.Shape = this;
-            inter.Material = Material;
+            inter.Shape = Handle;
+            inter.Material = Material.Handle;
         }
 
         return inter;

@@ -2,8 +2,15 @@
 
 namespace PA7;
 
-internal abstract class Shape
+internal abstract class Shape : IDisposable
 {
+    protected Shape()
+    {
+        Handle = new(this);
+    }
+
+    public Handle<Shape> Handle { get; }
+
     public abstract bool Intersect(ref readonly Ray ray, ref float tnear, ref uint index);
 
     public abstract Intersection GetIntersection(ref readonly Ray ray);
@@ -19,4 +26,11 @@ internal abstract class Shape
     public abstract void Sample(ref Intersection intersection, ref float pdf);
 
     public abstract bool HasEmit();
+
+    public virtual void Dispose()
+    {
+        Handle.Dispose();
+
+        GC.SuppressFinalize(this);
+    }
 }
