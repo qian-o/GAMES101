@@ -13,7 +13,7 @@ internal class Mesh : Shape
         Vector3d maxVert = new(float.MinValue);
         float area = 0.0f;
 
-        foreach (var item in triangles)
+        foreach (Triangle item in triangles)
         {
             minVert = Vector3d.Min(minVert, item.GetBounds().Min);
             maxVert = Vector3d.Max(maxVert, item.GetBounds().Max);

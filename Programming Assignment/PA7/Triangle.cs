@@ -69,7 +69,7 @@ internal class Triangle : Shape
         double invDet = 1.0 / det;
         Vector3d tvec = ray.Origin - V0;
         u = Vector3d.Dot(tvec, pvec) * invDet;
-        if (u < 0.0 || u > 1.0)
+        if (u is < 0.0 or > 1.0)
         {
             return inter;
         }
