@@ -13,7 +13,7 @@ internal class Program
 
     private static void Main(string[] _)
     {
-        _window = new("PA 6");
+        _window = new("PA 7");
         _window.Load += Window_Load;
         _window.Render += Window_Render;
 
